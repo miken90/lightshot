@@ -218,6 +218,44 @@ public class EditorViewModelTests
         Assert.Single(sink.Written);
         Assert.Equal("test.png", sink.Written[0].Path);
     }
+
+    [Fact]
+    [Unit]
+    public void ArrowStyleRoundTripsAcrossJsonSettingsStoreInstances()
+    {
+        string tempDir = System.IO.Path.Combine(System.IO.Path.GetTempPath(), $"lightshot_test_{Guid.NewGuid():N}");
+        System.IO.Directory.CreateDirectory(tempDir);
+        string settingsFile = System.IO.Path.Combine(tempDir, "settings.json");
+
+        try
+        {
+            // 1. First instance: Set arrow style via EditorViewModel
+            var store1 = new Lightshot.Platform.Windows.Settings.JsonSettingsStore(settingsFile);
+            var doc1 = new AnnotationDocument(CreateTestImage());
+            var vm1 = new EditorViewModel(doc1, new TestImageSink(), new DocumentRenderer(), null, store1);
+
+            // Change arrow style
+            vm1.ArrowStyle = ArrowStyle.Curved;
+
+            // Assert store1 recorded the setting
+            Assert.Equal(((int)ArrowStyle.Curved).ToString(), store1.GetSetting(EditorViewModel.ArrowStyleDefaultsKey));
+
+            // 2. Second instance: Read setting from fresh JsonSettingsStore
+            var store2 = new Lightshot.Platform.Windows.Settings.JsonSettingsStore(settingsFile);
+            var doc2 = new AnnotationDocument(CreateTestImage());
+            var vm2 = new EditorViewModel(doc2, new TestImageSink(), new DocumentRenderer(), null, store2);
+
+            // Assert EditorViewModel restored the persisted arrow style
+            Assert.Equal(ArrowStyle.Curved, vm2.ArrowStyle);
+        }
+        finally
+        {
+            if (System.IO.Directory.Exists(tempDir))
+            {
+                System.IO.Directory.Delete(tempDir, true);
+            }
+        }
+    }
 }
 
 public class TestImageSink : IImageSink

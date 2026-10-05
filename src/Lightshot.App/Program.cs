@@ -61,8 +61,8 @@ public static class Program
         using var activateEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ActivateEventName);
 
         var app = new App();
-        using var tray = new TrayStub();
-        tray.Initialize();
+        using var controller = new AppController();
+        controller.Initialize();
 
         // 5. Register wait handle on quit event to cleanly shut down
         RegisteredWaitHandle? waitHandle = null;
@@ -70,7 +70,7 @@ public static class Program
             quitEvent,
             (state, timedOut) =>
             {
-                tray.Remove();
+                controller.Dispose();
                 app.Dispatcher.BeginInvoke(new Action(() =>
                 {
                     waitHandle?.Unregister(null);
@@ -81,8 +81,28 @@ public static class Program
             -1,
             true);
 
+        // 6. Register wait handle on activate event (e.g. from secondary process launch)
+        RegisteredWaitHandle? activateWaitHandle = null;
+        activateWaitHandle = ThreadPool.RegisterWaitForSingleObject(
+            activateEvent,
+            (state, timedOut) =>
+            {
+                controller.TriggerAreaCapture();
+            },
+            null,
+            -1,
+            false);
+
+        // Trigger area capture if started with --area or --capture-area
+        if (args.Contains("--area", StringComparer.OrdinalIgnoreCase) ||
+            args.Contains("--capture-area", StringComparer.OrdinalIgnoreCase))
+        {
+            app.Dispatcher.BeginInvoke(new Action(() => controller.TriggerAreaCapture()));
+        }
+
         int exitCode = app.Run();
-        tray.Remove();
+        activateWaitHandle?.Unregister(null);
+        controller.Dispose();
         return exitCode;
     }
 }

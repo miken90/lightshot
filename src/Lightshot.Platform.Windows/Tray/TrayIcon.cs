@@ -62,12 +62,16 @@ public sealed class TrayIcon : IDisposable
     [DllImport("user32.dll")]
     private static extern bool GetCursorPos(out POINT lpPoint);
 
+    private static readonly List<Win32Window.WndProc> s_pinnedWndProcs = new();
     private readonly Win32Window.WndProc _wndProc;
     private readonly string _className;
     private readonly IntPtr _hIcon;
     private IntPtr _hWnd;
     private bool _added;
     private bool _disposed;
+
+    public bool IsCreated => _added;
+    public bool IsAdded => _added;
 
     public HotkeyBindings? Bindings { get; set; }
     public IReadOnlyList<DisplayMenuItem>? Displays { get; set; }
@@ -81,6 +85,10 @@ public sealed class TrayIcon : IDisposable
     public TrayIcon(string tooltip = "Lightshot")
     {
         _wndProc = WndProc;
+        lock (s_pinnedWndProcs)
+        {
+            s_pinnedWndProcs.Add(_wndProc);
+        }
         _className = $"LightshotTrayHost_{Guid.NewGuid():N}";
         IntPtr hInst = Win32Window.GetModuleHandleW(null);
 
@@ -223,5 +231,8 @@ public sealed class TrayIcon : IDisposable
             Win32Window.DestroyWindow(_hWnd);
             _hWnd = IntPtr.Zero;
         }
+
+        IntPtr hInst = Win32Window.GetModuleHandleW(null);
+        Win32Window.UnregisterClassW(_className, hInst);
     }
 }
