@@ -1,6 +1,6 @@
 # Phase 4: Capture, overlay, hotkeys, tray, editor, clipboard and save (first usable app)
 
-Status: pending | Effort: 18d | Priority: P1 | Depends on: phase 3 (and the phase 2 verdicts)
+Status: done | Effort: 18d | Priority: P1 | Depends on: phase 3 (and the phase 2 verdicts)
 
 ## Overview
 
