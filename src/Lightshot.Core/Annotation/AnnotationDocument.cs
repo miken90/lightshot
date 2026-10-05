@@ -45,6 +45,7 @@ public class AnnotationDocument : IEquatable<AnnotationDocument>
     }
 
     public CapturedImage BaseImage { get; }
+    public CapturedImage Image => BaseImage;
 
     private State _state = new();
     private readonly List<State> _undoStack = [];

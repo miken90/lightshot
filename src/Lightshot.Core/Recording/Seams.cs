@@ -49,3 +49,35 @@ public interface IMediaMetadataSource
 {
     Task<VideoMetadata?> VideoMetadataAsync(string path);
 }
+
+/// <summary>
+/// Where a pending recording originated and what a dismissal owes it.
+/// </summary>
+public abstract record RecordingOrigin
+{
+    public sealed record Scratch : RecordingOrigin;
+    public sealed record FreshInHistory(Guid Id) : RecordingOrigin;
+    public sealed record HistoryItem(Guid Id) : RecordingOrigin;
+}
+
+/// <summary>
+/// A finished take waiting in the post-recording overlay.
+/// </summary>
+public record PendingRecording(
+    string File,
+    RecordingOutputKind Kind,
+    double Duration,
+    RecordingOrigin? Origin = null,
+    string? SuggestedName = null)
+{
+    public RecordingOrigin Origin { get; init; } = Origin ?? new RecordingOrigin.Scratch();
+
+    public Guid? HistoryRecordId => Origin switch
+    {
+        RecordingOrigin.FreshInHistory fresh => fresh.Id,
+        RecordingOrigin.HistoryItem item => item.Id,
+        _ => null
+    };
+
+    public bool IsNew => Origin is not RecordingOrigin.HistoryItem;
+}

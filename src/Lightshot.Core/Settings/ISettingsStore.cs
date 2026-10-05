@@ -2,6 +2,7 @@
 // MIT License, Copyright (c) 2026 Viet Le
 
 using System;
+using System.IO;
 
 namespace Lightshot.Core;
 
@@ -26,4 +27,35 @@ public interface ISettingsStore
     bool OcrKeepsLineBreaks { get; set; }
     bool HideDesktopIcons { get; set; }
     bool AdjustAreaBeforeCapture { get; set; }
+    QuickAccessSettings QuickAccess { get; set; }
+}
+
+public static class SettingsStoreExtensions
+{
+    public static string DefaultDestination(this ISettingsStore settings, DateTime? date = null)
+    {
+        var d = date ?? DateTime.Now;
+        return new FilenameFormatter(settings.FilenamePattern)
+            .DestinationPath(settings.SaveLocation, settings.DefaultFormat, d);
+    }
+
+    public static string RecordingDestination(this ISettingsStore settings, RecordingOutputKind kind, DateTime? date = null)
+    {
+        return settings.RecordingDestination(kind == RecordingOutputKind.Video ? "mp4" : "gif", date);
+    }
+
+    public static string RecordingDestination(this ISettingsStore settings, string pathExtension, DateTime? date = null)
+    {
+        var d = date ?? DateTime.Now;
+        var name = new FilenameFormatter(settings.FilenamePattern).Filename(d);
+        return settings.RecordingDestination(name, pathExtension, d);
+    }
+
+    public static string RecordingDestination(this ISettingsStore settings, string name, string pathExtension, DateTime? date = null)
+    {
+        var safe = FilenameFormatter.Sanitized(name) ?? new FilenameFormatter(settings.FilenamePattern).Filename(date ?? DateTime.Now);
+        var ext = pathExtension.TrimStart('.');
+        var filename = string.IsNullOrEmpty(ext) ? safe : $"{safe}.{ext}";
+        return Path.Combine(settings.SaveLocation, filename).Replace('\\', '/');
+    }
 }

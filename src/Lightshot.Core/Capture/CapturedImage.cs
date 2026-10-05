@@ -15,4 +15,21 @@ public readonly record struct CapturedImage(int PixelWidth, int PixelHeight, Rea
         : this(pixelWidth, pixelHeight, new ReadOnlyMemory<byte>(data))
     {
     }
+
+    public bool Equals(CapturedImage other)
+    {
+        return PixelWidth == other.PixelWidth
+            && PixelHeight == other.PixelHeight
+            && Data.Span.SequenceEqual(other.Data.Span);
+    }
+
+    public override int GetHashCode()
+    {
+        var hash = HashCode.Combine(PixelWidth, PixelHeight);
+        if (!Data.IsEmpty)
+        {
+            hash = HashCode.Combine(hash, Data.Length, Data.Span[0]);
+        }
+        return hash;
+    }
 }
