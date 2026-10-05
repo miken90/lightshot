@@ -30,7 +30,7 @@ A Windows 11 (build 22621+) per-user app, installed by Velopack, that matches th
 
 | # | File | Usable slice shipped | Effort | Status | Depends on |
 |---|---|---|---|---|---|
-| 1 | [phase-01-scaffold-and-scripts.md](phase-01-scaffold-and-scripts.md) | Buildable, testable repo driven from WSL; empty tray app launches | 3d | pending | none |
+| 1 | [phase-01-scaffold-and-scripts.md](phase-01-scaffold-and-scripts.md) | Buildable, testable repo driven from WSL; empty tray app launches | 3d | done | none |
 | 2 | [phase-02-spikes-and-go-no-go.md](phase-02-spikes-and-go-no-go.md) | Five measured verdicts and a go/no-go record | 13-15d | pending | 1 |
 | 3 | [phase-03-core-and-rendering.md](phase-03-core-and-rendering.md) | Tested domain library and deterministic `render()` | 12d | pending | 1 (only Core/Capture interfaces wait for spike A verdict; split gates: A, D gate 4; B gates 7; C gates 8; E gates 6, 8, 10) |
 | 4 | [phase-04-capture-editor-mvp.md](phase-04-capture-editor-mvp.md) | **First usable app**: hotkey, area/window/display capture, editor, copy/save | 18d | pending | 3, 2 (spikes A, D) |

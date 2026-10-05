@@ -1,6 +1,6 @@
 # Phase 1: Repo scaffold and Windows scripts
 
-Status: pending | Effort: 3d | Priority: P1 | Depends on: none
+Status: done | Effort: 3d | Priority: P1 | Depends on: none
 
 ## Overview
 
