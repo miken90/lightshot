@@ -12,7 +12,7 @@ Internal packages (sequential, one owner each folder): R1 selection and chrome w
 
 - Fix the source bug: the source records rect and window areas on the primary display only (`content.displays.first`, APP §3). Here the selection is confined to one display (the one with largest overlap, clamped to it), the overlay covers every display, and capture uses that display's output.
 - Pipeline (RULING §8): DDA -> GPU video processor (crop, scale, BGRA to NV12) -> MF sink writer, hardware H.264/HEVC, fragmented MP4. Window pick records its area (spec 0006). DDA delivers frames only on change: `FrameCadencePlanner` repeats the last frame to hold constant fps and the session end is stamped from the QPC clock before stopping capture.
-- Audio: WASAPI microphone and process-loopback excluding our process, timestamps stamped against render endpoint clock (`IAudioClock` / QPC) per Spike B gate decision, pause offsets; one mixed AAC track or separate tracks; AAC 48 kHz, 96 kbps mono or 160 kbps stereo per track; muted/disconnected warnings; remembered device falls back to default.
+- Audio: WASAPI microphone and process-loopback excluding our process, timestamps stamped against render endpoint clock (`IAudioClock` / QPC) per Spike B gate decision, pause offsets; default is one mixed AAC track; separate tracks (two AAC tracks; browsers play only the first) is an opt-in setting; AAC 48 kHz, 96 kbps mono or 160 kbps stereo per track; muted/disconnected warnings; remembered device falls back to default.
 - Video bit rate from Core `VideoBitRate` (about 0.1 bits per pixel per frame); max key-frame interval 2 s; output size = region pixels, optionally capped by max resolution, rounded down to even, minimum 2.
 - Pause and resume are a presentation-time offset; frames and audio while paused are dropped.
 - Own chrome never in the recording: pill, frame, dim, countdown use `WDA_EXCLUDEFROMCAPTURE`. (Camera bubble deferred post-MVP).
@@ -20,7 +20,7 @@ Internal packages (sequential, one owner each folder): R1 selection and chrome w
 - Hide desktop icons: reuse `DesktopCover` (phase 5); shown before capture starts and removed on every end path.
 - Hide notifications (DEGRADE/CONFLICT): no public toggle exists. Detect with `SHQueryUserNotificationState` and, when the setting is on and notifications would show, display a guidance banner with a button opening `ms-settings:notifications`; never write undocumented registry state. If the empirical check in step 1 shows the API does not reflect Do Not Disturb on this Windows build, the banner is shown once per session without detection.
 - Display kept awake during a take (`PowerCreateRequest` with display-required).
-- Crash recovery at launch: `.mp4`/`.gif` in scratch offered as undelivered; `.partial` deleted; a playable fragmented file of at least 0.5 s remuxed to a normal MP4 (stripping MF `mfra` per Spike B gate); failed streams delete their own partial so recovery does not mistake them for a crash.
+- Crash recovery at launch: `.mp4`/`.gif` in scratch offered as undelivered; `*.partial` remux/GIF outputs deleted; a fragmented take (`*.frag.mp4`, renamed from the data-flow `.partial.mp4`) of at least 0.5 s is mfra-stripped and remuxed by the same validated, retry-once finaliser (step 4); a take whose remux still fails is kept, listed as "not finalised" with Show file, and never deleted automatically; failed streams delete their own take so recovery does not mistake them for a crash.
 - GIF: record video, then convert (`GifFramePlan`, minimum delay 2 cs, posterise depth `4 + round(quality * 4)`, transparency optimise within 8/255, `.partial` renamed on success, cancel removes the partial, cancel-to-video choice).
 - HEVC availability varies (decoder extensions): detect encoder and decoder MFTs; hide HEVC when either is missing and default to H.264.
 - Video editor: `TrimRange` minimum 0.5 s, `VideoDimensions` presets, bit rate and size estimate; Trim Only (compressed-sample passthrough) or Trim and Convert (H.264 High, AAC 48 kHz); save as new, replace, revert. DEGRADE: Trim Only starts at the key frame at or before the chosen point (<= 2 s early); the dialog shows the snapped time.
@@ -29,12 +29,12 @@ Internal packages (sequential, one owner each folder): R1 selection and chrome w
 ## Data flow
 
 ```
-selection (overlay) -> RecordingChoice -> RecordingOptions.Resolve -> scratch .partial.mp4 (fragmented)
+selection (overlay) -> RecordingChoice -> RecordingOptions.Resolve -> scratch .frag.mp4 (fragmented)
 DDA frame -> crop/scale/NV12 (video processor) -> [burn-in pass if studio==false] -> MF sink writer video input
 mic / loopback (render endpoint clock / QPC) -> AudioMixer or separate -> AAC inputs
 hooks -> event channel -> click / keystroke overlay or burn-in
 [Camera frames -> bubble preview + camera movie deferred post-MVP]
-stop -> finalize -> remux to progressive MP4 (strip mfra) -> delete partial -> History / overlay / editor
+stop -> finalize -> remux to progressive MP4 (strip mfra) -> delete take -> History / overlay / editor
 ```
 
 ## Files
@@ -43,7 +43,7 @@ Create under `src/Lightshot.Platform.Windows/`:
 
 | Folder | Files |
 |---|---|
-| `Recording/` | `WindowsRecordingService.cs` (`IRecordingService`), `RecordingEngine.cs`, `DdaFrameSource.cs`, `VideoProcessorPipeline.cs`, `CadenceDriver.cs`, `MfFragmentedWriter.cs`, `EncoderSelector.cs`, `PauseClock.cs`, `QpcClock.cs`, `BurnInCompositor.cs`, `StudioTakeRecorder.cs`, `ScratchStore.cs`, `Mp4Remuxer.cs`, `RecordingRecovery.cs`, `PowerRequest.cs`, `RecordingSounds.cs` |
+| `Recording/` | `WindowsRecordingService.cs` (`IRecordingService`), `RecordingEngine.cs`, `DdaFrameSource.cs`, `VideoProcessorPipeline.cs`, `CadenceDriver.cs`, `MfFragmentedWriter.cs`, `EncoderSelector.cs`, `PauseClock.cs`, `QpcClock.cs`, `BurnInCompositor.cs`, `StudioTakeRecorder.cs`, `ScratchStore.cs`, `Mp4Remuxer.cs`, `TakeFinalizer.cs` (retry/validate seam over `IRemuxer`), `RecordingRecovery.cs`, `PowerRequest.cs`, `RecordingSounds.cs` |
 | `Audio/` | `WasapiMicrophone.cs`, `ProcessLoopbackCapture.cs`, `AudioDeviceService.cs` (`IAudioInputService`), `PcmFrames.cs`, `AudioLevelMeter.cs` |
 | `Input/` | `HookThread.cs`, `MouseEventSource.cs`, `KeyEventSource.cs` (`IInputEventSource`), `KeyTranslator.cs`, `SecureInputProbe.cs` (UIA) |
 | `Media/` | `MfMediaMetadata.cs` (`IMediaMetadataSource`), `MfGifEncoder.cs`, `MfVideoTrimmer.cs`, `MfTranscoder.cs`, `SystemMediaSink.cs` (`IMediaSink`: clipboard file, save, move, copy, Recycle Bin, delete) |
@@ -76,7 +76,7 @@ Modify: `AppController.cs` (recording `CaptureUI` members), `Tray/TrayMenu.cs` (
 1. Empirical check first: log `SHQueryUserNotificationState` while toggling Do Not Disturb on this build; decide detection vs once-per-session banner.
 2. R2 core: `ScratchStore` (`%LocalAppData%\Lightshot\Recordings`), `QpcClock`, `PauseClock`, `FrameCadencePlanner` driver. DDA source on the output's adapter with `AcquireNextFrame` timeouts as "no change"; recreate duplication on `DXGI_ERROR_ACCESS_LOST` (UAC secure desktop, mode change); abort cleanly with a message on resolution change mid-take.
 3. Encoder: `EncoderSelector` probes hardware H.264/HEVC MFTs, falls back to the software H.264 encoder; sink writer configured with D3D manager, average bit rate from `VideoBitRate`, GOP 2 s, fragmented MP4 container; per-stream AAC; write progress to the session; disk-full maps to `RecordingError.diskFull`.
-4. Finalise: end the session at the stop timestamp taken before stopping capture (static tail kept), then `Mp4Remuxer` (passthrough source reader to sink writer) producing a faststart MP4, strip trailing MF `mfra` box (mitigating MF `tfra` offset defect per Spike B finding), delete the partial; on remux failure deliver the fragmented file as is.
+4. Finalise: end the session at the stop timestamp taken before stopping capture (static tail kept); strip the trailing MF `mfra` box from the fragmented take immediately after the sink writer finalises (before any reader opens it; Spike B `tfra` defect). Then `Mp4Remuxer` (passthrough source reader to sink writer with `MF_MPEG4SINK_MOOV_BEFORE_MDAT`) writes `<name>.mp4.partial` and validates it: moov before mdat, the same stream count and types as the take, and a duration within 100 ms. Only then is it renamed to `.mp4`, delivered, and the take deleted. On failure (exception or validation) delete the remux partial and retry once after 2 s (antivirus or indexer locks). On the second failure, deliver nothing and add nothing to History. Keep the take in scratch as a recoverable take and show an error ("Recording saved but could not be finalised") with Show file (Explorer selects the take) and Retry; disk full maps to `RecordingError.diskFull`. A take is never deleted after a failed remux.
 5. R3 audio: mic via WASAPI (shared mode, 48 kHz float), loopback via process-exclude activation; loopback stamped against the render endpoint clock (`IAudioClock` position on render device smoothed by drift filter per Spike B gate decision), mic stamped from device position (`qpcPosition`) before contiguity; disconnect notification raises `audioSourceLost` while video continues.
 6. R5 input: hook thread with its own message loop; callbacks write to a bounded lock-free queue and return; a consumer thread builds events with source-second stamps; mouse position seeded at start; keys require the toggle only (no permission on Windows); `SecureInputProbe` subscribes to UIA focus events.
 7. R1 chrome: recording selection with 8 handles, 1 px and 10 px nudge, aspect lock with the ratios in Core `EditableSelection`, typed size, window pick records its area; default rect is a centred 720p area; `RecordingFrameWindow` draws the 3 px red border pulsing 1..0.3 and dims outside (raw HWND + DComp, click-through, excluded from capture); `CountdownWindow` is click-through so the user can interact with the target app.
@@ -113,6 +113,10 @@ Modify: `AppController.cs` (recording `CaptureUI` members), `Tray/TrayMenu.cs` (
 | Start, pause, stop end to end | `Lightshot.App.UiTests.RecordingFlowTests.StartPauseStopProducesPlayableFile` (`Desktop`) |
 | Recording survives encoder fallback when hardware MFT is absent | `Lightshot.Platform.Windows.Tests.EncoderSelectorTests.FallsBackToSoftwareH264` (`Unit`, fake MFT list) |
 | Burn-in pixels (rings, pills; camera bubble deferred) | `Lightshot.Platform.Windows.Tests.BurnInCompositorTests.DrawsRingsPillsAndBubble` (`Gpu`, WARP; conditioned on phase 3 reachability decision in `docs/porting/defaults.md`, else dropped) |
+| Remuxed file is faststart with every stream and no sawtooth | `Lightshot.Platform.Windows.Tests.Mp4RemuxerTests.OutputHasMoovBeforeMdatAndAllStreams` (`Media`), `Mp4RemuxerTests.DecodedTimestampsNeverStepBackward` (`Media`) |
+| mfra stripped only when a valid trailing mfro/mfra pair exists | `Lightshot.Platform.Windows.Tests.MfFragmentedWriterTests.StripsOnlyValidTrailingMfra` (`Unit`, synthetic boxes) |
+| Remux failure retries once, then keeps the take, delivers nothing, reports error | `Lightshot.Platform.Windows.Tests.TakeFinalizerTests.RetriesOnceThenKeepsTakeAndReportsError` (`Unit`, fake remuxer), `TakeFinalizerTests.SecondAttemptSuccessDeliversNormally` (`Unit`) |
+| Recovery keeps a take whose remux fails | `Lightshot.Platform.Windows.Tests.RecordingRecoveryTests.KeepsTakeWhoseRemuxFails` (`Unit`, temp dir) |
 | Keystroke capture in elevated windows | UNCOVERED: needs an elevated target; documented limitation |
 | Bluetooth mic loss, sleep/lock during a take | UNCOVERED: hardware and OS state; manual checklist |
 | Visual quality of pulse, dim, pills | UNCOVERED: visual; manual checklist |
