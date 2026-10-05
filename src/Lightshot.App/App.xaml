@@ -3,5 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              ShutdownMode="OnExplicitShutdown">
     <Application.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/Lightshot.App;component/Resources/Icons/ToolIcons.xaml"/>
+                <ResourceDictionary Source="pack://application:,,,/Lightshot.App;component/Theming/Themes/Light.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+            <!-- Light ink for dark-chrome tool palette (palette is dark chrome whatever the app theme) -->
+            <SolidColorBrush x:Key="Icon.Brush" Color="#E0E0E0"/>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>

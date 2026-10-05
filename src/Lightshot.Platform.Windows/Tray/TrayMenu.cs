@@ -94,10 +94,10 @@ public static class TrayMenu
             // Separator
             AppendMenuW(hMenu, MF_SEPARATOR, UIntPtr.Zero, string.Empty);
 
-            // History placeholder (disabled)
-            AppendMenuW(hMenu, MF_STRING | MF_GRAYED | MF_DISABLED, new UIntPtr(CMD_HISTORY), "History");
+            // History
+            AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_HISTORY), "History");
 
-            // Settings placeholder
+            // Settings
             AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_SETTINGS), "Settings...");
 
             // Separator

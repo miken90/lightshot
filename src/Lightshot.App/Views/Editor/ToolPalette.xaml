@@ -5,28 +5,6 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d">
     <UserControl.Resources>
-        <!-- Icon control with automatic text fallback if DynamicResource is null -->
-        <Style x:Key="ToolIconStyle" TargetType="ContentControl">
-            <Setter Property="IsHitTestVisible" Value="False"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Style.Triggers>
-                <Trigger Property="Content" Value="{x:Null}">
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="ContentControl">
-                                <TextBlock Text="{Binding Tag, RelativeSource={RelativeSource AncestorType=Button}}" 
-                                           FontSize="11" 
-                                           VerticalAlignment="Center" 
-                                           HorizontalAlignment="Center"
-                                           TextTrimming="CharacterEllipsis"/>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
         <!-- Tool button style with pill/capsule indicator when active -->
         <Style x:Key="ToolButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="28"/>
@@ -57,44 +35,44 @@
     <StackPanel Orientation="Horizontal">
         <!-- Separate Crop button -->
         <Button x:Name="CropButton" Style="{StaticResource ToolButtonStyle}" Tag="Crop" ToolTip="Crop (C)" Click="OnToolClick">
-            <ContentControl Content="{DynamicResource Icon.Crop}" Style="{StaticResource ToolIconStyle}"/>
+            <Image Source="{DynamicResource Icon.Crop}" Width="16" Height="16"/>
         </Button>
 
         <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="4,4,4,4" Background="#444444"/>
 
         <!-- Annotation Tools -->
         <Button x:Name="SelectButton" Style="{StaticResource ToolButtonStyle}" Tag="Select" ToolTip="Select (V)" Click="OnToolClick">
-            <ContentControl Content="{DynamicResource Icon.Select}" Style="{StaticResource ToolIconStyle}"/>
+            <Image Source="{DynamicResource Icon.Select}" Width="16" Height="16"/>
         </Button>
         <Button x:Name="ArrowButton" Style="{StaticResource ToolButtonStyle}" Tag="Arrow" ToolTip="Arrow (A)" Click="OnToolClick">
-            <ContentControl Content="{DynamicResource Icon.Arrow}" Style="{StaticResource ToolIconStyle}"/>
+            <Image Source="{DynamicResource Icon.Arrow}" Width="16" Height="16"/>
         </Button>
         <Button x:Name="LineButton" Style="{StaticResource ToolButtonStyle}" Tag="Line" ToolTip="Line (L)" Click="OnToolClick">
-            <ContentControl Content="{DynamicResource Icon.Line}" Style="{StaticResource ToolIconStyle}"/>
+            <Image Source="{DynamicResource Icon.Line}" Width="16" Height="16"/>
         </Button>
         <Button x:Name="RectangleButton" Style="{StaticResource ToolButtonStyle}" Tag="Rectangle" ToolTip="Rectangle (R)" Click="OnToolClick">
-            <ContentControl Content="{DynamicResource Icon.Rectangle}" Style="{StaticResource ToolIconStyle}"/>
+            <Image Source="{DynamicResource Icon.Rectangle}" Width="16" Height="16"/>
         </Button>
         <Button x:Name="EllipseButton" Style="{StaticResource ToolButtonStyle}" Tag="Ellipse" ToolTip="Ellipse (O)" Click="OnToolClick">
-            <ContentControl Content="{DynamicResource Icon.Ellipse}" Style="{StaticResource ToolIconStyle}"/>
+            <Image Source="{DynamicResource Icon.Ellipse}" Width="16" Height="16"/>
         </Button>
         <Button x:Name="FreehandButton" Style="{StaticResource ToolButtonStyle}" Tag="Freehand" ToolTip="Pen (P)" Click="OnToolClick">
-            <ContentControl Content="{DynamicResource Icon.Freehand}" Style="{StaticResource ToolIconStyle}"/>
+            <Image Source="{DynamicResource Icon.Freehand}" Width="16" Height="16"/>
         </Button>
         <Button x:Name="TextButton" Style="{StaticResource ToolButtonStyle}" Tag="Text" ToolTip="Text (T)" Click="OnToolClick">
-            <ContentControl Content="{DynamicResource Icon.Text}" Style="{StaticResource ToolIconStyle}"/>
+            <Image Source="{DynamicResource Icon.Text}" Width="16" Height="16"/>
         </Button>
         <Button x:Name="StepButton" Style="{StaticResource ToolButtonStyle}" Tag="Step" ToolTip="Step Marker (S)" Click="OnToolClick">
-            <ContentControl Content="{DynamicResource Icon.Step}" Style="{StaticResource ToolIconStyle}"/>
+            <Image Source="{DynamicResource Icon.Step}" Width="16" Height="16"/>
         </Button>
         <Button x:Name="HighlightButton" Style="{StaticResource ToolButtonStyle}" Tag="Highlight" ToolTip="Highlighter (H)" Click="OnToolClick">
-            <ContentControl Content="{DynamicResource Icon.Highlight}" Style="{StaticResource ToolIconStyle}"/>
+            <Image Source="{DynamicResource Icon.Highlight}" Width="16" Height="16"/>
         </Button>
         <Button x:Name="FocusButton" Style="{StaticResource ToolButtonStyle}" Tag="Focus" ToolTip="Focus (F)" Click="OnToolClick">
-            <ContentControl Content="{DynamicResource Icon.Focus}" Style="{StaticResource ToolIconStyle}"/>
+            <Image Source="{DynamicResource Icon.Focus}" Width="16" Height="16"/>
         </Button>
         <Button x:Name="RedactButton" Style="{StaticResource ToolButtonStyle}" Tag="Redact" ToolTip="Redact (E)" Click="OnToolClick">
-            <ContentControl Content="{DynamicResource Icon.Redact}" Style="{StaticResource ToolIconStyle}"/>
+            <Image Source="{DynamicResource Icon.Redact}" Width="16" Height="16"/>
         </Button>
     </StackPanel>
 </UserControl>

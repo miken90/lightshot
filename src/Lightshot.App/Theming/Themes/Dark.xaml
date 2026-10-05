@@ -1,0 +1,60 @@
+<!-- Ported from LightshotKit/Sources/LightshotKit/ThemePalette.swift -->
+<!-- MIT License, Copyright (c) 2026 Viet Le -->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Chrome & Panels -->
+    <SolidColorBrush x:Key="Theme.Panel" Color="#FF2B3038"/>
+    <SolidColorBrush x:Key="Theme.PanelEdge" Color="#14FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.PanelEdgeStrong" Color="#2EFFFFFF"/>
+    <SolidColorBrush x:Key="Theme.PanelShadow" Color="#4D000000"/>
+    <SolidColorBrush x:Key="Theme.GridLine" Color="#17FFFFFF"/>
+
+    <!-- Controls -->
+    <SolidColorBrush x:Key="Theme.ControlHover" Color="#1AFFFFFF"/>
+    <SolidColorBrush x:Key="Theme.ControlOn" Color="#24FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.ControlHoverEdge" Color="#2EFFFFFF"/>
+    <SolidColorBrush x:Key="Theme.CellHover" Color="#12FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.CellOn" Color="#4D000000"/>
+    <SolidColorBrush x:Key="Theme.CellOnHover" Color="#66000000"/>
+    <SolidColorBrush x:Key="Theme.Well" Color="#59000000"/>
+    <SolidColorBrush x:Key="Theme.RowHover" Color="#14FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.HelpFill" Color="#38FFFFFF"/>
+
+    <!-- Tooltips -->
+    <SolidColorBrush x:Key="Theme.TipBackground" Color="#D9000000"/>
+    <SolidColorBrush x:Key="Theme.TipText" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="Theme.TipEdge" Color="#26FFFFFF"/>
+
+    <!-- Typography & Glyphs -->
+    <SolidColorBrush x:Key="Theme.TextPrimary" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="Theme.TextStrong" Color="#D9FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.Glyph" Color="#BFFFFFFF"/>
+    <SolidColorBrush x:Key="Theme.GlyphOff" Color="#99FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.TextSecondary" Color="#8CFFFFFF"/>
+    <SolidColorBrush x:Key="Theme.TextTertiary" Color="#80FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.TextDisabled" Color="#59FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.OnAccent" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="Theme.Warning" Color="#FFFF9E0A"/>
+
+    <!-- Studio -->
+    <SolidColorBrush x:Key="Theme.StudioCanvas" Color="#FF1F1F1F"/>
+    <SolidColorBrush x:Key="Theme.StudioDivider" Color="#14FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.StudioControl" Color="#14FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.StudioClip" Color="#FF404552"/>
+    <SolidColorBrush x:Key="Theme.ClipEdge" Color="#26FFFFFF"/>
+    <SolidColorBrush x:Key="Theme.SelectionRing" Color="#FFFFFFFF"/>
+    <SolidColorBrush x:Key="Theme.PreviewShadow" Color="#66000000"/>
+
+    <!-- Accents (same in Light and Dark) -->
+    <SolidColorBrush x:Key="Theme.AccentBlue" Color="#FF0A85FF"/>
+    <SolidColorBrush x:Key="Theme.Playhead" Color="#FFFF453B"/>
+    <SolidColorBrush x:Key="Theme.TimelineSelection" Color="#FFFFCC33"/>
+    <SolidColorBrush x:Key="Theme.ZoomAccent" Color="#FF7359F2"/>
+    <SolidColorBrush x:Key="Theme.TextAccent" Color="#FFF28C33"/>
+    <SolidColorBrush x:Key="Theme.TrimAccent" Color="#FFE03D4D"/>
+    <SolidColorBrush x:Key="Theme.SpeedAccent" Color="#FF148C6B"/>
+    <SolidColorBrush x:Key="Theme.StudioPink" Color="#FFF26699"/>
+    <SolidColorBrush x:Key="Theme.StudioViolet" Color="#FF9973F2"/>
+
+</ResourceDictionary>

@@ -1,0 +1,52 @@
+<UserControl x:Class="Lightshot.App.Views.Settings.AdvancedPane"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="450">
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="16">
+            <TextBlock Text="Advanced Settings" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+            <TextBlock Text="Performance, magnification, and developer options." Foreground="{DynamicResource Theme.TextSecondary}" Margin="0,0,0,16"/>
+
+            <GroupBox Header="Magnifier" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,12" Padding="8">
+                <StackPanel>
+                    <TextBlock Text="Magnifier Zoom Factor:" Foreground="{DynamicResource Theme.TextSecondary}" Margin="0,0,0,4"/>
+                    <ComboBox SelectedIndex="1" Width="120" HorizontalAlignment="Left" Margin="0,0,0,4">
+                        <ComboBoxItem Content="2x" />
+                        <ComboBoxItem Content="4x" />
+                        <ComboBoxItem Content="8x" />
+                    </ComboBox>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="Capture &amp; OCR Options" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,12" Padding="8">
+                <StackPanel>
+                    <CheckBox Content="Hide desktop icons during capture" 
+                              IsChecked="{Binding HideDesktopIcons, Mode=TwoWay}"
+                              Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+                    <CheckBox Content="OCR preserves line breaks" 
+                              IsChecked="{Binding OcrKeepsLineBreaks, Mode=TwoWay}"
+                              Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+                    <DockPanel Margin="0,0,0,8">
+                        <TextBlock Text="Capture delay (seconds): " Foreground="{DynamicResource Theme.TextPrimary}" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding CaptureDelay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60" HorizontalAlignment="Left"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,0,0,8">
+                        <TextBlock Text="History retention (days): " Foreground="{DynamicResource Theme.TextPrimary}" VerticalAlignment="Center"/>
+                        <TextBox Text="{Binding HistoryRetention, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60" HorizontalAlignment="Left"/>
+                    </DockPanel>
+                </StackPanel>
+            </GroupBox>
+
+            <GroupBox Header="Rendering &amp; Diagnostics" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,12" Padding="8">
+                <StackPanel>
+                    <CheckBox Content="Use hardware acceleration (GPU)" IsChecked="True" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+                    <CheckBox Content="Override target DPI scaling" IsChecked="False" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+                    <Button Content="Flush Diagnostic Buffer" Width="160" HorizontalAlignment="Left" Margin="0,8,0,0" Padding="8,4"/>
+                </StackPanel>
+            </GroupBox>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

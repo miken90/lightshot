@@ -1,0 +1,62 @@
+<UserControl x:Class="Lightshot.App.Views.Settings.ShortcutsPane"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Lightshot.App.Views.Settings"
+             mc:Ignorable="d" 
+             d:DesignHeight="350" d:DesignWidth="450">
+    <StackPanel Margin="16">
+        <TextBlock Text="Global Shortcuts" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,12"/>
+
+        <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Capture Area" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
+            <local:HotkeyRecorder x:Name="AreaRecorder" Grid.Column="1"/>
+        </Grid>
+
+        <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Capture Fullscreen" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
+            <local:HotkeyRecorder x:Name="FullscreenRecorder" Grid.Column="1"/>
+        </Grid>
+
+        <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Capture Window" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
+            <local:HotkeyRecorder x:Name="WindowRecorder" Grid.Column="1"/>
+        </Grid>
+
+        <Grid Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Repeat Last Capture" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
+            <local:HotkeyRecorder x:Name="RepeatLastRecorder" Grid.Column="1"/>
+        </Grid>
+
+        <TextBlock x:Name="ConflictWarning" 
+                   Text="⚠ Some shortcuts conflict with each other or are reserved by Windows."
+                   Foreground="{DynamicResource Theme.Warning}" 
+                   Visibility="Collapsed" 
+                   Margin="0,0,0,12"/>
+
+        <Button Content="Reset Shortcuts to Defaults" 
+                HorizontalAlignment="Left" 
+                Padding="12,4" 
+                Background="{DynamicResource Theme.Panel}" 
+                Foreground="{DynamicResource Theme.TextPrimary}"
+                BorderBrush="{DynamicResource Theme.PanelEdgeStrong}"
+                Click="OnResetDefaultsClick"/>
+    </StackPanel>
+</UserControl>

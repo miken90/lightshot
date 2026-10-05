@@ -62,13 +62,16 @@ public sealed class TrayIcon : IDisposable
     [DllImport("user32.dll")]
     private static extern bool GetCursorPos(out POINT lpPoint);
 
+    private const uint WM_SETTINGCHANGE = 0x001A;
+
     private static readonly List<Win32Window.WndProc> s_pinnedWndProcs = new();
     private readonly Win32Window.WndProc _wndProc;
     private readonly string _className;
-    private readonly IntPtr _hIcon;
+    private IntPtr _hIcon;
     private IntPtr _hWnd;
     private bool _added;
     private bool _disposed;
+    private bool _currentSystemUsesLightTheme;
 
     public bool IsCreated => _added;
     public bool IsAdded => _added;
@@ -79,6 +82,7 @@ public sealed class TrayIcon : IDisposable
     public Action<CaptureAction>? OnCaptureAction { get; set; }
     public Action<uint>? OnFullscreenDisplayCapture { get; set; }
     public Action? OnOpenFile { get; set; }
+    public Action? OnHistory { get; set; }
     public Action? OnSettings { get; set; }
     public Action? OnQuit { get; set; }
 
@@ -106,7 +110,8 @@ public sealed class TrayIcon : IDisposable
             0, _className, "TrayHost", 0, 0, 0, 0, 0,
             Win32Window.HWND_MESSAGE, IntPtr.Zero, hInst, IntPtr.Zero);
 
-        _hIcon = TrayIconAssets.CreatePlaceholderTrayIcon();
+        _currentSystemUsesLightTheme = TrayIconAssets.GetSystemUsesLightTheme();
+        _hIcon = TrayIconAssets.LoadTrayIcon(_currentSystemUsesLightTheme);
 
         var nid = new NOTIFYICONDATAW
         {
@@ -143,6 +148,16 @@ public sealed class TrayIcon : IDisposable
 
     private IntPtr WndProc(IntPtr hWnd, uint uMsg, IntPtr wParam, IntPtr lParam)
     {
+        if (uMsg == WM_SETTINGCHANGE)
+        {
+            bool newSystemLight = TrayIconAssets.GetSystemUsesLightTheme();
+            if (newSystemLight != _currentSystemUsesLightTheme)
+            {
+                UpdateTheme(newSystemLight);
+            }
+            return IntPtr.Zero;
+        }
+
         if (uMsg == WM_TRAYCALLBACK)
         {
             uint eventId = unchecked((uint)lParam.ToInt64() & 0xFFFF);
@@ -162,6 +177,39 @@ public sealed class TrayIcon : IDisposable
         }
 
         return Win32Window.DefWindowProcW(hWnd, uMsg, wParam, lParam);
+    }
+
+    public void UpdateTheme(bool systemUsesLightTheme)
+    {
+        if (_disposed) return;
+        _currentSystemUsesLightTheme = systemUsesLightTheme;
+        IntPtr newIcon = TrayIconAssets.LoadTrayIcon(systemUsesLightTheme);
+        if (newIcon != IntPtr.Zero)
+        {
+            UpdateIcon(newIcon);
+        }
+    }
+
+    public void UpdateIcon(IntPtr newIcon)
+    {
+        if (!_added || _disposed || newIcon == IntPtr.Zero) return;
+        IntPtr oldIcon = _hIcon;
+        _hIcon = newIcon;
+
+        var nid = new NOTIFYICONDATAW
+        {
+            cbSize = (uint)Marshal.SizeOf<NOTIFYICONDATAW>(),
+            hWnd = _hWnd,
+            uID = 1,
+            uFlags = NIF_ICON,
+            hIcon = _hIcon
+        };
+        Shell_NotifyIconW(NIM_MODIFY, ref nid);
+
+        if (oldIcon != IntPtr.Zero && oldIcon != newIcon)
+        {
+            TrayIconAssets.DestroyIcon(oldIcon);
+        }
     }
 
     private void ShowContextMenu()
@@ -184,6 +232,9 @@ public sealed class TrayIcon : IDisposable
                 break;
             case TrayMenu.CMD_OPEN_FILE:
                 OnOpenFile?.Invoke();
+                break;
+            case TrayMenu.CMD_HISTORY:
+                OnHistory?.Invoke();
                 break;
             case TrayMenu.CMD_SETTINGS:
                 OnSettings?.Invoke();

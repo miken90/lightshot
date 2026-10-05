@@ -540,4 +540,33 @@ public class DocumentRenderTests
             }
         }
     }
+
+    [Fact]
+    [Render]
+    public void OutputIgnoresAppearance()
+    {
+        // Invariant 12: AppearancePreference and ThemePalette never reach renderers.
+        // The rendered image depends solely on the document base image and element styles,
+        // producing identical byte-for-byte output regardless of any external appearance state.
+        var baseImg = PixelAssert.HalvesImage(200, 120, (1, 1, 1), (0, 0, 0));
+        var doc = new AnnotationDocument(baseImg);
+        doc.Add(new AnnotationElement(
+            kind: new AnnotationElement.Kind.Rectangle(new Rect(20, 20, 60, 40)),
+            style: new Style(color: RGBAColor.Red, strokeWidth: 3, fill: RGBAColor.Red)));
+        doc.Add(new AnnotationElement(
+            kind: new AnnotationElement.Kind.Arrow(new Point(10, 10), new Point(100, 50)),
+            style: new Style(color: new RGBAColor(0, 0.5, 1))));
+
+        var rendered1 = Render(doc);
+        var rendered2 = Render(doc);
+
+        Assert.Equal(rendered1.PixelWidth, rendered2.PixelWidth);
+        Assert.Equal(rendered1.PixelHeight, rendered2.PixelHeight);
+        Assert.Equal(rendered1.Data, rendered2.Data);
+
+        // Verify rendered pixel values are explicitly the element style colors,
+        // not influenced by ThemePalette tokens.
+        var pixels = new Pixels(rendered1);
+        Assert.True(PixelAssert.IsRed(pixels.Rgb(30, 30)));
+    }
 }

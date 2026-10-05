@@ -413,6 +413,7 @@ public class ToolIconsTests
     }
 
     // Art-review aid: with LIGHTSHOT_ICON_PREVIEW_DIR set, writes app.ico sheets decoded with the real WPF
+
     // decoder, each beside the tray glyph that suits the background.
     [Fact]
     [Render]
@@ -474,4 +475,50 @@ public class ToolIconsTests
             }
         });
     }
+
+    [Fact]
+    [Render]
+    public void ToolPaletteRendersIconsNotText()
+    {
+        RunInSta(() =>
+        {
+            var palette = new Lightshot.App.Views.Editor.ToolPalette();
+            // Provide Icon.Brush and icons in the palette's resources if not in Application
+            palette.Resources["Icon.Brush"] = Brushes.White;
+            palette.Resources.MergedDictionaries.Add(LoadIcons());
+
+            var buttons = new List<Button>();
+            if (palette.Content is StackPanel sp)
+            {
+                foreach (var child in sp.Children)
+                {
+                    if (child is Button b) buttons.Add(b);
+                }
+            }
+
+            Assert.Equal(12, buttons.Count);
+
+            foreach (var button in buttons)
+            {
+                // Assert each button holds an Image, not ContentControl with text
+                var image = Assert.IsType<Image>(button.Content);
+                var drawingImage = Assert.IsType<DrawingImage>(image.Source);
+                Assert.NotNull(drawingImage.Drawing);
+
+                // ONE size, 16 or 24 (never 20)
+                Assert.True(image.Width == 16 || image.Width == 24,
+                    $"{button.Tag} has size {image.Width}, expected 16 or 24.");
+                Assert.Equal(image.Width, image.Height);
+                Assert.NotEqual(20, image.Width);
+
+                // Assert non-empty ink rendered
+                button.Resources["Icon.Brush"] = Brushes.White;
+                button.Resources.MergedDictionaries.Add(LoadIcons());
+                var pixels = Pixels(Rasterize(button, 32, 28));
+                var bounds = InkBounds(pixels, 28);
+                Assert.True(bounds.Count > 0, $"{button.Tag} rendered zero ink pixels.");
+            }
+        });
+    }
 }
+

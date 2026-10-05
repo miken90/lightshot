@@ -9,7 +9,15 @@
     <ApplicationIcon>Resources\Icons\app.ico</ApplicationIcon>
     <StartupObject>Lightshot.App.Program</StartupObject>
     <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
+    <NoWarn>$(NoWarn);WPF0001</NoWarn>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Icons\Tray\*.ico" />
+    <Content Include="Resources\Icons\Tray\*.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Lightshot.Core\Lightshot.Core.csproj" />

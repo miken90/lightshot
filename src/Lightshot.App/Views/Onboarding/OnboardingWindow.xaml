@@ -1,0 +1,94 @@
+<Window x:Class="Lightshot.App.Views.Onboarding.OnboardingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        mc:Ignorable="d"
+        Title="Welcome to Lightshot" 
+        Height="460" 
+        Width="520"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="{DynamicResource Theme.Background}"
+        Foreground="{DynamicResource Theme.TextPrimary}">
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
+            <TextBlock Text="Welcome to Lightshot" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,4"/>
+            <TextBlock Text="Fast, lightweight screen captures with instant annotation." FontSize="13" Foreground="{DynamicResource Theme.TextSecondary}"/>
+        </StackPanel>
+
+        <!-- Body -->
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <!-- Snipping Tool Conflict Banner -->
+                <Border x:Name="SnippingBanner" 
+                        Background="{DynamicResource Theme.WarningBackground}" 
+                        BorderBrush="{DynamicResource Theme.WarningBorder}" 
+                        BorderThickness="1" 
+                        CornerRadius="4" 
+                        Padding="12" 
+                        Margin="0,0,0,16"
+                        Visibility="Collapsed">
+                    <StackPanel>
+                        <TextBlock Text="Windows Snipping Tool is using the PrintScreen key" 
+                                   FontWeight="SemiBold" 
+                                   Foreground="{DynamicResource Theme.WarningText}" 
+                                   Margin="0,0,0,4"/>
+                        <TextBlock Text="To allow Lightshot to capture directly with PrintScreen, disable the Windows Snipping Tool shortcut in Windows Settings." 
+                                   TextWrapping="Wrap" 
+                                   Foreground="{DynamicResource Theme.TextPrimary}" 
+                                   FontSize="12" 
+                                   Margin="0,0,0,8"/>
+                        <Button Content="Open Windows Keyboard Settings" 
+                                Click="OnOpenKeyboardSettingsClick" 
+                                HorizontalAlignment="Left" 
+                                Padding="8,4"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- How it works -->
+                <GroupBox Header="Quick Guide" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,16" Padding="12">
+                    <StackPanel>
+                        <DockPanel Margin="0,4">
+                            <TextBlock Text="1. " FontWeight="Bold" Foreground="{DynamicResource Theme.Accent}" DockPanel.Dock="Left"/>
+                            <TextBlock Text="Press PrtScn (or custom shortcut) and drag across any region." TextWrapping="Wrap" Foreground="{DynamicResource Theme.TextPrimary}"/>
+                        </DockPanel>
+                        <DockPanel Margin="0,4">
+                            <TextBlock Text="2. " FontWeight="Bold" Foreground="{DynamicResource Theme.Accent}" DockPanel.Dock="Left"/>
+                            <TextBlock Text="Use the toolbar to draw arrows, boxes, text, or highlights." TextWrapping="Wrap" Foreground="{DynamicResource Theme.TextPrimary}"/>
+                        </DockPanel>
+                        <DockPanel Margin="0,4">
+                            <TextBlock Text="3. " FontWeight="Bold" Foreground="{DynamicResource Theme.Accent}" DockPanel.Dock="Left"/>
+                            <TextBlock Text="Press Ctrl+C to copy or Ctrl+S to save to your Screenshots folder." TextWrapping="Wrap" Foreground="{DynamicResource Theme.TextPrimary}"/>
+                        </DockPanel>
+                    </StackPanel>
+                </GroupBox>
+
+                <!-- Defaults summary -->
+                <TextBlock Text="Lightshot runs quietly in your system tray. You can adjust hotkeys, colors, and save locations at any time in Settings." 
+                           TextWrapping="Wrap" 
+                           Foreground="{DynamicResource Theme.TextSecondary}" 
+                           FontSize="12"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <!-- Footer -->
+        <Border Grid.Row="2" Padding="0,16,0,0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Get Started" 
+                        Width="120" 
+                        Height="32" 
+                        FontWeight="SemiBold" 
+                        Click="OnGetStartedClick" 
+                        IsDefault="True"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>
