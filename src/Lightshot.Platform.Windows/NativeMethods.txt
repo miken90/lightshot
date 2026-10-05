@@ -11,3 +11,9 @@ DCompositionCreateDevice
 IDCompositionDevice
 IDCompositionTarget
 IDCompositionVisual
+DwmSetWindowAttribute
+GetWindowLongW
+SetWindowLongW
+GetWindowLongPtrW
+SetWindowLongPtrW
+SHFileOperationW

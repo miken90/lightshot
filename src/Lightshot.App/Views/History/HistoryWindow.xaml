@@ -1,0 +1,163 @@
+<Window x:Class="Lightshot.App.Views.History.HistoryWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        xmlns:local="clr-namespace:Lightshot.App.Views.History"
+        mc:Ignorable="d"
+        Title="History"
+        Width="640" Height="480"
+        MinWidth="480" MinHeight="360"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource Theme.Panel}"
+        Foreground="{DynamicResource Theme.TextPrimary}">
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+
+        <!-- Fallback brushes when Theme tokens are not yet defined at Application level -->
+        <SolidColorBrush x:Key="Theme.Panel" Color="#2B3038"/>
+        <SolidColorBrush x:Key="Theme.PanelEdge" Color="#33FFFFFF"/>
+        <SolidColorBrush x:Key="Theme.TextPrimary" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="Theme.TextSecondary" Color="#8C8C8C"/>
+        <SolidColorBrush x:Key="Theme.Glyph" Color="#BFBFBF"/>
+        <SolidColorBrush x:Key="Theme.ControlHover" Color="#26FFFFFF"/>
+        <SolidColorBrush x:Key="Theme.ControlOn" Color="#33FFFFFF"/>
+        <SolidColorBrush x:Key="Theme.Well" Color="#1E2229"/>
+        <SolidColorBrush x:Key="Theme.Warning" Color="#FF9E0A"/>
+        <SolidColorBrush x:Key="Theme.AccentBlue" Color="#0A84FF"/>
+
+        <Style x:Key="HistoryActionButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.Glyph}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="4" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Background" Value="{DynamicResource Theme.ControlHover}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource Theme.TextPrimary}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Main Content Area: Empty state or Cards Grid -->
+        <Grid Grid.Row="0">
+            <!-- Empty state -->
+            <StackPanel x:Name="EmptyStatePanel"
+                        HorizontalAlignment="Center" VerticalAlignment="Center"
+                        Visibility="Collapsed">
+                <TextBlock Text="🕒" FontSize="44" HorizontalAlignment="Center" Foreground="{DynamicResource Theme.TextSecondary}" Margin="0,0,0,8"/>
+                <TextBlock Text="No captures yet" FontSize="18" FontWeight="SemiBold" HorizontalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,4"/>
+                <TextBlock Text="Screenshots you take appear here." FontSize="13" HorizontalAlignment="Center" Foreground="{DynamicResource Theme.TextSecondary}"/>
+            </StackPanel>
+
+            <!-- Grid of Cards -->
+            <ScrollViewer x:Name="CardsScrollViewer" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="12">
+                <ItemsControl x:Name="HistoryItemsList" ItemsSource="{Binding Records}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Width="188" Height="192" Margin="6"
+                                    Background="{DynamicResource Theme.Well}"
+                                    BorderBrush="{DynamicResource Theme.PanelEdge}"
+                                    BorderThickness="1"
+                                    CornerRadius="6"
+                                    MouseLeftButtonDown="OnItemMouseLeftButtonDown">
+                                <Border.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Open" Click="OnItemOpenClick"/>
+                                        <MenuItem Header="Copy" Click="OnItemCopyClick"/>
+                                        <MenuItem Header="Reveal in Explorer" Click="OnItemRevealClick"/>
+                                        <Separator/>
+                                        <MenuItem Header="Delete" Click="OnItemDeleteClick"/>
+                                    </ContextMenu>
+                                </Border.ContextMenu>
+                                <Grid Margin="6">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="110"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="*"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Thumbnail -->
+                                    <Border Grid.Row="0" Background="#11000000" CornerRadius="4" ClipToBounds="True">
+                                        <Image Source="{Binding ThumbnailUrl}" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <!-- Source + Badge -->
+                                    <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,4,0,2">
+                                        <TextBlock Text="{Binding Source}" FontWeight="SemiBold" FontSize="11" Foreground="{DynamicResource Theme.TextPrimary}"/>
+                                    </StackPanel>
+
+                                    <!-- Timestamp -->
+                                    <TextBlock Grid.Row="2" Text="{Binding Timestamp, StringFormat='{}{0:MMM dd, HH:mm}'}" FontSize="10" Foreground="{DynamicResource Theme.TextSecondary}" Margin="0,0,0,4"/>
+
+                                    <!-- Action Buttons -->
+                                    <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                                        <Button Style="{StaticResource HistoryActionButtonStyle}" Content="✎" ToolTip="Open in Editor" Click="OnItemOpenClick" Margin="2,0,2,0"/>
+                                        <Button Style="{StaticResource HistoryActionButtonStyle}" Content="📋" ToolTip="Copy" Click="OnItemCopyClick" Margin="2,0,2,0"/>
+                                        <Button Style="{StaticResource HistoryActionButtonStyle}" Content="📁" ToolTip="Reveal in Explorer" Click="OnItemRevealClick" Margin="2,0,2,0"/>
+                                        <Button Style="{StaticResource HistoryActionButtonStyle}" Content="🗑" ToolTip="Delete to Recycle Bin" Click="OnItemDeleteClick" Margin="2,0,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+
+        <!-- Footer -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource Theme.Well}"
+                BorderBrush="{DynamicResource Theme.PanelEdge}"
+                BorderThickness="0,1,0,0"
+                Padding="16,10,16,10">
+            <Grid>
+                <TextBlock Text="Set how many captures to keep in Settings."
+                           FontSize="11"
+                           Foreground="{DynamicResource Theme.TextSecondary}"
+                           VerticalAlignment="Center"/>
+                <Button x:Name="ClearAllButton"
+                        Content="Clear All…"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"
+                        Padding="12,4,12,4"
+                        Background="#33FF453A"
+                        Foreground="#FF453A"
+                        FontWeight="SemiBold"
+                        BorderThickness="0"
+                        Cursor="Hand"
+                        Click="OnClearAllClick">
+                    <Button.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="4"/>
+                        </Style>
+                    </Button.Resources>
+                </Button>
+            </Grid>
+        </Border>
+    </Grid>
+</Window>
