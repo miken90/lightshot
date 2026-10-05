@@ -1,0 +1,15 @@
+Lightshot for Windows
+Copyright (c) 2026 Viet Le
+Copyright (c) 2026 Lightshot Windows Port Authors
+
+This product is a Windows 11 port derived from the macOS Lightshot project:
+Upstream repository: https://github.com/lethanhvietctt5/lightshot
+Upstream branch: main
+Upstream commit SHA: b54a970924e10d5321465ba6ff4816b919afcc61
+
+Derived components and sources:
+- LightshotKit/Sources -> src/Lightshot.Core, src/Lightshot.Rendering
+- LightshotKit/Tests -> tests/Lightshot.Core.Tests, tests/Lightshot.Rendering.Tests
+- App/Sources -> src/Lightshot.Platform.Windows, src/Lightshot.App
+- specs/ -> architectural specifications and test vectors
+- docs/adr/ -> architecture decision records

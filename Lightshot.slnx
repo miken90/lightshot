@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Lightshot.Core/Lightshot.Core.csproj" />
+    <Project Path="src/Lightshot.Rendering/Lightshot.Rendering.csproj" />
+    <Project Path="src/Lightshot.Platform.Windows/Lightshot.Platform.Windows.csproj" />
+    <Project Path="src/Lightshot.App/Lightshot.App.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Lightshot.TestSupport/Lightshot.TestSupport.csproj" />
+    <Project Path="tests/Lightshot.Architecture.Tests/Lightshot.Architecture.Tests.csproj" />
+    <Project Path="tests/Lightshot.Core.Tests/Lightshot.Core.Tests.csproj" />
+    <Project Path="tests/Lightshot.Rendering.Tests/Lightshot.Rendering.Tests.csproj" />
+    <Project Path="tests/Lightshot.Platform.Windows.Tests/Lightshot.Platform.Windows.Tests.csproj" />
+    <Project Path="tests/Lightshot.App.Tests/Lightshot.App.Tests.csproj" />
+    <Project Path="tests/Lightshot.App.UiTests/Lightshot.App.UiTests.csproj" />
+  </Folder>
+</Solution>

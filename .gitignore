@@ -1,0 +1,10 @@
+[Bb]in/
+[Oo]bj/
+artifacts/
+TestResults/
+.vs/
+*.user
+*.suo
+assets/models/*.onnx
+assets/models/*.bin
+!assets/models.lock.json
