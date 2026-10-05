@@ -1,0 +1,114 @@
+<UserControl x:Class="Lightshot.App.Views.Editor.StyleBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Lightshot.App.Views.Editor"
+             mc:Ignorable="d">
+    <UserControl.Resources>
+        <Style x:Key="SegmentButtonStyle" TargetType="RadioButton">
+            <Setter Property="Height" Value="24"/>
+            <Setter Property="Padding" Value="6,2,6,2"/>
+            <Setter Property="Margin" Value="1,0,1,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RadioButton">
+                        <Border x:Name="Border" CornerRadius="4" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Border" Property="Background" Value="#007AFF"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <MultiTrigger>
+                                <MultiTrigger.Conditions>
+                                    <Condition Property="IsMouseOver" Value="True"/>
+                                    <Condition Property="IsChecked" Value="False"/>
+                                </MultiTrigger.Conditions>
+                                <Setter TargetName="Border" Property="Background" Value="#33FFFFFF"/>
+                            </MultiTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+        <!-- Color Well Button with Popup -->
+        <Grid x:Name="ColorContainer" Margin="4,0,4,0" Visibility="Collapsed">
+            <Button x:Name="ColorButton" Width="24" Height="24" Padding="0" Click="OnColorButtonClick" ToolTip="Color">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border CornerRadius="12" BorderBrush="#888888" BorderThickness="1">
+                            <Ellipse x:Name="ColorSwatch" Width="20" Height="20" Fill="Red"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+            <Popup x:Name="ColorPickerPopup" PlacementTarget="{Binding ElementName=ColorButton}" Placement="Bottom" StaysOpen="False">
+                <local:ColorPopup x:Name="ColorPickerControl"/>
+            </Popup>
+        </Grid>
+
+        <!-- Stroke Width -->
+        <StackPanel x:Name="StrokeContainer" Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,4,0" Visibility="Collapsed">
+            <TextBlock Text="Width:" Foreground="#AAAAAA" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="11"/>
+            <ComboBox x:Name="StrokeWidthComboBox" Width="55" Height="24" SelectionChanged="OnStrokeWidthChanged">
+                <ComboBoxItem Content="1 pt" Tag="1.0"/>
+                <ComboBoxItem Content="2 pt" Tag="2.0"/>
+                <ComboBoxItem Content="3 pt" Tag="3.0"/>
+                <ComboBoxItem Content="4 pt" Tag="4.0"/>
+                <ComboBoxItem Content="6 pt" Tag="6.0"/>
+                <ComboBoxItem Content="8 pt" Tag="8.0"/>
+                <ComboBoxItem Content="12 pt" Tag="12.0"/>
+                <ComboBoxItem Content="16 pt" Tag="16.0"/>
+                <ComboBoxItem Content="24 pt" Tag="24.0"/>
+            </ComboBox>
+        </StackPanel>
+
+        <!-- Arrow Styles -->
+        <StackPanel x:Name="ArrowStyleContainer" Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,4,0" Visibility="Collapsed">
+            <RadioButton x:Name="ArrowStandardRadio" Content="Standard" GroupName="ArrowStyles" Style="{StaticResource SegmentButtonStyle}" Click="OnArrowStyleClick" Tag="Standard"/>
+            <RadioButton x:Name="ArrowFancyRadio" Content="Fancy" GroupName="ArrowStyles" Style="{StaticResource SegmentButtonStyle}" Click="OnArrowStyleClick" Tag="Fancy"/>
+            <RadioButton x:Name="ArrowCurvedRadio" Content="Curved" GroupName="ArrowStyles" Style="{StaticResource SegmentButtonStyle}" Click="OnArrowStyleClick" Tag="Curved"/>
+            <RadioButton x:Name="ArrowDoubleRadio" Content="Double" GroupName="ArrowStyles" Style="{StaticResource SegmentButtonStyle}" Click="OnArrowStyleClick" Tag="Double"/>
+        </StackPanel>
+
+        <!-- Font Size (Text and Step Marker) -->
+        <StackPanel x:Name="FontSizeContainer" Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,4,0" Visibility="Collapsed">
+            <TextBlock Text="Size:" Foreground="#AAAAAA" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="11"/>
+            <TextBox x:Name="FontSizeTextBox" Width="44" Height="22" Background="#1E1E1E" Foreground="White"
+                     BorderBrush="#555555" BorderThickness="1" FontSize="11" VerticalContentAlignment="Center"
+                     HorizontalContentAlignment="Center" KeyDown="OnFontSizeKeyDown" LostFocus="OnFontSizeLostFocus"/>
+        </StackPanel>
+
+        <!-- Redaction Controls -->
+        <StackPanel x:Name="RedactionContainer" Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,4,0" Visibility="Collapsed">
+            <!-- Style Selector -->
+            <RadioButton x:Name="RedactPixelateRadio" Content="Pixelate" GroupName="RedactStyles" Style="{StaticResource SegmentButtonStyle}" Click="OnRedactStyleClick" Tag="Pixelate"/>
+            <RadioButton x:Name="RedactBlurRadio" Content="Blur" GroupName="RedactStyles" Style="{StaticResource SegmentButtonStyle}" Click="OnRedactStyleClick" Tag="Blur"/>
+            <RadioButton x:Name="RedactBlackoutRadio" Content="Blackout" GroupName="RedactStyles" Style="{StaticResource SegmentButtonStyle}" Click="OnRedactStyleClick" Tag="Blackout"/>
+
+            <!-- Intensity Slider -->
+            <StackPanel x:Name="IntensityContainer" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,4,0">
+                <TextBlock Text="Intensity:" Foreground="#AAAAAA" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="11"/>
+                <Slider x:Name="IntensitySlider" Width="70" Minimum="0" Maximum="1" SmallChange="0.05" LargeChange="0.1" 
+                        ValueChanged="OnIntensitySliderChanged"/>
+            </StackPanel>
+
+            <!-- Security Warning / Label -->
+            <TextBlock x:Name="SecurityLabel" Text="Not secure - visual only" Foreground="#FF9500" 
+                       VerticalAlignment="Center" Margin="6,0,2,0" FontSize="11" ToolTip="Visual only - can be reversed or inferred. Use Blackout to hide secrets."/>
+        </StackPanel>
+
+        <!-- Reset Crop Button -->
+        <Button x:Name="ResetCropButton" Content="Reset Crop" Height="24" Padding="6,2,6,2" Margin="6,0,2,0"
+                Click="OnResetCropClick" Visibility="Collapsed" ToolTip="Restore full image dimensions"/>
+    </StackPanel>
+</UserControl>

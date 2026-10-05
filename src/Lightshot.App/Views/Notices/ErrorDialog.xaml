@@ -1,0 +1,42 @@
+<Window x:Class="Lightshot.App.Views.Notices.ErrorDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+        mc:Ignorable="d"
+        Title="Notice" 
+        Height="220" 
+        Width="420"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        Background="#252526"
+        Foreground="#E0E0E0"
+        ShowInTaskbar="False">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock x:Name="TitleTextBlock" FontSize="16" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,0,10" Text="Notice"/>
+
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,15">
+            <StackPanel>
+                <TextBlock x:Name="MessageTextBlock" TextWrapping="Wrap" FontSize="13" Foreground="#CCCCCC"/>
+                <TextBlock x:Name="DetailsTextBlock" TextWrapping="Wrap" FontSize="11" Foreground="#888888" Margin="0,8,0,0" Visibility="Collapsed"/>
+            </StackPanel>
+        </ScrollViewer>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
+            <Button Content="OK" Width="80" Height="26" IsDefault="True" Click="OnOkClick"
+                    Background="#007AFF" Foreground="White" BorderThickness="0" Cursor="Hand">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="4"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Window>

@@ -1,0 +1,278 @@
+// MIT License, Copyright (c) 2026 Viet Le
+
+using System;
+using System.IO;
+using System.Windows;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media.Imaging;
+using Lightshot.App.Views.Notices;
+using Lightshot.Core;
+using Microsoft.Win32;
+
+namespace Lightshot.App.Views.Editor;
+
+public partial class EditorWindow : Window
+{
+    private EditorViewModel? _viewModel;
+    private SelectionAdorner? _selectionAdorner;
+    private CropOverlay? _cropOverlay;
+    private System.Windows.Point? _dragStartScreen;
+    private bool _isDraggingOut;
+
+    public ICommand CopyAndCloseCommand { get; }
+    public ICommand CopyCommand { get; }
+    public ICommand SaveAsCommand { get; }
+    public ICommand UndoCommand { get; }
+    public ICommand RedoCommand { get; }
+    public ICommand DeleteCommand { get; }
+    public ICommand SendBackwardCommand { get; }
+    public ICommand BringForwardCommand { get; }
+
+    public EditorViewModel? ViewModel => _viewModel;
+
+    public EditorWindow()
+    {
+        CopyAndCloseCommand = new RelayCommand(_ => _viewModel?.CopyAndClose());
+        CopyCommand = new RelayCommand(_ => _viewModel?.Copy());
+        SaveAsCommand = new RelayCommand(_ => PromptSaveAs());
+        UndoCommand = new RelayCommand(_ => _viewModel?.Undo());
+        RedoCommand = new RelayCommand(_ => _viewModel?.Redo());
+        DeleteCommand = new RelayCommand(_ => _viewModel?.DeleteSelection());
+        SendBackwardCommand = new RelayCommand(_ => _viewModel?.SendBackward());
+        BringForwardCommand = new RelayCommand(_ => _viewModel?.BringForward());
+
+        InitializeComponent();
+
+        ApplyWorkAreaCap();
+        Loaded += OnLoaded;
+    }
+
+    public EditorWindow(EditorViewModel viewModel) : this()
+    {
+        InitializeViewModel(viewModel);
+    }
+
+    public void InitializeViewModel(EditorViewModel viewModel)
+    {
+        _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+
+        DataContext = _viewModel;
+        _viewModel.RequestClose += OnRequestClose;
+        _viewModel.ShowError += OnShowError;
+        _viewModel.CanvasInvalidated += OnCanvasInvalidated;
+
+        ToolPaletteControl.BindViewModel(_viewModel);
+        StyleBarControl.BindViewModel(_viewModel);
+
+        MainCanvasHost.ViewModel = _viewModel;
+        FloatingTextEditor.Attach(MainCanvasHost, _viewModel);
+
+        UpdateContainerSize();
+    }
+
+    private void ApplyWorkAreaCap()
+    {
+        try
+        {
+            var workArea = SystemParameters.WorkArea;
+            var (w, h) = EditorViewModel.CalculateWindowSize(workArea.Width, workArea.Height);
+            Width = w;
+            Height = h;
+        }
+        catch
+        {
+            Width = EditorViewModel.DefaultWindowWidth;
+            Height = EditorViewModel.DefaultWindowHeight;
+        }
+    }
+
+    private void OnLoaded(object sender, RoutedEventArgs e)
+    {
+        var adornerLayer = AdornerLayer.GetAdornerLayer(MainCanvasHost);
+        if (adornerLayer != null && _viewModel != null)
+        {
+            _selectionAdorner = new SelectionAdorner(MainCanvasHost, _viewModel);
+            _cropOverlay = new CropOverlay(MainCanvasHost, _viewModel);
+
+            adornerLayer.Add(_selectionAdorner);
+            adornerLayer.Add(_cropOverlay);
+        }
+
+        UpdateContainerSize();
+    }
+
+    private void OnCanvasInvalidated()
+    {
+        UpdateContainerSize();
+        var adornerLayer = AdornerLayer.GetAdornerLayer(MainCanvasHost);
+        adornerLayer?.Update();
+    }
+
+    private void UpdateContainerSize()
+    {
+        if (MainCanvasHost.Width > 0 && MainCanvasHost.Height > 0)
+        {
+            CanvasContainer.Width = MainCanvasHost.Width;
+            CanvasContainer.Height = MainCanvasHost.Height;
+        }
+    }
+
+    private void OnRequestClose()
+    {
+        Close();
+    }
+
+    private void OnShowError((string Title, string Message, string? Details) info)
+    {
+        ErrorDialog.ShowNotice(this, info.Title, info.Message, info.Details);
+    }
+
+    private void OnCanvasMouseDown(object sender, MouseButtonEventArgs e)
+    {
+        if (_viewModel == null) return;
+        var screenPos = e.GetPosition(MainCanvasHost);
+        _dragStartScreen = screenPos;
+        _isDraggingOut = false;
+
+        var imgPos = MainCanvasHost.ScreenToImage(screenPos);
+
+        if (e.ClickCount == 2)
+        {
+            if (_viewModel.DoubleClick(imgPos))
+            {
+                return;
+            }
+        }
+
+        MainCanvasHost.CaptureMouse();
+        _viewModel.GestureStarted(imgPos);
+    }
+
+    private void OnCanvasMouseMove(object sender, MouseEventArgs e)
+    {
+        if (_viewModel == null) return;
+        var screenPos = e.GetPosition(MainCanvasHost);
+
+        // Check for drag-out gesture (Ctrl+drag or dragging outside with right/middle button or significant move with selection)
+        if (e.LeftButton == MouseButtonState.Pressed && _dragStartScreen.HasValue && !_isDraggingOut)
+        {
+            var diff = screenPos - _dragStartScreen.Value;
+            if (Keyboard.Modifiers.HasFlag(ModifierKeys.Control) && (Math.Abs(diff.X) > 8 || Math.Abs(diff.Y) > 8))
+            {
+                InitiateDragOut();
+                return;
+            }
+        }
+
+        if (MainCanvasHost.IsMouseCaptured)
+        {
+            var imgPos = MainCanvasHost.ScreenToImage(screenPos);
+            _viewModel.GestureMoved(imgPos);
+        }
+    }
+
+    private void OnCanvasMouseUp(object sender, MouseButtonEventArgs e)
+    {
+        if (_viewModel == null) return;
+        _dragStartScreen = null;
+        _isDraggingOut = false;
+
+        if (MainCanvasHost.IsMouseCaptured)
+        {
+            var screenPos = e.GetPosition(MainCanvasHost);
+            var imgPos = MainCanvasHost.ScreenToImage(screenPos);
+            _viewModel.GestureEnded(imgPos);
+            MainCanvasHost.ReleaseMouseCapture();
+        }
+    }
+
+    private void InitiateDragOut()
+    {
+        if (_viewModel == null) return;
+        _isDraggingOut = true;
+        MainCanvasHost.ReleaseMouseCapture();
+
+        try
+        {
+            var renderer = new Lightshot.Rendering.DocumentRenderer();
+            var rendered = renderer.Render(_viewModel.Document);
+
+            string tempFile = Path.Combine(Path.GetTempPath(), $"Lightshot_{DateTime.UtcNow:yyyyMMdd_HHmmss}_{Guid.NewGuid():N}.png");
+            File.WriteAllBytes(tempFile, rendered.Data.ToArray());
+
+            var dataObj = new DataObject();
+            dataObj.SetData(DataFormats.FileDrop, new string[] { tempFile });
+
+            using var ms = new MemoryStream(rendered.Data.ToArray());
+            var bmp = new BitmapImage();
+            bmp.BeginInit();
+            bmp.StreamSource = ms;
+            bmp.CacheOption = BitmapCacheOption.OnLoad;
+            bmp.EndInit();
+            bmp.Freeze();
+            dataObj.SetData(DataFormats.Bitmap, bmp);
+
+            DragDrop.DoDragDrop(MainCanvasHost, dataObj, DragDropEffects.Copy);
+        }
+        catch
+        {
+            // Ignore drag-drop cancellation
+        }
+    }
+
+    private void PromptSaveAs()
+    {
+        if (_viewModel == null) return;
+
+        var sfd = new SaveFileDialog
+        {
+            Filter = "PNG Image (*.png)|*.png|JPEG Image (*.jpg;*.jpeg)|*.jpg;*.jpeg",
+            DefaultExt = ".png",
+            FileName = $"Screenshot {DateTime.Now:yyyy-MM-dd at HH.mm.ss}.png"
+        };
+
+        if (sfd.ShowDialog(this) == true)
+        {
+            ImageFormat fmt = sfd.FileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                              sfd.FileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)
+                ? new ImageFormat.Jpeg(0.9)
+                : new ImageFormat.Png();
+
+            _viewModel.SaveAs(sfd.FileName, fmt);
+        }
+    }
+
+    private void OnSaveAsClick(object sender, RoutedEventArgs e)
+    {
+        PromptSaveAs();
+    }
+
+    private void OnCopyClick(object sender, RoutedEventArgs e)
+    {
+        _viewModel?.Copy();
+    }
+
+    private void OnDoneClick(object sender, RoutedEventArgs e)
+    {
+        _viewModel?.CopyAndClose();
+    }
+
+    private sealed class RelayCommand : ICommand
+    {
+        private readonly Action<object?> _execute;
+        private readonly Func<object?, bool>? _canExecute;
+
+        public event EventHandler? CanExecuteChanged;
+
+        public RelayCommand(Action<object?> execute, Func<object?, bool>? canExecute = null)
+        {
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute;
+        }
+
+        public bool CanExecute(object? parameter) => _canExecute?.Invoke(parameter) ?? true;
+        public void Execute(object? parameter) => _execute(parameter);
+        public void RaiseCanExecuteChanged() => CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+    }
+}
