@@ -163,10 +163,19 @@ public class DocumentRenderTests
         var rendered = Render(doc);
         PixelAssert.AssertOrUpdateGolden("HighlighterWashesTheRegionButLetsContentShowThrough", rendered);
 
-        var c = new Pixels(rendered).Rgb(50, 50);
-        Assert.True(c.r > 0.9);
-        Assert.True(c.g > 0.4 && c.g < 0.95);
-        Assert.True(c.b > 0.4 && c.b < 0.95);
+        var pixels = new Pixels(rendered);
+        var (r, g, b, _) = pixels.RgbaByte(50, 50);
+
+        // Arithmetic derivation:
+        // Upstream Render.swift highlightAlpha = 0.35
+        // Red highlight (255, 0, 0) over white background (255, 255, 255):
+        // R = round(255 * 0.35 + 255 * (1 - 0.35)) = 255
+        // G = round(0 * 0.35 + 255 * (1 - 0.35)) = round(255 * 0.65) = round(165.75) = 166
+        // B = round(0 * 0.35 + 255 * (1 - 0.35)) = round(255 * 0.65) = round(165.75) = 166
+        // Expected washed color is (255, 166, 166) within +-1 channel value.
+        Assert.Equal(255, r);
+        Assert.InRange(g, 165, 167);
+        Assert.InRange(b, 165, 167);
     }
 
     [Fact]
@@ -447,13 +456,19 @@ public class DocumentRenderTests
         var pixels = new Pixels(rendered);
         foreach (var (x, y) in new[] { (20, 20), (35, 35), (50, 50) })
         {
-            var c = pixels.Rgb(x, y);
-            Assert.True(c.r > 0.98 && c.g > 0.98 && c.b > 0.98);
+            var (cr, cg, cb, _) = pixels.RgbaByte(x, y);
+            Assert.True(cr >= 250 && cg >= 250 && cb >= 250);
         }
 
-        var outside = pixels.Rgb(85, 85);
-        double expected = 1.0 - FocusDim.FocusDimAlpha;
-        Assert.True(Math.Abs(outside.r - expected) < 0.03 && Math.Abs(outside.g - expected) < 0.03);
+        // Arithmetic derivation:
+        // Upstream Render.swift focusDimAlpha = 0.55 (literal constant, not using FocusDim.FocusDimAlpha)
+        // Black dim layer (0, 0, 0, alpha=0.55) over white background (255, 255, 255):
+        // R = G = B = round(0 * 0.55 + 255 * (1 - 0.55)) = round(255 * 0.45) = round(114.75) = 115
+        // Expected dimmed outside color is (115, 115, 115) within +-1 channel value.
+        var (outR, outG, outB, _) = pixels.RgbaByte(85, 85);
+        Assert.InRange(outR, 114, 116);
+        Assert.InRange(outG, 114, 116);
+        Assert.InRange(outB, 114, 116);
     }
 
     [Fact]

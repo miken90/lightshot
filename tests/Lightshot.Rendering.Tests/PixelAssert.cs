@@ -77,7 +77,7 @@ public static class PixelAssert
     public static double ChannelDistance((double r, double g, double b) a, (double r, double g, double b) b) =>
         Math.Abs(a.r - b.r) + Math.Abs(a.g - b.g) + Math.Abs(a.b - b.b);
 
-    public static void AssertOrUpdateGolden(string testName, RenderedImage rendered)
+    public static void AssertOrUpdateGolden(string testName, RenderedImage rendered, bool exact = false)
     {
         string goldensDir = FindGoldensDirectory();
         if (!Directory.Exists(goldensDir))
@@ -92,7 +92,7 @@ public static class PixelAssert
 
         bool updateGoldens = Environment.GetEnvironmentVariable("LIGHTSHOT_UPDATE_GOLDENS") == "1";
 
-        if (updateGoldens || !File.Exists(imagePath) || !File.Exists(hashesPath))
+        if (updateGoldens)
         {
             File.WriteAllBytes(imagePath, rendered.Data);
 
@@ -112,14 +112,35 @@ public static class PixelAssert
             return;
         }
 
-        // Compare against golden hash or image
-        var storedHashes = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(hashesPath));
-        if (storedHashes != null && storedHashes.TryGetValue(testName, out var expectedHash))
+        // Normal run: missing golden PNG or missing hashes.json must fail
+        if (!File.Exists(imagePath))
         {
-            if (hash == expectedHash) return; // Exact hash match
+            Assert.Fail($"Golden image is missing: '{imagePath}'. Run scripts/test.ps1 -UpdateGoldens to create it.");
+            return;
         }
 
-        // 2 LSB tolerance check on pixel bytes
+        if (!File.Exists(hashesPath))
+        {
+            Assert.Fail($"Golden hashes file is missing: '{hashesPath}'. Run scripts/test.ps1 -UpdateGoldens to create it.");
+            return;
+        }
+
+        var storedHashes = JsonSerializer.Deserialize<Dictionary<string, string>>(File.ReadAllText(hashesPath));
+        if (storedHashes == null || !storedHashes.TryGetValue(testName, out var expectedHash))
+        {
+            Assert.Fail($"Golden hash entry for '{testName}' is missing in '{hashesPath}'. Run scripts/test.ps1 -UpdateGoldens to create it.");
+            return;
+        }
+
+        if (hash == expectedHash) return; // Exact hash match
+
+        if (exact)
+        {
+            Assert.Fail($"Golden '{testName}' hash mismatch in exact mode: expected {expectedHash}, got {hash}.");
+            return;
+        }
+
+        // 2 LSB tolerance check on pixel bytes (for Skia-drawn vector shapes only)
         byte[] expectedBytes = File.ReadAllBytes(imagePath);
         using var actualMs = new MemoryStream(rendered.Data);
         using var expectedMs = new MemoryStream(expectedBytes);
@@ -217,5 +238,16 @@ public sealed class Pixels
             _buffer[index + 1] / 255.0,
             _buffer[index + 2] / 255.0
         );
+    }
+
+    public (byte r, byte g, byte b, byte a) RgbaByte(int x, int y)
+    {
+        if (x < 0 || x >= Width || y < 0 || y >= Height)
+        {
+            return (0, 0, 0, 0);
+        }
+
+        int index = (y * Width + x) * 4;
+        return (_buffer[index], _buffer[index + 1], _buffer[index + 2], _buffer[index + 3]);
     }
 }
