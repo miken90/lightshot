@@ -73,25 +73,14 @@ try {
 
     Write-Log "Executing probe: $exePath $($argsList -join ' ')..."
 
-    # 4. Run probe and capture output
-    $psi = New-Object System.Diagnostics.ProcessStartInfo
-    $psi.FileName = $exePath
-    $psi.Arguments = $argsList -join " "
-    $psi.RedirectStandardOutput = $true
-    $psi.RedirectStandardError = $true
-    $psi.UseShellExecute = $false
-    $psi.CreateNoWindow = $true
-
-    $proc = [System.Diagnostics.Process]::Start($psi)
-    $stdout = $proc.StandardOutput.ReadToEnd()
-    $stderr = $proc.StandardError.ReadToEnd()
-    $proc.WaitForExit()
-    $procExit = $proc.ExitCode
-
-    if ($stderr) {
-        Write-Host $stderr
+    # 4. Run probe directly to avoid stream redirection deadlocks
+    $dllPath = [System.IO.Path]::ChangeExtension($exePath, ".dll")
+    if (Test-Path $dllPath) {
+        & $dotnetExe exec $dllPath $argsList
+    } else {
+        & $exePath $argsList
     }
-    Write-Host $stdout
+    $procExit = $LASTEXITCODE
 
     if ($procExit -ne 0) {
         throw "Probe $probeName exited with non-zero exit code: $procExit"
