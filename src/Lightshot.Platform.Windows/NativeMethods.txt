@@ -1,0 +1,9 @@
+CreateEvent
+SetEvent
+OpenEvent
+CloseHandle
+PowerCreateRequest
+PowerSetRequest
+PowerClearRequest
+WTSQuerySessionInformation
+Shell_NotifyIcon
