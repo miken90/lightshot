@@ -78,12 +78,20 @@ public class ToolIconsTests
             .ToArray();
     }
 
+    // Application's static constructor registers the pack:// web-request factory. The test process has
+    // no Application, so without touching it the first pack:// load fails when this test runs first.
+    private static ResourceDictionary LoadIcons()
+    {
+        _ = Application.Current;
+        return new ResourceDictionary { Source = new Uri(IconsUri, UriKind.Absolute) };
+    }
+
     // A fresh dictionary per call so each theme brush binds to its own copy of the shared pen.
     private static (DrawingImage Image, Grid Scope) Load(string key, Brush ink)
     {
         var scope = new Grid();
         scope.Resources.MergedDictionaries.Add(new ResourceDictionary { ["Icon.Brush"] = ink });
-        scope.Resources.MergedDictionaries.Add(new ResourceDictionary { Source = new Uri(IconsUri, UriKind.Absolute) });
+        scope.Resources.MergedDictionaries.Add(LoadIcons());
         var image = Assert.IsType<DrawingImage>(scope.Resources[key]);
         return (image, scope);
     }
@@ -150,7 +158,7 @@ public class ToolIconsTests
             var keys = PaletteKeys();
             Assert.Equal(12, keys.Length);
 
-            var dictionary = new ResourceDictionary { Source = new Uri(IconsUri, UriKind.Absolute) };
+            var dictionary = LoadIcons();
             foreach (var key in keys)
             {
                 Assert.IsType<DrawingImage>(dictionary[key]);
