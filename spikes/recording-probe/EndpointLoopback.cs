@@ -83,5 +83,25 @@ public sealed class EndpointLoopback : IDisposable
         return QpcOf(hit.s + win / 2);
     }
 
+    /// <summary>
+    /// Diagnostic only, not used by any criterion: how late the arrival-based stamp of the chunk holding qpc is
+    /// against the endpoint's own sample clock. Each chunk's stamp minus its sample index over the rate would be
+    /// constant if every chunk were stamped exactly; the earliest such value is the best-stamped chunk, and the excess
+    /// over it is the delivery delay folded into the stamp. Also returns the spread of that excess over all chunks.
+    /// </summary>
+    public (double lateMs, double medianLateMs, double maxLateMs)? StampLateVsSampleClockMs(long qpc)
+    {
+        List<(int index, long qpc)> ch;
+        lock (_lock) ch = new List<(int, long)>(_chunks);
+        if (ch.Count < 2) return null;
+        double freq = System.Diagnostics.Stopwatch.Frequency;
+        var excess = ch.Select(c => (c.qpc - c.index * freq / _rate) * 1000.0 / freq).ToList();
+        double floor = excess.Min();
+        int i = ch.FindLastIndex(c => c.qpc <= qpc);
+        if (i < 0) return null;
+        var sorted = excess.Select(e => e - floor).OrderBy(e => e).ToList();
+        return (excess[i] - floor, sorted[sorted.Count / 2], sorted[^1]);
+    }
+
     public void Dispose() => _capture.Dispose();
 }

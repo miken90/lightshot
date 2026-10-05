@@ -19,6 +19,7 @@ public sealed class MfFragmentedWriter : IDisposable
     private bool _writingStarted;
     private bool _finalized;
     private bool _disposed;
+    private readonly string _outputPath;
 
     public int VideoStreamIndex => _videoStreamIndex;
     public int MicStreamIndex => _micStreamIndex;
@@ -32,6 +33,7 @@ public sealed class MfFragmentedWriter : IDisposable
         int fps = 60,
         bool useHevc = false)
     {
+        _outputPath = outputPath;
         _width = width;
         _height = height;
         _nv12ByteSize = width * height * 3 / 2;
@@ -170,6 +172,32 @@ public sealed class MfFragmentedWriter : IDisposable
         if (_finalized) return;
         _finalized = true;
         _writer.Finalize();
+        _writer.Dispose();
+        StripRandomAccessIndex(_outputPath);
+    }
+
+    /// <summary>
+    /// Removes the trailing mfra box. The sink writes correct tfra entries (time and sample number of each key
+    /// frame), but the Windows MPEG-4 source applies an entry's time to the first sample of its moof, so every
+    /// fragment whose key frame is the n-th sample was presented n-1 frame periods late (0 to 300 ms). Without
+    /// mfra the source times samples from the trun durations, the same as a crash-recovered take.
+    /// </summary>
+    public static void StripRandomAccessIndex(string path)
+    {
+        using var fs = new FileStream(path, FileMode.Open, FileAccess.ReadWrite);
+        if (fs.Length < 16) return;
+        var tail = new byte[16];
+        fs.Seek(-16, SeekOrigin.End);
+        fs.ReadExactly(tail);
+        // mfro: size(4) 'mfro'(4) version+flags(4) mfra size(4), big endian.
+        if (tail[4] != 'm' || tail[5] != 'f' || tail[6] != 'r' || tail[7] != 'o') return;
+        long mfraSize = (uint)(tail[12] << 24 | tail[13] << 16 | tail[14] << 8 | tail[15]);
+        if (mfraSize < 16 || mfraSize > fs.Length) return;
+        var head = new byte[8];
+        fs.Seek(-mfraSize, SeekOrigin.End);
+        fs.ReadExactly(head);
+        if (head[4] != 'm' || head[5] != 'f' || head[6] != 'r' || head[7] != 'a') return;
+        fs.SetLength(fs.Length - mfraSize);
     }
 
     public static (string h264HwName, string hevcHwName) GetHardwareEncoders()
@@ -225,9 +253,9 @@ public sealed class MfFragmentedWriter : IDisposable
         if (!_finalized)
         {
             try { _writer.Finalize(); } catch { }
+            _writer.Dispose();
         }
 
-        _writer.Dispose();
         _dxgiManager.Dispose();
     }
 }

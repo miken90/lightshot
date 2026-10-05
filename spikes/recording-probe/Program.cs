@@ -200,6 +200,9 @@ public static class Program
             File.WriteAllLines(Path.Combine(artifactsDir, "take-frames.csv"),
                 new[] { "idx,ptsSec,counter,flashLuma,ambiguous" }.Concat(video.Frames.Select((f, i) =>
                     string.Create(CultureInfo.InvariantCulture, $"{i},{f.PtsSec:F5},{f.Counter},{f.FlashLuma:F1},{(f.Ambiguous ? 1 : 0)}"))));
+            File.WriteAllLines(Path.Combine(artifactsDir, "take-input-trace.csv"),
+                new[] { "idx,acquireSec,sampleSec,counter,duplicate,writeReturnSec" }.Concat(stats.VideoTrace.Select((x, i) =>
+                    string.Create(CultureInfo.InvariantCulture, $"{i},{(x.AcquireQpc - t0) / (double)freq:F5},{x.SampleHns / 1e7:F5},{x.Counter},{(x.Duplicate ? 1 : 0)},{(x.WriteReturnQpc - t0) / (double)freq:F5}"))));
         }
         var (micTrack, loopTrack) = Timed("decode 60 s audio", 180, () => ResolveAudioRoles(take60), m => (new AudioTrack { Error = m }, new AudioTrack { Error = m }));
         var vStats = TakeStats.Video(video, renderedCounters);
@@ -226,6 +229,10 @@ public static class Program
             long? epQpc = endpoint.BeepOnsetQpc(clapQpc[k]);
             double? epSec = epQpc.HasValue ? (epQpc.Value - t0) / (double)freq : null;
 
+            // Per stage: the sample times the sink writer was handed for the same flash frame and the same beep.
+            double? flashInSec = seen.qpc != 0 ? StageTiming.FlashInputSec(stats.VideoTrace, seen.qpc) : null;
+            var ai = stats.LoopbackInput.Usable ? TakeAnalyzer.BeepOnset(stats.LoopbackInput, k, expected) : new Onset(k, expected, null, "no loopback input");
+
             double? raw = vo.OnsetSec.HasValue && ao.OnsetSec.HasValue ? Math.Abs(vo.OnsetSec.Value - ao.OnsetSec.Value) * 1000.0 : null;
             double? videoFileErr = vo.OnsetSec.HasValue && ddaSeenSec.HasValue ? (vo.OnsetSec.Value - ddaSeenSec.Value) * 1000.0 : null;
             double? audioFileErr = ao.OnsetSec.HasValue && epSec.HasValue ? (ao.OnsetSec.Value - epSec.Value) * 1000.0 : null;
@@ -245,7 +252,23 @@ public static class Program
                 videoFileMinusCaptureMs = N(videoFileErr ?? double.NaN),
                 audioFileMinusEndpointMs = N(audioFileErr ?? double.NaN),
                 absFileVideoMinusFileAudioMs = N(raw ?? double.NaN),
+                flashSampleTimeHandedToWriterSec = N(flashInSec ?? double.NaN),
+                beepOnsetInPcmHandedToWriterSec = N(ai.OnsetSec ?? double.NaN),
+                videoFileMinusWriterInputMs = N(vo.OnsetSec.HasValue && flashInSec.HasValue ? (vo.OnsetSec.Value - flashInSec.Value) * 1000.0 : double.NaN),
+                audioFileMinusWriterInputMs = N(ai.OnsetSec.HasValue && ao.OnsetSec.HasValue ? (ao.OnsetSec.Value - ai.OnsetSec.Value) * 1000.0 : double.NaN),
+                writerInputVideoMinusCaptureMs = N(flashInSec.HasValue && ddaSeenSec.HasValue ? (flashInSec.Value - ddaSeenSec.Value) * 1000.0 : double.NaN),
+                writerInputAudioMinusEndpointMs = N(ai.OnsetSec.HasValue && epSec.HasValue ? (ai.OnsetSec.Value - epSec.Value) * 1000.0 : double.NaN),
                 driftMs = N(d ?? double.NaN),
+                diagnosticEndpointStamp = epQpc.HasValue && endpoint.StampLateVsSampleClockMs(epQpc.Value) is { } late
+                    ? new
+                    {
+                        beepChunkStampLateVsSampleClockMs = N(late.lateMs),
+                        allChunksMedianLateMs = N(late.medianLateMs),
+                        allChunksMaxLateMs = N(late.maxLateMs),
+                        driftIfReferenceOnSampleClockMs = N(videoFileErr.HasValue && audioFileErr.HasValue
+                            ? Math.Abs(videoFileErr.Value - (audioFileErr.Value + late.lateMs)) : double.NaN)
+                    }
+                    : null,
                 videoNote = vo.Note,
                 audioNote = ao.Note
             });
@@ -263,6 +286,7 @@ public static class Program
                 lastClapDriftMs = N(lastDrift ?? double.NaN),
                 allClapsDriftMs = driftMs.Select(x => N(x ?? double.NaN)).ToList(),
                 allClapsRawFileOnlyDiffMs = rawDriftMs.Select(x => N(x ?? double.NaN)).ToList(),
+                videoStages = StageTiming.Video(video, stats.VideoTrace),
                 audioCarrierTrack = "process-excluding loopback track; beep played by a separate helper process outside the probe process tree",
                 perClap = claps
             },
@@ -297,7 +321,6 @@ public static class Program
                 outputFramesDecoded = vStats.Frames,
                 outputFramesWritten = stats.VideoFramesWritten,
                 duplicateFramesWritten = stats.DuplicateFrames,
-                surplusFramesThrottled = stats.ThrottledFrames,
                 ddaAcquiredFrames = dda.AcquiredFrames,
                 ddaAcquiredCounterRange = ddaRange,
                 ddaAcquiredUniqueCounters = ddaSet.Count,
@@ -434,6 +457,8 @@ public static class Program
         report.HardwareMatrix["take60Loopback"] = loopStats;
         report.HardwareMatrix["sourceDpiScale"] = dpi;
         report.HardwareMatrix["discardedPreStartAudioPackets"] = stats.PreStartAudioDiscarded;
+        report.HardwareMatrix["audioContiguityFix"] = stats.AudioContiguityFix.ToDictionary(
+            kv => kv.Key, kv => new { silenceFramesInserted = kv.Value.silenceFrames, overlapFramesTrimmed = kv.Value.trimmedFrames });
 
         string json = JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true });
         Console.WriteLine(json);
