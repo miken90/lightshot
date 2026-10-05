@@ -1,6 +1,6 @@
 # Phase 3: Core domain port and deterministic rendering
 
-Status: pending | Effort: 12d | Priority: P1 | Depends on: phase 1 (only Core/Capture interfaces wait for the spike A verdict; split gates: A, D gate 4; B gates 7; C gates 8; E gates 6, 8, 10)
+Status: in progress (Package C1 leaf domain ported; Package C2 pending) | Effort: 12d | Priority: P1 | Depends on: phase 1 (only Core/Capture interfaces wait for the spike A verdict; split gates: A, D gate 4; B gates 7; C gates 8; E gates 6, 8, 10)
 
 ## Overview
 
@@ -66,7 +66,7 @@ The slice shipped is a tested library pair: later phases code against stable int
 | AnnotationDocumentTests (58), ArrowGeometryTests (12), CanvasProjectionTests (6), EditableSelectionTests (21), StyleFieldsTests (1) | Core.Tests, Unit | **MVP** | Verbatim; method names preserved (98 tests) |
 | AppCoordinatorTests (90) | Core.Tests, Unit (~80); Rendering.Tests, Render (~10) | **MVP** | Fakes ported once; `ImmediateDispatcher` replaces `@MainActor` (90 tests) |
 | RecordingCoordinatorTests (76) | Core.Tests, Unit (~70); Rendering.Tests, Render (~6) | **MVP** | Same split; covers MVP recording coordination (76 tests) |
-| AppearanceTests (8), AudioMixerTests (7), ClickHighlightTests (5), GIFFramePlanTests (5), HotkeyBindingTests (11), KeystrokeOverlayTests (12), MutedMicrophoneDetectorTests (3), PermissionGateTests (5), PermissionOnboardingModelTests (9), QuickAccessTests (13), RecordedAreaTests (3), RecordingOptionsTests (18), RecordingSessionTests (13), SeamTests (2), VideoEditTests (5), VideoTimelineTests (4) | Core.Tests, Unit | **MVP** | 16 classes, 119 tests. HotkeyBinding and KeystrokeOverlay switch to VKs; VideoEdit/Timeline used by trim editor |
+| AppearanceTests (8), AudioMixerTests (7), ClickHighlightTests (5), GIFFramePlanTests (5), HotkeyBindingTests (11), KeystrokeOverlayTests (12), MutedMicrophoneDetectorTests (3), PermissionGateTests (5), PermissionOnboardingModelTests (9), QuickAccessTests (13), RecordedAreaTests (3), RecordingOptionsTests (18), RecordingSessionTests (13), SeamTests (2), VideoEditTests (5), VideoTimelineTests (4) | Core.Tests, Unit | **MVP** | 16 classes, 123 tests. HotkeyBinding and KeystrokeOverlay switch to VKs; VideoEdit/Timeline used by trim editor |
 | CameraBubbleTests (7) | Core.Tests, Unit | **Deferred (Post-MVP)** | Camera bubble package R4 deferred (7 tests) |
 | TextCaptureTests (14) | Core.Tests, Unit | **Deferred (Post-MVP)** | Phase 6 OCR Text capture deferred (14 tests) |
 | Studio*: AnnotationTests (5), CaptionTests (13), CaptureTests (10), DocumentTests (11), EngineTests (22), ExportBitRateTests (5), ExportFrameRateTests (5), FlattenTests (4), SnapTests (4), TrimSpeedTests (14) | Core.Tests, Unit | **Deferred (Post-MVP)** | 10 classes, 93 tests deferred to Phase 8 |
@@ -76,7 +76,7 @@ The slice shipped is a tested library pair: later phases code against stable int
 | HistoryStoreTests (14) | Core.Tests, Unit (history decode); Rendering.Tests, Render (thumbnails) | **MVP** | 14 tests |
 
 **Arithmetic Verification:**  
-MVP tests: 98 + 90 + 76 + 119 + 37 + 13 + 14 = **451 tests** across **28 classes**.  
+MVP tests: 98 + 90 + 76 + 123 + 37 + 13 + 14 = **451 tests** across **28 classes**.  
 Deferred tests: 7 (CameraBubble) + 14 (TextCapture) + 93 (Studio 10 classes) + 30 (AutoRedact) = **144 tests** across **13 classes**.  
 Total: 451 + 144 = **595 tests** across **41 classes** (exact match to cloned manifest).
 

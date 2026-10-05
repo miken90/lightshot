@@ -1,0 +1,3409 @@
+{
+  "version": 1,
+  "upstreamCommit": "b54a970924e10d5321465ba6ff4816b919afcc61",
+  "classes": {
+    "AnnotationDocumentTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "addAppendsAndReturnsAddressableID",
+          "csharpMethod": "AddAppendsAndReturnsAddressableID",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "addDoesNotChangeSelection",
+          "csharpMethod": "AddDoesNotChangeSelection",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "selectRecordsAKnownElementAndClearsOnNil",
+          "csharpMethod": "SelectRecordsAKnownElementAndClearsOnNil",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "selectIgnoresUnknownIdentity",
+          "csharpMethod": "SelectIgnoresUnknownIdentity",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "deleteRemovesElementAndClearsItsSelection",
+          "csharpMethod": "DeleteRemovesElementAndClearsItsSelection",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "moveTranslatesEveryCoordinate",
+          "csharpMethod": "MoveTranslatesEveryCoordinate",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "resizeFromBottomRightGrowsBoundingBox",
+          "csharpMethod": "ResizeFromBottomRightGrowsBoundingBox",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "resizeScalesInteriorPointsProportionally",
+          "csharpMethod": "ResizeScalesInteriorPointsProportionally",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "resizeKeepsStepMarkerCircular",
+          "csharpMethod": "ResizeKeepsStepMarkerCircular",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "transformOnUnknownIdIsANoOp",
+          "csharpMethod": "TransformOnUnknownIdIsANoOp",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "setStyleReplacesAppearanceOnly",
+          "csharpMethod": "SetStyleReplacesAppearanceOnly",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "updateTextRewritesStringKeepingAHandSetWidth",
+          "csharpMethod": "UpdateTextRewritesStringKeepingAHandSetWidth",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "updateTextOnNonTextElementIsANoOp",
+          "csharpMethod": "UpdateTextOnNonTextElementIsANoOp",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "setStepRadiusResizesTheDisc",
+          "csharpMethod": "SetStepRadiusResizesTheDisc",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "setStepRadiusOnNonMarkerIsANoOp",
+          "csharpMethod": "SetStepRadiusOnNonMarkerIsANoOp",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "consecutiveStyleEditsCollapseToOneUndoStep",
+          "csharpMethod": "ConsecutiveStyleEditsCollapseToOneUndoStep",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "consecutiveTextEditsCollapseToOneUndoStep",
+          "csharpMethod": "ConsecutiveTextEditsCollapseToOneUndoStep",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "endCoalescingSplitsRunsIntoSeparateUndoSteps",
+          "csharpMethod": "EndCoalescingSplitsRunsIntoSeparateUndoSteps",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "selectionClosesTheRun",
+          "csharpMethod": "SelectionClosesTheRun",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "styleAndStepRadiusShareOneUndoStep",
+          "csharpMethod": "StyleAndStepRadiusShareOneUndoStep",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "differentCommandsBetweenEditsBreakCoalescing",
+          "csharpMethod": "DifferentCommandsBetweenEditsBreakCoalescing",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "addsStackInInsertionOrder",
+          "csharpMethod": "AddsStackInInsertionOrder",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "reorderMovesElementToNewIndex",
+          "csharpMethod": "ReorderMovesElementToNewIndex",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "reorderClampsOutOfRangeIndex",
+          "csharpMethod": "ReorderClampsOutOfRangeIndex",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "returnsTopmostElementAtPoint",
+          "csharpMethod": "ReturnsTopmostElementAtPoint",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "reorderChangesWhichElementIsHit",
+          "csharpMethod": "ReorderChangesWhichElementIsHit",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "missReturnsNil",
+          "csharpMethod": "MissReturnsNil",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "thinLineIsHitWithinStrokeTolerance",
+          "csharpMethod": "ThinLineIsHitWithinStrokeTolerance",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "ellipseUsesRadialContainmentNotBoundingBox",
+          "csharpMethod": "EllipseUsesRadialContainmentNotBoundingBox",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "numbersAutoIncrementOnAdd",
+          "csharpMethod": "NumbersAutoIncrementOnAdd",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "addIgnoresCallerSuppliedNumber",
+          "csharpMethod": "AddIgnoresCallerSuppliedNumber",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "deletingAMarkerDoesNotRenumberSurvivors",
+          "csharpMethod": "DeletingAMarkerDoesNotRenumberSurvivors",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "deletingHighestMarkerFreesItsNumberForReuse",
+          "csharpMethod": "DeletingHighestMarkerFreesItsNumberForReuse",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "numberingResetsOnceAllMarkersGone",
+          "csharpMethod": "NumberingResetsOnceAllMarkersGone",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "undoRedoReversesAndReappliesAdd",
+          "csharpMethod": "UndoRedoReversesAndReappliesAdd",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "undoRestoresDeletedElement",
+          "csharpMethod": "UndoRestoresDeletedElement",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "undoRevertsMoveGeometry",
+          "csharpMethod": "UndoRevertsMoveGeometry",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "undoRevertsStyleAndText",
+          "csharpMethod": "UndoRevertsStyleAndText",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "redoReappliesANonAddCommand",
+          "csharpMethod": "RedoReappliesANonAddCommand",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "undoRevertsReorder",
+          "csharpMethod": "UndoRevertsReorder",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "newCommandAfterUndoInvalidatesRedoStack",
+          "csharpMethod": "NewCommandAfterUndoInvalidatesRedoStack",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "undoAndRedoAreNoOpsWhenStacksEmpty",
+          "csharpMethod": "UndoAndRedoAreNoOpsWhenStacksEmpty",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "selectIsNotUndoable",
+          "csharpMethod": "SelectIsNotUndoable",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "visibleFrameDefaultsToFullImage",
+          "csharpMethod": "VisibleFrameDefaultsToFullImage",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "applyCropRecordsTheVisibleFrame",
+          "csharpMethod": "ApplyCropRecordsTheVisibleFrame",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "applyCropClampsToImageBounds",
+          "csharpMethod": "ApplyCropClampsToImageBounds",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "cropDoesNotMoveElementGeometry",
+          "csharpMethod": "CropDoesNotMoveElementGeometry",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "cropAppliedThenReversedLeavesElementsIntactInImageSpace",
+          "csharpMethod": "CropAppliedThenReversedLeavesElementsIntactInImageSpace",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "reshapingTheTipLeavesTheTailWhereItWas",
+          "csharpMethod": "ReshapingTheTipLeavesTheTailWhereItWas",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "reshapingALineMovesOneEndpoint",
+          "csharpMethod": "ReshapingALineMovesOneEndpoint",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "draggingAnEndpointCarriesTheBendWithTheShaft",
+          "csharpMethod": "DraggingAnEndpointCarriesTheBendWithTheShaft",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "draggingTheBendRecurvesABendableArrowOnly",
+          "csharpMethod": "DraggingTheBendRecurvesABendableArrowOnly",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "movingACurvedArrowMovesItsBend",
+          "csharpMethod": "MovingACurvedArrowMovesItsBend",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "switchingToABendableStyleAddsABendAndSwitchingBackDropsIt",
+          "csharpMethod": "SwitchingToABendableStyleAddsABendAndSwitchingBackDropsIt",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aCurvedArrowIsHitAlongItsCurveNotItsChord",
+          "csharpMethod": "ACurvedArrowIsHitAlongItsCurveNotItsChord",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "setRedactionRestylesInPlaceKeepingRectAndSeed",
+          "csharpMethod": "SetRedactionRestylesInPlaceKeepingRectAndSeed",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "oneStrengthSliderDragIsOneUndoStep",
+          "csharpMethod": "OneStrengthSliderDragIsOneUndoStep",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aDrawingToolGrabsAMarkButCanStillDrawInsideAnOutline",
+          "csharpMethod": "ADrawingToolGrabsAMarkButCanStillDrawInsideAnOutline",
+          "status": "ported"
+        }
+      ]
+    },
+    "AppCoordinatorTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "successfulCaptureReachesEditorWithTheImage",
+          "csharpMethod": "SuccessfulCaptureReachesEditorWithTheImage",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "permissionDeniedRoutesToRecoveryNeverABlankEditor",
+          "csharpMethod": "PermissionDeniedRoutesToRecoveryNeverABlankEditor",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "userCancelledIsASilentNoOp",
+          "csharpMethod": "UserCancelledIsASilentNoOp",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "otherFailuresSurfaceADistinctMessage",
+          "csharpMethod": "OtherFailuresSurfaceADistinctMessage",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "firstRunPromptsForAuthorizationBeforeCapturing",
+          "csharpMethod": "FirstRunPromptsForAuthorizationBeforeCapturing",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "alreadyAuthorizedNeverRePrompts",
+          "csharpMethod": "AlreadyAuthorizedNeverRePrompts",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "standingDenialDoesNotRePromptAndTheCaptureRoutesToRecovery",
+          "csharpMethod": "StandingDenialDoesNotRePromptAndTheCaptureRoutesToRecovery",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "permissionRevokedAfterTheAdvisoryCheckStillRoutesToRecovery",
+          "csharpMethod": "PermissionRevokedAfterTheAdvisoryCheckStillRoutesToRecovery",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "areaCaptureFirstRunPromptsThenRunsTheOverlay",
+          "csharpMethod": "AreaCaptureFirstRunPromptsThenRunsTheOverlay",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "firstRunFullscreenStopsAtTheSystemPromptInsteadOfStackingTheRecoveryAlert",
+          "csharpMethod": "FirstRunFullscreenStopsAtTheSystemPromptInsteadOfStackingTheRecoveryAlert",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "firstRunAreaStopsAtTheSystemPromptInsteadOfCoveringItWithTheOverlay",
+          "csharpMethod": "FirstRunAreaStopsAtTheSystemPromptInsteadOfCoveringItWithTheOverlay",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "firstRunWindowStopsAtTheSystemPromptInsteadOfCoveringItWithTheOverlay",
+          "csharpMethod": "FirstRunWindowStopsAtTheSystemPromptInsteadOfCoveringItWithTheOverlay",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "copyPlacesTheRenderedImageOnTheClipboard",
+          "csharpMethod": "CopyPlacesTheRenderedImageOnTheClipboard",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "areaCaptureResolvesRegionThenCapturesItAndOpensTheEditor",
+          "csharpMethod": "AreaCaptureResolvesRegionThenCapturesItAndOpensTheEditor",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "areaCaptureShowsTheToolbarWhenOpenInEditorIsOff",
+          "csharpMethod": "AreaCaptureShowsTheToolbarWhenOpenInEditorIsOff",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "openInEditorIsReadAtCaptureTimeSoAChangeAppliesToTheNextCapture",
+          "csharpMethod": "OpenInEditorIsReadAtCaptureTimeSoAChangeAppliesToTheNextCapture",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "fullscreenFollowsOpenInEditorButOpenFileAlwaysOpensTheEditor",
+          "csharpMethod": "FullscreenFollowsOpenInEditorButOpenFileAlwaysOpensTheEditor",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "theSelfTimerAndRepeatLastCapturePathsAlsoEndInQuickAccess",
+          "csharpMethod": "TheSelfTimerAndRepeatLastCapturePathsAlsoEndInQuickAccess",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "fullscreenOpensTheEditorWhenOpenInEditorIsOn",
+          "csharpMethod": "FullscreenOpensTheEditorWhenOpenInEditorIsOn",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "escapeInTheOverlayCancelsWithNoCapture",
+          "csharpMethod": "EscapeInTheOverlayCancelsWithNoCapture",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "areaCapturePermissionDeniedRoutesToRecoveryNotAToolbar",
+          "csharpMethod": "AreaCapturePermissionDeniedRoutesToRecoveryNotAToolbar",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "areaCaptureUserCancelledIsASilentNoOp",
+          "csharpMethod": "AreaCaptureUserCancelledIsASilentNoOp",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "areaCaptureOtherFailureSurfacesADistinctMessage",
+          "csharpMethod": "AreaCaptureOtherFailureSurfacesADistinctMessage",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "windowCaptureResolvesWindowThenCapturesItAndOpensTheEditor",
+          "csharpMethod": "WindowCaptureResolvesWindowThenCapturesItAndOpensTheEditor",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "windowCaptureShowsTheToolbarWhenOpenInEditorIsOff",
+          "csharpMethod": "WindowCaptureShowsTheToolbarWhenOpenInEditorIsOff",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "windowCaptureFirstRunPromptsThenRunsTheOverlay",
+          "csharpMethod": "WindowCaptureFirstRunPromptsThenRunsTheOverlay",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "escapeInWindowModeCancelsWithNoCapture",
+          "csharpMethod": "EscapeInWindowModeCancelsWithNoCapture",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "windowCapturePermissionDeniedRoutesToRecoveryNotAToolbar",
+          "csharpMethod": "WindowCapturePermissionDeniedRoutesToRecoveryNotAToolbar",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "windowCaptureUserCancelledIsASilentNoOp",
+          "csharpMethod": "WindowCaptureUserCancelledIsASilentNoOp",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "windowCaptureOtherFailureSurfacesADistinctMessage",
+          "csharpMethod": "WindowCaptureOtherFailureSurfacesADistinctMessage",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "openFileLoadsTheImageIntoTheEditorViaOpenEditor",
+          "csharpMethod": "OpenFileLoadsTheImageIntoTheEditorViaOpenEditor",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "openFileCancelledPanelIsASilentNoOp",
+          "csharpMethod": "OpenFileCancelledPanelIsASilentNoOp",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "openFileUnreadableSurfacesADistinctFailureNotABlankEditor",
+          "csharpMethod": "OpenFileUnreadableSurfacesADistinctFailureNotABlankEditor",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "openFileUnsupportedFormatSurfacesADistinctFailure",
+          "csharpMethod": "OpenFileUnsupportedFormatSurfacesADistinctFailure",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "saveWritesTheRenderedImageWithTheExactFormat",
+          "csharpMethod": "SaveWritesTheRenderedImageWithTheExactFormat",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "defaultSaveUsesTheConfiguredLocationPatternAndFormat",
+          "csharpMethod": "DefaultSaveUsesTheConfiguredLocationPatternAndFormat",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "dragItemCarriesTheRenderedBytesInTheDefaultFormat",
+          "csharpMethod": "DragItemCarriesTheRenderedBytesInTheDefaultFormat",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "fullscreenCaptureIsRecordedInHistory",
+          "csharpMethod": "FullscreenCaptureIsRecordedInHistory",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "areaCaptureIsRecordedInHistory",
+          "csharpMethod": "AreaCaptureIsRecordedInHistory",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "windowCaptureIsRecordedInHistory",
+          "csharpMethod": "WindowCaptureIsRecordedInHistory",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "openingAFileIsNotRecordedInHistory",
+          "csharpMethod": "OpeningAFileIsNotRecordedInHistory",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aFailedCaptureRecordsNothing",
+          "csharpMethod": "AFailedCaptureRecordsNothing",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "fullscreenWaitsTheConfiguredSelfTimerBeforeCapturing",
+          "csharpMethod": "FullscreenWaitsTheConfiguredSelfTimerBeforeCapturing",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "areaWaitsTheSelfTimerAfterResolvingTheRegion",
+          "csharpMethod": "AreaWaitsTheSelfTimerAfterResolvingTheRegion",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "windowWaitsTheSelfTimerAfterPickingTheWindow",
+          "csharpMethod": "WindowWaitsTheSelfTimerAfterPickingTheWindow",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aZeroSelfTimerSkipsTheWaitEntirely",
+          "csharpMethod": "AZeroSelfTimerSkipsTheWaitEntirely",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "fullscreenTargetsTheChosenDisplay",
+          "csharpMethod": "FullscreenTargetsTheChosenDisplay",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "fullscreenDefaultsToThePrimaryDisplay",
+          "csharpMethod": "FullscreenDefaultsToThePrimaryDisplay",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "repeatWithNoPriorCaptureIsASilentNoOp",
+          "csharpMethod": "RepeatWithNoPriorCaptureIsASilentNoOp",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "repeatReplaysFullscreenIncludingTheChosenDisplay",
+          "csharpMethod": "RepeatReplaysFullscreenIncludingTheChosenDisplay",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "repeatReplaysAreaThroughTheOverlayAgain",
+          "csharpMethod": "RepeatReplaysAreaThroughTheOverlayAgain",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "repeatUsesTheMostRecentModeNotAnEarlierOne",
+          "csharpMethod": "RepeatUsesTheMostRecentModeNotAnEarlierOne",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextCopiesTheRecognisedTextOfTheSelectedArea",
+          "csharpMethod": "CaptureTextCopiesTheRecognisedTextOfTheSelectedArea",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextCopiesACodeInsteadOfTheTextAroundIt",
+          "csharpMethod": "CaptureTextCopiesACodeInsteadOfTheTextAroundIt",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextNamesMixedCodesByTheFirstInReadingOrder",
+          "csharpMethod": "CaptureTextNamesMixedCodesByTheFirstInReadingOrder",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextNamesABarcodeByTheFirstCodesKind",
+          "csharpMethod": "CaptureTextNamesABarcodeByTheFirstCodesKind",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextFallsBackToTheTextWhenCodesAreBlank",
+          "csharpMethod": "CaptureTextFallsBackToTheTextWhenCodesAreBlank",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextJoinsRowsWhenLineBreaksAreOff",
+          "csharpMethod": "CaptureTextJoinsRowsWhenLineBreaksAreOff",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "theLineBreakSettingLeavesCodeContentAlone",
+          "csharpMethod": "TheLineBreakSettingLeavesCodeContentAlone",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextCancelledOverlayDoesNothing",
+          "csharpMethod": "CaptureTextCancelledOverlayDoesNothing",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextWithNothingReadableLeavesTheClipboardAlone",
+          "csharpMethod": "CaptureTextWithNothingReadableLeavesTheClipboardAlone",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextRecognitionFailureIsReportedAndCopiesNothing",
+          "csharpMethod": "CaptureTextRecognitionFailureIsReportedAndCopiesNothing",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextRoutesCaptureFailuresLikeAreaCapture",
+          "csharpMethod": "CaptureTextRoutesCaptureFailuresLikeAreaCapture",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextRunsFirstRunOnboardingBeforeTheOverlay",
+          "csharpMethod": "CaptureTextRunsFirstRunOnboardingBeforeTheOverlay",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextIgnoresTheSelfTimer",
+          "csharpMethod": "CaptureTextIgnoresTheSelfTimer",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextLeavesRepeatLastCaptureOnTheLastScreenshot",
+          "csharpMethod": "CaptureTextLeavesRepeatLastCaptureOnTheLastScreenshot",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextWithoutARecognizerIsANoOp",
+          "csharpMethod": "CaptureTextWithoutARecognizerIsANoOp",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "captureTextAddsNothingToHistory",
+          "csharpMethod": "CaptureTextAddsNothingToHistory",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "areaCaptureSelectsOverTheFrozenScreenAndOpensItsCrop",
+          "csharpMethod": "AreaCaptureSelectsOverTheFrozenScreenAndOpensItsCrop",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "areaCaptureOfTheFrozenScreenShowsAQuickAccessCardAndIsRecordedInHistory",
+          "csharpMethod": "AreaCaptureOfTheFrozenScreenShowsAQuickAccessCardAndIsRecordedInHistory",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aFailedFreezeRoutesLikeACaptureFailureAndNeverShowsTheOverlay",
+          "csharpMethod": "AFailedFreezeRoutesLikeACaptureFailureAndNeverShowsTheOverlay",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aSelectionOffTheFrozenScreenIsAFailureNotABlankEditor",
+          "csharpMethod": "ASelectionOffTheFrozenScreenIsAFailureNotABlankEditor",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "escapeOverTheFrozenScreenCapturesNothing",
+          "csharpMethod": "EscapeOverTheFrozenScreenCapturesNothing",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "areaCaptureWithASelfTimerSkipsTheFreezeAndCapturesLive",
+          "csharpMethod": "AreaCaptureWithASelfTimerSkipsTheFreezeAndCapturesLive",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "windowCaptureGivesThePickedWindowAsItWasAtTheFreeze",
+          "csharpMethod": "WindowCaptureGivesThePickedWindowAsItWasAtTheFreeze",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aWindowWithNoFrozenImageIsCapturedLive",
+          "csharpMethod": "AWindowWithNoFrozenImageIsCapturedLive",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "windowCaptureWithASelfTimerFreezesThePickerButCapturesLiveAfterTheWait",
+          "csharpMethod": "WindowCaptureWithASelfTimerFreezesThePickerButCapturesLiveAfterTheWait",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "areaAndOCRFreezesSkipTheWindowImages",
+          "csharpMethod": "AreaAndOCRFreezesSkipTheWindowImages",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "ocrTextReadsTheFrozenPixelsOfTheSelection",
+          "csharpMethod": "OcrTextReadsTheFrozenPixelsOfTheSelection",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "ocrTextFreezeFailureRoutesLikeACaptureFailure",
+          "csharpMethod": "OcrTextFreezeFailureRoutesLikeACaptureFailure",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "repeatingAnAreaCaptureFreezesAfresh",
+          "csharpMethod": "RepeatingAnAreaCaptureFreezesAfresh",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "fullscreenNeverFreezes",
+          "csharpMethod": "FullscreenNeverFreezes",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "areaCaptureCapturesOnReleaseByDefault",
+          "csharpMethod": "AreaCaptureCapturesOnReleaseByDefault",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "withTheSettingOnAreaCaptureAsksForAnAdjustableSelectionAndCapturesItAsUsual",
+          "csharpMethod": "WithTheSettingOnAreaCaptureAsksForAnAdjustableSelectionAndCapturesItAsUsual",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "withTheSettingOnAnAdjustedAreaStillFollowsAfterCaptureToQuickAccess",
+          "csharpMethod": "WithTheSettingOnAnAdjustedAreaStillFollowsAfterCaptureToQuickAccess",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "withTheSettingOnASelfTimerAdjustsOverTheLiveScreenThenWaits",
+          "csharpMethod": "WithTheSettingOnASelfTimerAdjustsOverTheLiveScreenThenWaits",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "withTheSettingOnRepeatLastCaptureAdjustsToo",
+          "csharpMethod": "WithTheSettingOnRepeatLastCaptureAdjustsToo",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "theSettingIsReadLiveOnEachCapture",
+          "csharpMethod": "TheSettingIsReadLiveOnEachCapture",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "withTheSettingOnCancellingCapturesNothing",
+          "csharpMethod": "WithTheSettingOnCancellingCapturesNothing",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "ocrTextCopiesOnReleaseWhateverTheSetting",
+          "csharpMethod": "OcrTextCopiesOnReleaseWhateverTheSetting",
+          "status": "pending: C2"
+        }
+      ]
+    },
+    "AppearanceTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "aPreferenceResolvesToThePinnedAppearanceOrTheSystems",
+          "csharpMethod": "APreferenceResolvesToThePinnedAppearanceOrTheSystems",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aMissingOrUnknownStoredPreferenceMatchesTheSystem",
+          "csharpMethod": "AMissingOrUnknownStoredPreferenceMatchesTheSystem",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "contrastRatioMatchesWCAGKnownValues",
+          "csharpMethod": "ContrastRatioMatchesWCAGKnownValues",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "everyLegibilityPairMeetsItsContrastInBothAppearances",
+          "csharpMethod": "EveryLegibilityPairMeetsItsContrastInBothAppearances",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "everySurfaceTheChromeDrawsOnIsCheckedForText",
+          "csharpMethod": "EverySurfaceTheChromeDrawsOnIsCheckedForText",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "darkIsTheChromeLightshotAlwaysDrew",
+          "csharpMethod": "DarkIsTheChromeLightshotAlwaysDrew",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "accentsKeepTheirHueInBothAppearances",
+          "csharpMethod": "AccentsKeepTheirHueInBothAppearances",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "lightChromeIsLightAndDarkChromeIsDark",
+          "csharpMethod": "LightChromeIsLightAndDarkChromeIsDark",
+          "status": "ported"
+        }
+      ]
+    },
+    "ArrowGeometryTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "taperedStylesWidenFromTailToHead",
+          "csharpMethod": "TaperedStylesWidenFromTailToHead",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "fancyHeadSweepsItsBarbsBackPastTheNeck",
+          "csharpMethod": "FancyHeadSweepsItsBarbsBackPastTheNeck",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aShortArrowShrinksItsHeadInsteadOfOvershootingTheTail",
+          "csharpMethod": "AShortArrowShrinksItsHeadInsteadOfOvershootingTheTail",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "anUnbentCurvedArrowIsTheStandardArrow",
+          "csharpMethod": "AnUnbentCurvedArrowIsTheStandardArrow",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aNewBendableArrowStartsStraight",
+          "csharpMethod": "ANewBendableArrowStartsStraight",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "curvedHeadFollowsTheShaftsTangentAtTheTip",
+          "csharpMethod": "CurvedHeadFollowsTheShaftsTangentAtTheTip",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aBentCurvedArrowStillWidensFromTailToHead",
+          "csharpMethod": "ABentCurvedArrowStillWidensFromTailToHead",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "doubleStyleCarriesTheStandardHeadAtBothEnds",
+          "csharpMethod": "DoubleStyleCarriesTheStandardHeadAtBothEnds",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aShortDoubleArrowsHeadsNeverMeet",
+          "csharpMethod": "AShortDoubleArrowsHeadsNeverMeet",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "zeroLengthArrowHasNoOutline",
+          "csharpMethod": "ZeroLengthArrowHasNoOutline",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "scalingTheInputsScalesTheOutline",
+          "csharpMethod": "ScalingTheInputsScalesTheOutline",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "centerlinePassesThroughTheBend",
+          "csharpMethod": "CenterlinePassesThroughTheBend",
+          "status": "ported"
+        }
+      ]
+    },
+    "AudioMixerTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "sumsTwoSourcesFrameByFrameAndAdvancesTheCursor",
+          "csharpMethod": "SumsTwoSourcesFrameByFrameAndAdvancesTheCursor",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "waitsForTheLaggingSourceAndPadsItsGapWithSilence",
+          "csharpMethod": "WaitsForTheLaggingSourceAndPadsItsGapWithSilence",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "anInactiveSourceNoLongerHoldsTheMixBack",
+          "csharpMethod": "AnInactiveSourceNoLongerHoldsTheMixBack",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "clipsToUnityAndHandlesStereoInterleaving",
+          "csharpMethod": "ClipsToUnityAndHandlesStereoInterleaving",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aStalledSourceStopsHoldingTheMixBackAfterMaxLag",
+          "csharpMethod": "AStalledSourceStopsHoldingTheMixBackAfterMaxLag",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "gainScalesAndClips",
+          "csharpMethod": "GainScalesAndClips",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "overlappingPushesKeepOnlyTheNewTailAndOldFramesAreDropped",
+          "csharpMethod": "OverlappingPushesKeepOnlyTheNewTailAndOldFramesAreDropped",
+          "status": "ported"
+        }
+      ]
+    },
+    "AutoRedactTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "findsLuhnValidCardsAndIgnoresNearMisses",
+          "csharpMethod": "FindsLuhnValidCardsAndIgnoresNearMisses",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "findsValidIBANsAndIgnoresABadCheckDigit",
+          "csharpMethod": "FindsValidIBANsAndIgnoresABadCheckDigit",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "findsEmails",
+          "csharpMethod": "FindsEmails",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "findsPhoneNumbers",
+          "csharpMethod": "FindsPhoneNumbers",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "longDigitRunsAreNotPhoneNumbers",
+          "csharpMethod": "LongDigitRunsAreNotPhoneNumbers",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "findsSSNsButNotImpossibleOnes",
+          "csharpMethod": "FindsSSNsButNotImpossibleOnes",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "findsIPv4AndIPv6ButNotOutOfRangeOctets",
+          "csharpMethod": "FindsIPv4AndIPv6ButNotOutOfRangeOctets",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "findsKnownKeyFormats",
+          "csharpMethod": "FindsKnownKeyFormats",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "coversOnlyTheValueAfterALabel",
+          "csharpMethod": "CoversOnlyTheValueAfterALabel",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "slicesAWordWhenTheValueIsPartOfIt",
+          "csharpMethod": "SlicesAWordWhenTheValueIsPartOfIt",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "coversTheValueInTheNextColumnOfALabel",
+          "csharpMethod": "CoversTheValueInTheNextColumnOfALabel",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "leavesCommitHashesAloneUnlessLabelled",
+          "csharpMethod": "LeavesCommitHashesAloneUnlessLabelled",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "findsLongRandomLookingStrings",
+          "csharpMethod": "FindsLongRandomLookingStrings",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "coversEveryLineOfAPrivateKeyBlock",
+          "csharpMethod": "CoversEveryLineOfAPrivateKeyBlock",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "linksAndAddressesAreFoundOnlyWhenEnabled",
+          "csharpMethod": "LinksAndAddressesAreFoundOnlyWhenEnabled",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "aCardNumberNeverResurfacesAsAPhoneNumber",
+          "csharpMethod": "ACardNumberNeverResurfacesAsAPhoneNumber",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "disablingACategoryRemovesExactlyItsDetections",
+          "csharpMethod": "DisablingACategoryRemovesExactlyItsDetections",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "facesAndCodesPassThroughPadded",
+          "csharpMethod": "FacesAndCodesPassThroughPadded",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "adjacentMatchesOnALineMergeIntoOne",
+          "csharpMethod": "AdjacentMatchesOnALineMergeIntoOne",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "matchesOnDifferentLinesStaySeparate",
+          "csharpMethod": "MatchesOnDifferentLinesStaySeparate",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "distantMatchesOnALineStaySeparate",
+          "csharpMethod": "DistantMatchesOnALineStaySeparate",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "elementsCarryTheStyleStrengthAndDistinctSeeds",
+          "csharpMethod": "ElementsCarryTheStyleStrengthAndDistinctSeeds",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "clipsToTheCropAndDropsWhatIsOutsideIt",
+          "csharpMethod": "ClipsToTheCropAndDropsWhatIsOutsideIt",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "skipsWhatAnExistingRedactionAlreadyCovers",
+          "csharpMethod": "SkipsWhatAnExistingRedactionAlreadyCovers",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "countsByCategoryMostFirst",
+          "csharpMethod": "CountsByCategoryMostFirst",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "addsEveryElementOnTopInOrder",
+          "csharpMethod": "AddsEveryElementOnTopInOrder",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "theBatchIsOneUndoStep",
+          "csharpMethod": "TheBatchIsOneUndoStep",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "anEmptyBatchRecordsNothing",
+          "csharpMethod": "AnEmptyBatchRecordsNothing",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "aLaterEditUndoesSeparately",
+          "csharpMethod": "ALaterEditUndoesSeparately",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        },
+        {
+          "swiftMethod": "stepMarkersInABatchAreNumberedInOrder",
+          "csharpMethod": "StepMarkersInABatchAreNumberedInOrder",
+          "status": "deferred",
+          "reason": "Post-MVP Auto Redact (Phase 6)"
+        }
+      ]
+    },
+    "CameraBubbleTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "theBubbleSizeFollowsTheRegionsShorterSideWithAFloor",
+          "csharpMethod": "TheBubbleSizeFollowsTheRegionsShorterSideWithAFloor",
+          "status": "deferred",
+          "reason": "Post-MVP Camera Bubble (Phase 7 R4)"
+        },
+        {
+          "swiftMethod": "theDefaultCornerIsBottomRightWithAMargin",
+          "csharpMethod": "TheDefaultCornerIsBottomRightWithAMargin",
+          "status": "deferred",
+          "reason": "Post-MVP Camera Bubble (Phase 7 R4)"
+        },
+        {
+          "swiftMethod": "aDraggedAnchorPlacesTheBubbleAndIsClampedInsideTheRegion",
+          "csharpMethod": "ADraggedAnchorPlacesTheBubbleAndIsClampedInsideTheRegion",
+          "status": "deferred",
+          "reason": "Post-MVP Camera Bubble (Phase 7 R4)"
+        },
+        {
+          "swiftMethod": "fullscreenCoversTheRegionSquareCornered",
+          "csharpMethod": "FullscreenCoversTheRegionSquareCornered",
+          "status": "deferred",
+          "reason": "Post-MVP Camera Bubble (Phase 7 R4)"
+        },
+        {
+          "swiftMethod": "shapesMapToCornerRadii",
+          "csharpMethod": "ShapesMapToCornerRadii",
+          "status": "deferred",
+          "reason": "Post-MVP Camera Bubble (Phase 7 R4)"
+        },
+        {
+          "swiftMethod": "aspectFillCoversTheBubbleCentred",
+          "csharpMethod": "AspectFillCoversTheBubbleCentred",
+          "status": "deferred",
+          "reason": "Post-MVP Camera Bubble (Phase 7 R4)"
+        },
+        {
+          "swiftMethod": "previewAndOutputAgreeWithinAPixelAt1xAnd2x",
+          "csharpMethod": "PreviewAndOutputAgreeWithinAPixelAt1xAnd2x",
+          "status": "deferred",
+          "reason": "Post-MVP Camera Bubble (Phase 7 R4)"
+        }
+      ]
+    },
+    "CanvasProjectionTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "fitsWideImageAndCentersVertically",
+          "csharpMethod": "FitsWideImageAndCentersVertically",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "scalesDownToFitAndRoundTrips",
+          "csharpMethod": "ScalesDownToFitAndRoundTrips",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "projectsRectExtentByScale",
+          "csharpMethod": "ProjectsRectExtentByScale",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "insetKeepsTheImageClearOfEveryEdge",
+          "csharpMethod": "InsetKeepsTheImageClearOfEveryEdge",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "anInsetLargerThanTheViewDegradesToZeroScale",
+          "csharpMethod": "AnInsetLargerThanTheViewDegradesToZeroScale",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "degenerateViewMapsToOriginInsteadOfDividingByZero",
+          "csharpMethod": "DegenerateViewMapsToOriginInsteadOfDividingByZero",
+          "status": "ported"
+        }
+      ]
+    },
+    "ClickHighlightTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "theHaloFollowsThePointerAndUsesTheSizeAndStyle",
+          "csharpMethod": "TheHaloFollowsThePointerAndUsesTheSizeAndStyle",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "theThreeStylesDrawDifferentHalos",
+          "csharpMethod": "TheThreeStylesDrawDifferentHalos",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aClickSpawnsARingThatGrowsAndFadesThenDisappears",
+          "csharpMethod": "AClickSpawnsARingThatGrowsAndFadesThenDisappears",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "animationOffMeansAClickOnlyMovesTheHalo",
+          "csharpMethod": "AnimationOffMeansAClickOnlyMovesTheHalo",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "mappingConvertsScreenPointsToFramePixels",
+          "csharpMethod": "MappingConvertsScreenPointsToFramePixels",
+          "status": "ported"
+        }
+      ]
+    },
+    "DocumentRenderTests": {
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render",
+      "tests": [
+        {
+          "swiftMethod": "emptyDocumentKeepsBaseDimensions",
+          "csharpMethod": "EmptyDocumentKeepsBaseDimensions",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "emptyDocumentReproducesTheBasePixels",
+          "csharpMethod": "EmptyDocumentReproducesTheBasePixels",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "cropShrinksOutputToTheCropRect",
+          "csharpMethod": "CropShrinksOutputToTheCropRect",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "cropOffsetsAnnotationsIntoTheCroppedFrame",
+          "csharpMethod": "CropOffsetsAnnotationsIntoTheCroppedFrame",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "reversingACropRestoresTheFullFrameWithElementsIntact",
+          "csharpMethod": "ReversingACropRestoresTheFullFrameWithElementsIntact",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "filledRectanglePaintsItsInterior",
+          "csharpMethod": "FilledRectanglePaintsItsInterior",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "strokedLineMarksThePixelsAlongIt",
+          "csharpMethod": "StrokedLineMarksThePixelsAlongIt",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "filledEllipsePaintsCenterButNotBoundingBoxCorner",
+          "csharpMethod": "FilledEllipsePaintsCenterButNotBoundingBoxCorner",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "highlighterWashesTheRegionButLetsContentShowThrough",
+          "csharpMethod": "HighlighterWashesTheRegionButLetsContentShowThrough",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "blackoutErasesTheSentinelBeneathIt",
+          "csharpMethod": "BlackoutErasesTheSentinelBeneathIt",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "blurChangesTheRegionWithoutErasingIt",
+          "csharpMethod": "BlurChangesTheRegionWithoutErasingIt",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "pixelateChangesTheRegion",
+          "csharpMethod": "PixelateChangesTheRegion",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "laterElementDrawsOnTopAtOverlap",
+          "csharpMethod": "LaterElementDrawsOnTopAtOverlap",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "standardArrowIsThinAtTheTailAndWideAtTheHead",
+          "csharpMethod": "StandardArrowIsThinAtTheTailAndWideAtTheHead",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "curvedArrowIsDrawnThroughItsBendNotAlongItsChord",
+          "csharpMethod": "CurvedArrowIsDrawnThroughItsBendNotAlongItsChord",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "theSameElementAlwaysFlattensToTheSamePixels",
+          "csharpMethod": "TheSameElementAlwaysFlattensToTheSamePixels",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "aDifferentSeedScramblesDifferently",
+          "csharpMethod": "ADifferentSeedScramblesDifferently",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "strengthChangesTheResult",
+          "csharpMethod": "StrengthChangesTheResult",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "blurSmearsTheSeamWidelyAndStaysInsideItsRegion",
+          "csharpMethod": "BlurSmearsTheSeamWidelyAndStaysInsideItsRegion",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "blurObscuresAnnotationsBeneathItButNotThoseAbove",
+          "csharpMethod": "BlurObscuresAnnotationsBeneathItButNotThoseAbove",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "theCanvasPreviewPatchIsExactlyWhatExports",
+          "csharpMethod": "TheCanvasPreviewPatchIsExactlyWhatExports",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "blackoutNeedsNoPatch",
+          "csharpMethod": "BlackoutNeedsNoPatch",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "aRegionPokingOutsideTheCropIsClippedToTheVisibleFrame",
+          "csharpMethod": "ARegionPokingOutsideTheCropIsClippedToTheVisibleFrame",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "everythingOutsideTheFocusAreasIsDimmedAndTheAreasStayClear",
+          "csharpMethod": "EverythingOutsideTheFocusAreasIsDimmedAndTheAreasStayClear",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "marksStayBrightOutsideTheFocusAreas",
+          "csharpMethod": "MarksStayBrightOutsideTheFocusAreas",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "aFocusAreaIsGrabbedAnywhereButTheMarksItFramesWinAClick",
+          "csharpMethod": "AFocusAreaIsGrabbedAnywhereButTheMarksItFramesWinAClick",
+          "status": "pending: PackageR"
+        }
+      ]
+    },
+    "EditableSelectionTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "aDragDrawsAStandardizedRectAndReleaseKeepsItEditable",
+          "csharpMethod": "ADragDrawsAStandardizedRectAndReleaseKeepsItEditable",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aDrawStartingOutsideASelectionReplacesIt",
+          "csharpMethod": "ADrawStartingOutsideASelectionReplacesIt",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aDegenerateDragLeavesNoSelection",
+          "csharpMethod": "ADegenerateDragLeavesNoSelection",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "drawingIsClampedToTheBounds",
+          "csharpMethod": "DrawingIsClampedToTheBounds",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aRatioLockConstrainsTheInitialDragFromTheAnchor",
+          "csharpMethod": "ARatioLockConstrainsTheInitialDragFromTheAnchor",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aRatioLockedDragShrinksToFitTheBoundsInsteadOfUnlocking",
+          "csharpMethod": "ARatioLockedDragShrinksToFitTheBoundsInsteadOfUnlocking",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "optionForcesASquareForThatDragOnly",
+          "csharpMethod": "OptionForcesASquareForThatDragOnly",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "handlesAreHitWithinTheGrabRadiusAndTheInsideMoves",
+          "csharpMethod": "HandlesAreHitWithinTheGrabRadiusAndTheInsideMoves",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "draggingAnEdgeMovesItAndAnchorsTheOppositeEdge",
+          "csharpMethod": "DraggingAnEdgeMovesItAndAnchorsTheOppositeEdge",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "draggingACornerAnchorsTheOppositeCorner",
+          "csharpMethod": "DraggingACornerAnchorsTheOppositeCorner",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "ratioLockedHandleDragsKeepTheLockWithTheOtherAxisFollowing",
+          "csharpMethod": "RatioLockedHandleDragsKeepTheLockWithTheOtherAxisFollowing",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "ratioLockedEdgeDragsNeverLeaveTheBounds",
+          "csharpMethod": "RatioLockedEdgeDragsNeverLeaveTheBounds",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "ratioLockedTopAndBottomEdgeDragsFollowWithTheWidth",
+          "csharpMethod": "RatioLockedTopAndBottomEdgeDragsFollowWithTheWidth",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "moveNudgeAndTypedSizesStayInsideTheBounds",
+          "csharpMethod": "MoveNudgeAndTypedSizesStayInsideTheBounds",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "typedSizesAndShiftArrowsFollowTheRatioLock",
+          "csharpMethod": "TypedSizesAndShiftArrowsFollowTheRatioLock",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "changingTheRatioRefitsFromTheTopLeftAndShrinksToFit",
+          "csharpMethod": "ChangingTheRatioRefitsFromTheTopLeftAndShrinksToFit",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "snappingToAWindowReplacesTheSelectionClippedToTheBounds",
+          "csharpMethod": "SnappingToAWindowReplacesTheSelectionClippedToTheBounds",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aRememberedRectIsKeptOnlyIfItStillFits",
+          "csharpMethod": "ARememberedRectIsKeptOnlyIfItStillFits",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "theDefaultRecordingAreaIsACentred720pRectOnALargeDisplay",
+          "csharpMethod": "TheDefaultRecordingAreaIsACentred720pRectOnALargeDisplay",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "onASmallDisplayTheDefaultAreaIsSixtyPercentWideAndStays16By9",
+          "csharpMethod": "OnASmallDisplayTheDefaultAreaIsSixtyPercentWideAndStays16By9",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "onATallDisplayTheDefaultAreaStillFits",
+          "csharpMethod": "OnATallDisplayTheDefaultAreaStillFits",
+          "status": "ported"
+        }
+      ]
+    },
+    "ExportTests": {
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render",
+      "tests": [
+        {
+          "swiftMethod": "extensionsAndTypesMatchTheFormat",
+          "csharpMethod": "ExtensionsAndTypesMatchTheFormat",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "clampingFactoryNormalizesQualityIntoRange",
+          "csharpMethod": "ClampingFactoryNormalizesQualityIntoRange",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "expandsTokensZeroPadded",
+          "csharpMethod": "ExpandsTokensZeroPadded",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "passesUnknownTokensAndLonePercentThrough",
+          "csharpMethod": "PassesUnknownTokensAndLonePercentThrough",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "destinationURLJoinsLocationNameAndExtension",
+          "csharpMethod": "DestinationURLJoinsLocationNameAndExtension",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "pngEncodePassesTheRenderBytesThrough",
+          "csharpMethod": "PngEncodePassesTheRenderBytesThrough",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "jpegEncodeProducesDecodableJPEGBytes",
+          "csharpMethod": "JpegEncodeProducesDecodableJPEGBytes",
+          "status": "pending: PackageR"
+        }
+      ]
+    },
+    "FrozenScreenTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "cropOfOneQuadrantIsThatQuadrantAtNativePixels",
+          "csharpMethod": "CropOfOneQuadrantIsThatQuadrantAtNativePixels",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aReversedDragIsStandardizedBeforeCropping",
+          "csharpMethod": "AReversedDragIsStandardizedBeforeCropping",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aSelectionOvershootingTheEdgeIsClampedToTheScreen",
+          "csharpMethod": "ASelectionOvershootingTheEdgeIsClampedToTheScreen",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aSelectionEntirelyOffTheScreenCropsNothing",
+          "csharpMethod": "ASelectionEntirelyOffTheScreenCropsNothing",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aDisplayAwayFromTheOriginIsOffsetBeforeCropping",
+          "csharpMethod": "ADisplayAwayFromTheOriginIsOffsetBeforeCropping",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aDisplayRegionIsNeverCutFromTheStills",
+          "csharpMethod": "ADisplayRegionIsNeverCutFromTheStills",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "anAreaOnTheSecondDisplayIsCutFromItsStillAtItsOwnScale",
+          "csharpMethod": "AnAreaOnTheSecondDisplayIsCutFromItsStillAtItsOwnScale",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "anAreaStraddlingTwoDisplaysIsClampedToTheOneItOverlapsMost",
+          "csharpMethod": "AnAreaStraddlingTwoDisplaysIsClampedToTheOneItOverlapsMost",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aWindowIsItsFrozenImageAsAPNG",
+          "csharpMethod": "AWindowIsItsFrozenImageAsAPNG",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aWindowWithNoFrozenImageGivesNothing",
+          "csharpMethod": "AWindowWithNoFrozenImageGivesNothing",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "fractionalSelectionsRoundLikeTheLiveRectCapture",
+          "csharpMethod": "FractionalSelectionsRoundLikeTheLiveRectCapture",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aStillInAnyImageIOFormatCropsToAPNG",
+          "csharpMethod": "AStillInAnyImageIOFormatCropsToAPNG",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "windowImagesAreMatchedToTheirWindowsById",
+          "csharpMethod": "WindowImagesAreMatchedToTheirWindowsById",
+          "status": "pending: C2"
+        }
+      ]
+    },
+    "GIFFramePlanTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "theDelayIsWholeCentisecondsNearestToTheFPS",
+          "csharpMethod": "TheDelayIsWholeCentisecondsNearestToTheFPS",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "theFrameCountCoversTheDurationAndIsNeverZero",
+          "csharpMethod": "TheFrameCountCoversTheDurationAndIsNeverZero",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aFasterSourceIsSampledDownAndASlowerOneFillsOneFramePerSourceFrame",
+          "csharpMethod": "AFasterSourceIsSampledDownAndASlowerOneFillsOneFramePerSourceFrame",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "theOutputIsScaledDownToTheMaxWidthKeepingAspectButNeverUp",
+          "csharpMethod": "TheOutputIsScaledDownToTheMaxWidthKeepingAspectButNeverUp",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "qualityMapsToColourDepth",
+          "csharpMethod": "QualityMapsToColourDepth",
+          "status": "ported"
+        }
+      ]
+    },
+    "HistoryStoreTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "addRecordsCapturesAndListsThemNewestFirst",
+          "csharpMethod": "AddRecordsCapturesAndListsThemNewestFirst",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "addWritesTheImageAndAThumbnailToDisk",
+          "csharpMethod": "AddWritesTheImageAndAThumbnailToDisk",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "capturedImageReopensWithOriginalBytesAndDimensions",
+          "csharpMethod": "CapturedImageReopensWithOriginalBytesAndDimensions",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "removeDeletesTheItemAndItsFiles",
+          "csharpMethod": "RemoveDeletesTheItemAndItsFiles",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "clearEmptiesHistoryAndDeletesEveryFile",
+          "csharpMethod": "ClearEmptiesHistoryAndDeletesEveryFile",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "retentionTrimsOldestBeyondTheLimit",
+          "csharpMethod": "RetentionTrimsOldestBeyondTheLimit",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "setRetentionTrimsImmediatelyWhenLoweredBelowCount",
+          "csharpMethod": "SetRetentionTrimsImmediatelyWhenLoweredBelowCount",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "recordsSurviveAReloadAndTheCallerSuppliesRetention",
+          "csharpMethod": "RecordsSurviveAReloadAndTheCallerSuppliesRetention",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "addMediaMovesTheFileInKeepsItsExtensionAndRecordsWhatTheCallerKnows",
+          "csharpMethod": "AddMediaMovesTheFileInKeepsItsExtensionAndRecordsWhatTheCallerKnows",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "addGIFReadsDimensionsThumbnailAndDurationThroughImageIO",
+          "csharpMethod": "AddGIFReadsDimensionsThumbnailAndDurationThroughImageIO",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "removeClearAndRetentionDeleteRecordingsExactlyLikeScreenshots",
+          "csharpMethod": "RemoveClearAndRetentionDeleteRecordingsExactlyLikeScreenshots",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aPre0006IndexDecodesEveryRecordAsAScreenshot",
+          "csharpMethod": "APre0006IndexDecodesEveryRecordAsAScreenshot",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "addMediaRefusesWhenRetentionIsOffAndRollsBackAFailedIndexWrite",
+          "csharpMethod": "AddMediaRefusesWhenRetentionIsOffAndRollsBackAFailedIndexWrite",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aTakesInputSidecarMovesInWithItAndIsDeletedWithIt",
+          "csharpMethod": "ATakesInputSidecarMovesInWithItAndIsDeletedWithIt",
+          "status": "pending: C2"
+        }
+      ]
+    },
+    "HotkeyBindingTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "chordRendersModifiersInCanonicalOrderThenKey",
+          "csharpMethod": "ChordRendersModifiersInCanonicalOrderThenKey",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "allModifiersRenderControlOptionShiftCommand",
+          "csharpMethod": "AllModifiersRenderControlOptionShiftCommand",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "defaultsBindAreaAndFullscreenWithoutConflicts",
+          "csharpMethod": "DefaultsBindAreaAndFullscreenWithoutConflicts",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "recordingActionsTakePartInConflictDetection",
+          "csharpMethod": "RecordingActionsTakePartInConflictDetection",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "ocrTextIsListedAfterRecordScreenAndTakesPartInConflictDetection",
+          "csharpMethod": "OcrTextIsListedAfterRecordScreenAndTakesPartInConflictDetection",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "distinctChordsProduceNoConflict",
+          "csharpMethod": "DistinctChordsProduceNoConflict",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "twoActionsSharingAChordAreSurfacedAsAConflict",
+          "csharpMethod": "TwoActionsSharingAChordAreSurfacedAsAConflict",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "conflictComparesKeyAndModifiersNotTheCosmeticLabel",
+          "csharpMethod": "ConflictComparesKeyAndModifiersNotTheCosmeticLabel",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "differingModifiersDoNotConflict",
+          "csharpMethod": "DifferingModifiersDoNotConflict",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "conflictingActionLookupPointsAtTheClashingSibling",
+          "csharpMethod": "ConflictingActionLookupPointsAtTheClashingSibling",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aChordSavedWithShiftsSymbolReadsAsItsDigit",
+          "csharpMethod": "AChordSavedWithShiftsSymbolReadsAsItsDigit",
+          "status": "ported"
+        }
+      ]
+    },
+    "KeystrokeOverlayTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "aPressShowsModifierGlyphsThenTheKeyAndFadesAfterItsHold",
+          "csharpMethod": "APressShowsModifierGlyphsThenTheKeyAndFadesAfterItsHold",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "commandOnlyModeHidesPlainTypingButShowsChords",
+          "csharpMethod": "CommandOnlyModeHidesPlainTypingButShowsChords",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "repeatedPressesCountUpAndReBumpInsteadOfStacking",
+          "csharpMethod": "RepeatedPressesCountUpAndReBumpInsteadOfStacking",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aHeldKeyAutoRepeatsWithoutCountingOrBumping",
+          "csharpMethod": "AHeldKeyAutoRepeatsWithoutCountingOrBumping",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "continuousTypingJoinsOnePillUntilTheTypingStops",
+          "csharpMethod": "ContinuousTypingJoinsOnePillUntilTheTypingStops",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "chordsAndNamedKeysAreTheirOwnTokensAndSpaceShowsInsideText",
+          "csharpMethod": "ChordsAndNamedKeysAreTheirOwnTokensAndSpaceShowsInsideText",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aLongBurstKeepsItsNewestCharacters",
+          "csharpMethod": "ALongBurstKeepsItsNewestCharacters",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "heldModifiersShowWhileNothingFreshIsOnScreen",
+          "csharpMethod": "HeldModifiersShowWhileNothingFreshIsOnScreen",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "secureInputShowsNothingClearsPendingAndResumesOnlyWhenOff",
+          "csharpMethod": "SecureInputShowsNothingClearsPendingAndResumesOnlyWhenOff",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "eventsRouteThroughHandle",
+          "csharpMethod": "EventsRouteThroughHandle",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "keyLabelsNameSpecialKeysAndUppercaseTheRest",
+          "csharpMethod": "KeyLabelsNameSpecialKeysAndUppercaseTheRest",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "thePositionAnchorsThePillGroupInsideTheFrame",
+          "csharpMethod": "ThePositionAnchorsThePillGroupInsideTheFrame",
+          "status": "ported"
+        }
+      ]
+    },
+    "MutedMicrophoneDetectorTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "warnsAfterThreeSilentSecondsAndClearsForGoodOnSound",
+          "csharpMethod": "WarnsAfterThreeSilentSecondsAndClearsForGoodOnSound",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "soundBeforeTheDeadlineMeansNoWarning",
+          "csharpMethod": "SoundBeforeTheDeadlineMeansNoWarning",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "pausedReadingsDoNotCountTowardsTheDeadline",
+          "csharpMethod": "PausedReadingsDoNotCountTowardsTheDeadline",
+          "status": "ported"
+        }
+      ]
+    },
+    "PermissionGateTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "aStandingGrantPassesWithoutPrompting",
+          "csharpMethod": "AStandingGrantPassesWithoutPrompting",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aFirstAskThatWaitsReportsTheUsersDecision",
+          "csharpMethod": "AFirstAskThatWaitsReportsTheUsersDecision",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aFirstAskThatReturnsBeforeTheAnswerIsPromptingNotDenied",
+          "csharpMethod": "AFirstAskThatReturnsBeforeTheAnswerIsPromptingNotDenied",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aBelievedDenialIsStillAskedSoAForgottenAppGetsListedAgain",
+          "csharpMethod": "ABelievedDenialIsStillAskedSoAForgottenAppGetsListedAgain",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "eachToggleNamesTheGrantItNeeds",
+          "csharpMethod": "EachToggleNamesTheGrantItNeeds",
+          "status": "ported"
+        }
+      ]
+    },
+    "PermissionOnboardingModelTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "startsNotDeterminedThenReflectsAStandingGrantOnRefresh",
+          "csharpMethod": "StartsNotDeterminedThenReflectsAStandingGrantOnRefresh",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "refreshReflectsAStandingDenial",
+          "csharpMethod": "RefreshReflectsAStandingDenial",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "enableTriggersThePromptAndFoldsInTheGrant",
+          "csharpMethod": "EnableTriggersThePromptAndFoldsInTheGrant",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "enableOnAStandingDenialDoesNotProceed",
+          "csharpMethod": "EnableOnAStandingDenialDoesNotProceed",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "enablingADeniedRowStillAsksTheOSThenSendsTheUserToSettings",
+          "csharpMethod": "EnablingADeniedRowStillAsksTheOSThenSendsTheUserToSettings",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "enablingAFirstRunRowLeavesTheSystemPromptToGuideTheUser",
+          "csharpMethod": "EnablingAFirstRunRowLeavesTheSystemPromptToGuideTheUser",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "enablingADeniedRowThatTurnsOutGrantedSkipsSettings",
+          "csharpMethod": "EnablingADeniedRowThatTurnsOutGrantedSkipsSettings",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "refreshPicksUpAGrantMadeOutsideTheApp",
+          "csharpMethod": "RefreshPicksUpAGrantMadeOutsideTheApp",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "isSatisfiedOnlyWhenEveryRequirementIsGranted",
+          "csharpMethod": "IsSatisfiedOnlyWhenEveryRequirementIsGranted",
+          "status": "ported"
+        }
+      ]
+    },
+    "QuickAccessTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "cardsStackOldestFirstWithDistinctIDs",
+          "csharpMethod": "CardsStackOldestFirstWithDistinctIDs",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "removingACardKeepsTheOthersInOrder",
+          "csharpMethod": "RemovingACardKeepsTheOthersInOrder",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "theOldestCardsCloseFirstWhenTheStackDoesNotFit",
+          "csharpMethod": "TheOldestCardsCloseFirstWhenTheStackDoesNotFit",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "theNewestCardIsKeptEvenWhenItAloneIsTooTall",
+          "csharpMethod": "TheNewestCardIsKeptEvenWhenItAloneIsTooTall",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "cardsAre220WideWithTheImagesAspectClampedTo90Through220",
+          "csharpMethod": "CardsAre220WideWithTheImagesAspectClampedTo90Through220",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "cardsStackUpFromTheBottomLeftNewestAtTheBottom",
+          "csharpMethod": "CardsStackUpFromTheBottomLeftNewestAtTheBottom",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "onTheRightCardsHugTheRightEdge",
+          "csharpMethod": "OnTheRightCardsHugTheRightEdge",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "framesFollowAnOffsetVisibleFrame",
+          "csharpMethod": "FramesFollowAnOffsetVisibleFrame",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "theHeightTheStackMayFillLeavesAMarginTopAndBottom",
+          "csharpMethod": "TheHeightTheStackMayFillLeavesAMarginTopAndBottom",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "quickAccessDefaultsToBottomLeftNeverAutoClosingAndClosingAfterADrag",
+          "csharpMethod": "QuickAccessDefaultsToBottomLeftNeverAutoClosingAndClosingAfterADrag",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "quickAccessSettingsRoundTripAndFillMissingFields",
+          "csharpMethod": "QuickAccessSettingsRoundTripAndFillMissingFields",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "arrangingPlacesEveryCardThatFitsAndClosesTheRest",
+          "csharpMethod": "ArrangingPlacesEveryCardThatFitsAndClosesTheRest",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "autoCloseChoicesHaveTheirSettingsLabels",
+          "csharpMethod": "AutoCloseChoicesHaveTheirSettingsLabels",
+          "status": "pending: C2"
+        }
+      ]
+    },
+    "RecordedAreaTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "aPickedWindowRecordsItsAreaOfTheDisplayNotTheWindowAlone",
+          "csharpMethod": "APickedWindowRecordsItsAreaOfTheDisplayNotTheWindowAlone",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aDrawnRectRecordsThatAreaStandardized",
+          "csharpMethod": "ADrawnRectRecordsThatAreaStandardized",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aDisplayRecordsTheWholeDisplay",
+          "csharpMethod": "ADisplayRecordsTheWholeDisplay",
+          "status": "pending: C2"
+        }
+      ]
+    },
+    "RecordingCoordinatorTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "toggleStartsAVideoRecordingOfTheDisplayAndReportsTheState",
+          "csharpMethod": "ToggleStartsAVideoRecordingOfTheDisplayAndReportsTheState",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aTakeHidesWhatTheSettingsAskFor",
+          "csharpMethod": "ATakeHidesWhatTheSettingsAskFor",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aTakeHidesNothingByDefault",
+          "csharpMethod": "ATakeHidesNothingByDefault",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "toggleAgainStopsFinishesAndSavesToTheDefaultDestination",
+          "csharpMethod": "ToggleAgainStopsFinishesAndSavesToTheDefaultDestination",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "ocrTextIsIgnoredWhileARecordingIsActive",
+          "csharpMethod": "OcrTextIsIgnoredWhileARecordingIsActive",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "ocrTextRunsAgainOnceTheTakeHasEnded",
+          "csharpMethod": "OcrTextRunsAgainOnceTheTakeHasEnded",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "theDefaultShowsTheOverlayAndKeepsTheTakeInScratchUntilItDecides",
+          "csharpMethod": "TheDefaultShowsTheOverlayAndKeepsTheTakeInScratchUntilItDecides",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "openEditorSavesFirstThenOpensTheEditor",
+          "csharpMethod": "OpenEditorSavesFirstThenOpensTheEditor",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "theOverlaysActionsCopySaveRenameAndDismiss",
+          "csharpMethod": "TheOverlaysActionsCopySaveRenameAndDismiss",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aGIFTakeIsConvertedThenRoutedAsAGIFAndTheVideoIsDeleted",
+          "csharpMethod": "AGIFTakeIsConvertedThenRoutedAsAGIFAndTheVideoIsDeleted",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "progressReachesThePopupOnTheMainActor",
+          "csharpMethod": "ProgressReachesThePopupOnTheMainActor",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "cancellingOffersTheVideoInsteadOrDeletesTheTake",
+          "csharpMethod": "CancellingOffersTheVideoInsteadOrDeletesTheTake",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aFailedConversionSurfacesAndFallsBackToTheVideo",
+          "csharpMethod": "AFailedConversionSurfacesAndFallsBackToTheVideo",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aGIFNeverGoesToTheVideoEditor",
+          "csharpMethod": "AGIFNeverGoesToTheVideoEditor",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aVideoTakeNeverTouchesTheEncoder",
+          "csharpMethod": "AVideoTakeNeverTouchesTheEncoder",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "openEditorFromTheOverlaySavesThenOpensTheEditor",
+          "csharpMethod": "OpenEditorFromTheOverlaySavesThenOpensTheEditor",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aFinishedVideoJoinsHistoryAndTheOverlayGetsHistorysFile",
+          "csharpMethod": "AFinishedVideoJoinsHistoryAndTheOverlayGetsHistorysFile",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "unreadableMetadataLeavesTheTakeInScratchAndRoutesItAnyway",
+          "csharpMethod": "UnreadableMetadataLeavesTheTakeInScratchAndRoutesItAnyway",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "deletingAHistoryOwnedTakeRemovesItsRecord",
+          "csharpMethod": "DeletingAHistoryOwnedTakeRemovesItsRecord",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "reopeningFromHistoryRoutesByKindAndADismissedGIFStaysPut",
+          "csharpMethod": "ReopeningFromHistoryRoutesByKindAndADismissedGIFStaysPut",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aFinishedGIFJoinsHistoryAndSilentSaveCopiesItOut",
+          "csharpMethod": "AFinishedGIFJoinsHistoryAndSilentSaveCopiesItOut",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aRecoveredTakeJoinsHistoryToo",
+          "csharpMethod": "ARecoveredTakeJoinsHistoryToo",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "reopeningAGIFKeepsAFreshTakeFirst",
+          "csharpMethod": "ReopeningAGIFKeepsAFreshTakeFirst",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aNewTakeKeepsThePendingOneBeforeItStarts",
+          "csharpMethod": "ANewTakeKeepsThePendingOneBeforeItStarts",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "deleteTrashesTheTakeAndAFailureKeepsItPending",
+          "csharpMethod": "DeleteTrashesTheTakeAndAFailureKeepsItPending",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aFailedSaveFromTheOverlayKeepsTheTakePending",
+          "csharpMethod": "AFailedSaveFromTheOverlayKeepsTheTakePending",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "anEmptyOrDottedRenameFallsBackToThePattern",
+          "csharpMethod": "AnEmptyOrDottedRenameFallsBackToThePattern",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aSecondStartWhileActiveAndAStopWhileIdleAreNoOps",
+          "csharpMethod": "ASecondStartWhileActiveAndAStopWhileIdleAreNoOps",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "elapsedTimeFollowsTheClockWhileRecording",
+          "csharpMethod": "ElapsedTimeFollowsTheClockWhileRecording",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aStopWhileStartIsStillInFlightIsIgnored",
+          "csharpMethod": "AStopWhileStartIsStillInFlightIsIgnored",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aStopDuringTheCountdownDiscardsAndDeletesTheScratchFile",
+          "csharpMethod": "AStopDuringTheCountdownDiscardsAndDeletesTheScratchFile",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aStreamDyingMidTakeFailsTheSessionDeletesThePartialAndRestoresTheStatusItem",
+          "csharpMethod": "AStreamDyingMidTakeFailsTheSessionDeletesThePartialAndRestoresTheStatusItem",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "recordScreenRunsTheOverlayFirstAndStartsOnItsRegion",
+          "csharpMethod": "RecordScreenRunsTheOverlayFirstAndStartsOnItsRegion",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "theToolbarsOutputAndTogglesReachTheServiceWithoutTouchingSettings",
+          "csharpMethod": "TheToolbarsOutputAndTogglesReachTheServiceWithoutTouchingSettings",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "escapeInTheOverlayIsASilentNoOp",
+          "csharpMethod": "EscapeInTheOverlayIsASilentNoOp",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "theChosenRegionIsRememberedAndPreFilledOnlyWhenTheSettingIsOn",
+          "csharpMethod": "TheChosenRegionIsRememberedAndPreFilledOnlyWhenTheSettingIsOn",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aLostMicrophoneAsksAndContinuesOrStops",
+          "csharpMethod": "ALostMicrophoneAsksAndContinuesOrStops",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "theToolbarsMicrophoneChoiceBecomesTheDefaultAndReachesTheOptions",
+          "csharpMethod": "TheToolbarsMicrophoneChoiceBecomesTheDefaultAndReachesTheOptions",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "theToolbarsCameraChoiceBecomesTheDefaultAndReachesTheOptions",
+          "csharpMethod": "TheToolbarsCameraChoiceBecomesTheDefaultAndReachesTheOptions",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "pauseFreezesTheTimerAndResumeContinuesThroughTheService",
+          "csharpMethod": "PauseFreezesTheTimerAndResumeContinuesThroughTheService",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "restartThrowsTheTakeAwayAndStartsAgainWithTheSameOptions",
+          "csharpMethod": "RestartThrowsTheTakeAwayAndStartsAgainWithTheSameOptions",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "restartGoesBackThroughTheCountdownWhenOneIsConfigured",
+          "csharpMethod": "RestartGoesBackThroughTheCountdownWhenOneIsConfigured",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aDeclinedConfirmationLeavesTheTakeRunning",
+          "csharpMethod": "ADeclinedConfirmationLeavesTheTakeRunning",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "discardDeletesThePartialAndEndsInIdleWithNoSave",
+          "csharpMethod": "DiscardDeletesThePartialAndEndsInIdleWithNoSave",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aStopDuringRestartsTeardownWaitsForTheNewStream",
+          "csharpMethod": "AStopDuringRestartsTeardownWaitsForTheNewStream",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "discardIsLegalDuringTheCountdownAndRestartIsNot",
+          "csharpMethod": "DiscardIsLegalDuringTheCountdownAndRestartIsNot",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "restartAndDiscardAreNoOpsWhenNothingIsRecording",
+          "csharpMethod": "RestartAndDiscardAreNoOpsWhenNothingIsRecording",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aConfiguredCountdownRunsInTheUIThenBeginsRecording",
+          "csharpMethod": "AConfiguredCountdownRunsInTheUIThenBeginsRecording",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "escapeDuringTheCountdownDiscardsBeforeAnythingIsRecorded",
+          "csharpMethod": "EscapeDuringTheCountdownDiscardsBeforeAnythingIsRecorded",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "permissionDeniedOnStartRoutesToRecoveryAndFailsTheSession",
+          "csharpMethod": "PermissionDeniedOnStartRoutesToRecoveryAndFailsTheSession",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aMissingMicrophoneGrantRoutesToTheMicrophoneRecoveryNotScreenRecording",
+          "csharpMethod": "AMissingMicrophoneGrantRoutesToTheMicrophoneRecoveryNotScreenRecording",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "userCancelledIsSilentAndOtherFailuresGetADistinctMessage",
+          "csharpMethod": "UserCancelledIsSilentAndOtherFailuresGetADistinctMessage",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aStopFailureFailsTheSessionWithAMessageAndSavesNothing",
+          "csharpMethod": "AStopFailureFailsTheSessionWithAMessageAndSavesNothing",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aSaveFailureIsSurfacedAndTheTakeStaysFinished",
+          "csharpMethod": "ASaveFailureIsSurfacedAndTheTakeStaysFinished",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "firstRunPromptsThroughTheRecorderBeforeStarting",
+          "csharpMethod": "FirstRunPromptsThroughTheRecorderBeforeStarting",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aStandingGrantOrDenialNeverRePrompts",
+          "csharpMethod": "AStandingGrantOrDenialNeverRePrompts",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "recordingDestinationUsesTheSaveLocationPatternAndContainerExtension",
+          "csharpMethod": "RecordingDestinationUsesTheSaveLocationPatternAndContainerExtension",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aStudioModeTakeOpensTheEditorWhateverTheSettingSays",
+          "csharpMethod": "AStudioModeTakeOpensTheEditorWhateverTheSettingSays",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aStudioTakeBecomesAProjectAndOpensInTheStudio",
+          "csharpMethod": "AStudioTakeBecomesAProjectAndOpensInTheStudio",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aRecentStudioProjectReopensInTheStudio",
+          "csharpMethod": "ARecentStudioProjectReopensInTheStudio",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aStudioExportIsFiledIntoHistoryAndSavedLikeARecording",
+          "csharpMethod": "AStudioExportIsFiledIntoHistoryAndSavedLikeARecording",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aStudioExportIsStillSavedWhenHistoryIsOff",
+          "csharpMethod": "AStudioExportIsStillSavedWhenHistoryIsOff",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "anOrdinaryTakeFromBeforeS8ReopensWithItsInputData",
+          "csharpMethod": "AnOrdinaryTakeFromBeforeS8ReopensWithItsInputData",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "everyTakeBecomesAProjectWithItsInputData",
+          "csharpMethod": "EveryTakeBecomesAProjectWithItsInputData",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aTakeWhoseFileIsMissingStillRoutesThePlainWay",
+          "csharpMethod": "ATakeWhoseFileIsMissingStillRoutesThePlainWay",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aTakeForTheOverlayIsRenderedWithItsOwnLookAndLinkedToItsProject",
+          "csharpMethod": "ATakeForTheOverlayIsRenderedWithItsOwnLookAndLinkedToItsProject",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "openEditorAfterRecordingOpensTheProjectWithoutRendering",
+          "csharpMethod": "OpenEditorAfterRecordingOpensTheProjectWithoutRendering",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "cancellingTheRenderOpensTheProjectSoTheTakeIsNeverLost",
+          "csharpMethod": "CancellingTheRenderOpensTheProjectSoTheTakeIsNeverLost",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aFailedRenderIsReportedAndTheProjectOpens",
+          "csharpMethod": "AFailedRenderIsReportedAndTheProjectOpens",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aSilentlySavedTakeIsTheRenderedMovie",
+          "csharpMethod": "ASilentlySavedTakeIsTheRenderedMovie",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "nothingIsInProgressWhenIdle",
+          "csharpMethod": "NothingIsInProgressWhenIdle",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aTakeIsWorkFromStartThroughPauseUntilItsResultIsRouted",
+          "csharpMethod": "ATakeIsWorkFromStartThroughPauseUntilItsResultIsRouted",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aCountdownIsWorkAndEscapingItEndsIt",
+          "csharpMethod": "ACountdownIsWorkAndEscapingItEndsIt",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aDiscardedTakeEndsTheWork",
+          "csharpMethod": "ADiscardedTakeEndsTheWork",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "aGIFConversionAndTheKeepTheVideoQuestionAreWork",
+          "csharpMethod": "AGIFConversionAndTheKeepTheVideoQuestionAreWork",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "filingAStudioExportIntoHistoryIsWork",
+          "csharpMethod": "FilingAStudioExportIntoHistoryIsWork",
+          "status": "pending: C2"
+        }
+      ]
+    },
+    "RecordingOptionsTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "withNoOverridesEveryValueComesFromDefaults",
+          "csharpMethod": "WithNoOverridesEveryValueComesFromDefaults",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "startGIFPicksTheGIFSettings",
+          "csharpMethod": "StartGIFPicksTheGIFSettings",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "everyOverrideBeatsItsDefaultInBothDirections",
+          "csharpMethod": "EveryOverrideBeatsItsDefaultInBothDirections",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "turningASourceOnByOverrideUsesTheDefaultDevice",
+          "csharpMethod": "TurningASourceOnByOverrideUsesTheDefaultDevice",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "overridesAreValuesAndNeverMutateTheDefaults",
+          "csharpMethod": "OverridesAreValuesAndNeverMutateTheDefaults",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aStoredBlobFromBeforePlaySoundsStillDecodes",
+          "csharpMethod": "AStoredBlobFromBeforePlaySoundsStillDecodes",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "cameraBubbleSettingsReachTheOptions",
+          "csharpMethod": "CameraBubbleSettingsReachTheOptions",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "toggleSubscriptsReadDefaultsAndWriteOverrides",
+          "csharpMethod": "ToggleSubscriptsReadDefaultsAndWriteOverrides",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "countdownOffInDefaultsMeansNoCountdownEvenWithSeconds",
+          "csharpMethod": "CountdownOffInDefaultsMeansNoCountdownEvenWithSeconds",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "clickHighlightSettingsReachTheOptions",
+          "csharpMethod": "ClickHighlightSettingsReachTheOptions",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "keystrokeOverlaySettingsReachTheOptions",
+          "csharpMethod": "KeystrokeOverlaySettingsReachTheOptions",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "computerAudioSettingsReachTheOptions",
+          "csharpMethod": "ComputerAudioSettingsReachTheOptions",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "microphoneVolumeIsClampedToTwiceUnity",
+          "csharpMethod": "MicrophoneVolumeIsClampedToTwiceUnity",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "gifQualityIsClampedAndNegativeCountdownsAreZero",
+          "csharpMethod": "GifQualityIsClampedAndNegativeCountdownsAreZero",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "afterRecordingComesFromSettingsUnlessTheTakeOverridesIt",
+          "csharpMethod": "AfterRecordingComesFromSettingsUnlessTheTakeOverridesIt",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "hidingNotificationsComesFromTheDefaultsAndDesktopIconsFromTheParameter",
+          "csharpMethod": "HidingNotificationsComesFromTheDefaultsAndDesktopIconsFromTheParameter",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "nothingIsHiddenByDefault",
+          "csharpMethod": "NothingIsHiddenByDefault",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aStoredBlobFromBeforeHideNotificationsStillDecodes",
+          "csharpMethod": "AStoredBlobFromBeforeHideNotificationsStillDecodes",
+          "status": "ported"
+        }
+      ]
+    },
+    "RecordingSessionTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "startWithoutCountdownGoesStraightToRecording",
+          "csharpMethod": "StartWithoutCountdownGoesStraightToRecording",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "startWithCountdownWaitsForBeginRecording",
+          "csharpMethod": "StartWithCountdownWaitsForBeginRecording",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "stopThenFinishProducesTheFile",
+          "csharpMethod": "StopThenFinishProducesTheFile",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aFinishedOrFailedSessionCanStartAgain",
+          "csharpMethod": "AFinishedOrFailedSessionCanStartAgain",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "elapsedExcludesPausedIntervalsAcrossSeveralCycles",
+          "csharpMethod": "ElapsedExcludesPausedIntervalsAcrossSeveralCycles",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "elapsedNeverGoesNegativeWithAnEarlierClock",
+          "csharpMethod": "ElapsedNeverGoesNegativeWithAnEarlierClock",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "restartResetsTheClockAndReturnsThePartialFile",
+          "csharpMethod": "RestartResetsTheClockAndReturnsThePartialFile",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "restartReentersTheCountdownWhenOneIsConfigured",
+          "csharpMethod": "RestartReentersTheCountdownWhenOneIsConfigured",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "discardEndsInIdleFromCountdownRecordingAndPaused",
+          "csharpMethod": "DiscardEndsInIdleFromCountdownRecordingAndPaused",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "stopDuringCountdownBehavesLikeDiscard",
+          "csharpMethod": "StopDuringCountdownBehavesLikeDiscard",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "illegalCommandsThrowAndLeaveTheSessionUnchanged",
+          "csharpMethod": "IllegalCommandsThrowAndLeaveTheSessionUnchanged",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "endedTakesAcceptNothingButStart",
+          "csharpMethod": "EndedTakesAcceptNothingButStart",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "failIsLegalFromEveryActiveStateAndKeepsElapsedTime",
+          "csharpMethod": "FailIsLegalFromEveryActiveStateAndKeepsElapsedTime",
+          "status": "ported"
+        }
+      ]
+    },
+    "SeamTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "packageVersionIsExposed",
+          "csharpMethod": "PackageVersionIsExposed",
+          "status": "pending: C2"
+        },
+        {
+          "swiftMethod": "capturedImageCarriesPixelDimensionsAndBytes",
+          "csharpMethod": "CapturedImageCarriesPixelDimensionsAndBytes",
+          "status": "pending: C2"
+        }
+      ]
+    },
+    "StudioAnnotationTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "anAnnotationAddedAtThePlayheadRunsForTheDefaultLength",
+          "csharpMethod": "AnAnnotationAddedAtThePlayheadRunsForTheDefaultLength",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "anAnnotationNearTheEndIsPulledInside",
+          "csharpMethod": "AnAnnotationNearTheEndIsPulledInside",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "annotationsMayOverlapAndMoveKeepingTheirLength",
+          "csharpMethod": "AnnotationsMayOverlapAndMoveKeepingTheirLength",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "anAnnotationIsRestyledAndClampedAndEachChangeUndoes",
+          "csharpMethod": "AnAnnotationIsRestyledAndClampedAndEachChangeUndoes",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "anAnnotationFadesInAndOut",
+          "csharpMethod": "AnAnnotationFadesInAndOut",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        }
+      ]
+    },
+    "StudioCaptionTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "wordsBecomeLinesAtPausesAndSentenceEnds",
+          "csharpMethod": "WordsBecomeLinesAtPausesAndSentenceEnds",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aLongRunOfWordsWrapsAtTheCharacterLimit",
+          "csharpMethod": "ALongRunOfWordsWrapsAtTheCharacterLimit",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "cuttingInsideAClipSplitsIt",
+          "csharpMethod": "CuttingInsideAClipSplitsIt",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "cuttingAcrossTrimsMergesThem",
+          "csharpMethod": "CuttingAcrossTrimsMergesThem",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aSliverLeftBetweenCutsIsCutToo",
+          "csharpMethod": "ASliverLeftBetweenCutsIsCutToo",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "cuttingEverythingIsRefused",
+          "csharpMethod": "CuttingEverythingIsRefused",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "cuttingWordsRemovesTheirSpanAndIsOneUndoStep",
+          "csharpMethod": "CuttingWordsRemovesTheirSpanAndIsOneUndoStep",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "removingSilencesCutsLongGapsKeepingPadding",
+          "csharpMethod": "RemovingSilencesCutsLongGapsKeepingPadding",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "shortPausesAreKept",
+          "csharpMethod": "ShortPausesAreKept",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "captionTextIsEditableAndUndoable",
+          "csharpMethod": "CaptionTextIsEditableAndUndoable",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "theCaptionAtASourceTimeIsTheLineCoveringIt",
+          "csharpMethod": "TheCaptionAtASourceTimeIsTheLineCoveringIt",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aRoundOneProjectWithoutCaptionsOrAnnotationsStillLoads",
+          "csharpMethod": "ARoundOneProjectWithoutCaptionsOrAnnotationsStillLoads",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aTranscriptRoundTripsThroughJSON",
+          "csharpMethod": "ATranscriptRoundTripsThroughJSON",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        }
+      ]
+    },
+    "StudioCaptureTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "eventsAreTimedFromTheFirstFrameInRegionPoints",
+          "csharpMethod": "EventsAreTimedFromTheFirstFrameInRegionPoints",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "thePointerBeforeTheFirstFrameBecomesTheSampleAtZero",
+          "csharpMethod": "ThePointerBeforeTheFirstFrameBecomesTheSampleAtZero",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "pausedTimeIsLeftOutAndEventsWhilePausedAreDropped",
+          "csharpMethod": "PausedTimeIsLeftOutAndEventsWhilePausedAreDropped",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "nothingIsRecordedBeforeTheTakeStarts",
+          "csharpMethod": "NothingIsRecordedBeforeTheTakeStarts",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "creatingAProjectMovesTheTakesFilesIntoItsFolder",
+          "csharpMethod": "CreatingAProjectMovesTheTakesFilesIntoItsFolder",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aTakeWithoutCameraOrInputStillMakesAProject",
+          "csharpMethod": "ATakeWithoutCameraOrInputStillMakesAProject",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "twoProjectsWithTheSameNameGetDistinctFolders",
+          "csharpMethod": "TwoProjectsWithTheSameNameGetDistinctFolders",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "editsAreSavedAndLoadedBack",
+          "csharpMethod": "EditsAreSavedAndLoadedBack",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "recentProjectsAreNewestFirstAndReopenable",
+          "csharpMethod": "RecentProjectsAreNewestFirstAndReopenable",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aTranscriptIsSavedAndLoadedWithTheProject",
+          "csharpMethod": "ATranscriptIsSavedAndLoadedWithTheProject",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        }
+      ]
+    },
+    "StudioDocumentTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "aNewDocumentIsOneClipOverTheWholeSourceAtNormalSpeed",
+          "csharpMethod": "ANewDocumentIsOneClipOverTheWholeSourceAtNormalSpeed",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aZoomAddedAtThePlayheadStartsThereWithTheDefaultLengthAndScale",
+          "csharpMethod": "AZoomAddedAtThePlayheadStartsThereWithTheDefaultLengthAndScale",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aZoomNearTheEndIsPulledInsideTheSource",
+          "csharpMethod": "AZoomNearTheEndIsPulledInsideTheSource",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "zoomsNeverOverlapWhenAddedMovedOrResized",
+          "csharpMethod": "ZoomsNeverOverlapWhenAddedMovedOrResized",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "zoomScaleAndFocusAreSetAndClamped",
+          "csharpMethod": "ZoomScaleAndFocusAreSetAndClamped",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "everyCommandUndoesAndRedoes",
+          "csharpMethod": "EveryCommandUndoesAndRedoes",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aNoOpCommandLeavesNoUndoStep",
+          "csharpMethod": "ANoOpCommandLeavesNoUndoStep",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aSliderDragIsOneUndoStep",
+          "csharpMethod": "ASliderDragIsOneUndoStep",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "lookSettingsAreClampedWhenSet",
+          "csharpMethod": "LookSettingsAreClampedWhenSet",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "editsRoundTripThroughJSONWithTheirVersion",
+          "csharpMethod": "EditsRoundTripThroughJSONWithTheirVersion",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aPlainVideoStartsWithNoCanvasDecoration",
+          "csharpMethod": "APlainVideoStartsWithNoCanvasDecoration",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        }
+      ]
+    },
+    "StudioEngineTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "outputTimeMapsBackToSourceAcrossACut",
+          "csharpMethod": "OutputTimeMapsBackToSourceAcrossACut",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aFasterClipTakesLessOutputTime",
+          "csharpMethod": "AFasterClipTakesLessOutputTime",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "withoutSmoothingTheCursorFollowsTheSamplesLinearly",
+          "csharpMethod": "WithoutSmoothingTheCursorFollowsTheSamplesLinearly",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "smoothingLagsBehindThenSettlesOnTheTarget",
+          "csharpMethod": "SmoothingLagsBehindThenSettlesOnTheTarget",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aCursorWithNoSamplesHasNoPosition",
+          "csharpMethod": "ACursorWithNoSamplesHasNoPosition",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "theCursorFadesOutAfterItStopsMovingForTheIdleDelay",
+          "csharpMethod": "TheCursorFadesOutAfterItStopsMovingForTheIdleDelay",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aClickIsReportedForHalfASecondWithItsProgress",
+          "csharpMethod": "AClickIsReportedForHalfASecondWithItsProgress",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "withNoZoomTheViewportIsTheWholeFrame",
+          "csharpMethod": "WithNoZoomTheViewportIsTheWholeFrame",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aZoomEasesInHoldsAndEasesOut",
+          "csharpMethod": "AZoomEasesInHoldsAndEasesOut",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aFocusNearTheEdgeIsClampedSoTheViewportStaysInTheFrame",
+          "csharpMethod": "AFocusNearTheEdgeIsClampedSoTheViewportStaysInTheFrame",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "followCursorKeepsTheCursorInsideTheViewport",
+          "csharpMethod": "FollowCursorKeepsTheCursorInsideTheViewport",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "smallCursorMovesInsideTheDeadZoneDoNotPan",
+          "csharpMethod": "SmallCursorMovesInsideTheDeadZoneDoNotPan",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "backToBackZoomsBlendWithoutZoomingOutInBetween",
+          "csharpMethod": "BackToBackZoomsBlendWithoutZoomingOutInBetween",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "autoZoomMakesOneFollowCursorZoomPerClusterOfClicks",
+          "csharpMethod": "AutoZoomMakesOneFollowCursorZoomPerClusterOfClicks",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "autoZoomRegionsAreClampedToTheSource",
+          "csharpMethod": "AutoZoomRegionsAreClampedToTheSource",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "autoAspectWithNoPaddingIsTheSourceItself",
+          "csharpMethod": "AutoAspectWithNoPaddingIsTheSourceItself",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "paddingInsetsTheContentByAFractionOfTheShorterSide",
+          "csharpMethod": "PaddingInsetsTheContentByAFractionOfTheShorterSide",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aVerticalCanvasFitsALandscapeSourceAcrossItsWidth",
+          "csharpMethod": "AVerticalCanvasFitsALandscapeSourceAcrossItsWidth",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "theCanvasNeverOutgrowsTheSourcesShorterSideAndKeepsEvenEdges",
+          "csharpMethod": "TheCanvasNeverOutgrowsTheSourcesShorterSideAndKeepsEvenEdges",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "cornerRadiusAndShadowScaleWithTheContent",
+          "csharpMethod": "CornerRadiusAndShadowScaleWithTheContent",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "studioInputRoundTripsThroughJSON",
+          "csharpMethod": "StudioInputRoundTripsThroughJSON",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "inputFromBeforeCursorInVideoDecodesAsACleanScreen",
+          "csharpMethod": "InputFromBeforeCursorInVideoDecodesAsACleanScreen",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        }
+      ]
+    },
+    "StudioExportBitRateTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "aDefaultStudioExportOfARetinaTakeAt60FpsIsAboutSixMegabits",
+          "csharpMethod": "ADefaultStudioExportOfARetinaTakeAt60FpsIsAboutSixMegabits",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "hevcGetsLessThanH264ForTheSameLook",
+          "csharpMethod": "HevcGetsLessThanH264ForTheSameLook",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "doublingTheFrameRateCostsLessThanDoubleTheBits",
+          "csharpMethod": "DoublingTheFrameRateCostsLessThanDoubleTheBits",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "fullQualityReachesWhatTheOldDefaultEncodedTo",
+          "csharpMethod": "FullQualityReachesWhatTheOldDefaultEncodedTo",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "qualityStillRaisesTheRateAndATinyCanvasKeepsTheFloor",
+          "csharpMethod": "QualityStillRaisesTheRateAndATinyCanvasKeepsTheFloor",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        }
+      ]
+    },
+    "StudioExportFrameRateTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "aNewEditExportsAtTheRateItWasRecordedAt",
+          "csharpMethod": "ANewEditExportsAtTheRateItWasRecordedAt",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aRateBetweenTheChoicesRoundsUpSoNoFrameIsDropped",
+          "csharpMethod": "ARateBetweenTheChoicesRoundsUpSoNoFrameIsDropped",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aTakeWithoutARecordedRateKeepsSixty",
+          "csharpMethod": "ATakeWithoutARecordedRateKeepsSixty",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "theRecorderKeepsTheTakesFrameRate",
+          "csharpMethod": "TheRecorderKeepsTheTakesFrameRate",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "inputFromBeforeTheFrameRateDecodesWithoutOne",
+          "csharpMethod": "InputFromBeforeTheFrameRateDecodesWithoutOne",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        }
+      ]
+    },
+    "StudioFlattenTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "theRenderedLookIsTheRecordingAsItWasSetUpWithNoStudioDecoration",
+          "csharpMethod": "TheRenderedLookIsTheRecordingAsItWasSetUpWithNoStudioDecoration",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "theToolbarsTogglesDecideCursorClicksKeysAndCamera",
+          "csharpMethod": "TheToolbarsTogglesDecideCursorClicksKeysAndCamera",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aGIFTakeIsRenderedAsAMovieFirst",
+          "csharpMethod": "AGIFTakeIsRenderedAsAMovieFirst",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "everyTakeRecordsItsIngredients",
+          "csharpMethod": "EveryTakeRecordsItsIngredients",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        }
+      ]
+    },
+    "StudioSnapTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "aValueSnapsToTheNearestTargetWithinTolerance",
+          "csharpMethod": "AValueSnapsToTheNearestTargetWithinTolerance",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aSpanSnapsByWhicheverEdgeIsCloserKeepingItsLength",
+          "csharpMethod": "ASpanSnapsByWhicheverEdgeIsCloserKeepingItsLength",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "peaksAreTheLoudestSampleOfEachBucketNormalised",
+          "csharpMethod": "PeaksAreTheLoudestSampleOfEachBucketNormalised",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "silenceHasFlatPeaks",
+          "csharpMethod": "SilenceHasFlatPeaks",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        }
+      ]
+    },
+    "StudioTrimSpeedTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "aTrimAddedAtThePlayheadIsSkipped",
+          "csharpMethod": "ATrimAddedAtThePlayheadIsSkipped",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "movingAndResizingATrimMovesTheSkip",
+          "csharpMethod": "MovingAndResizingATrimMovesTheSkip",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "trimsNeverOverlap",
+          "csharpMethod": "TrimsNeverOverlap",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aTrimThatWouldLeaveNothingIsRefused",
+          "csharpMethod": "ATrimThatWouldLeaveNothingIsRefused",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aSpeedRegionChangesTheRateOfItsSpan",
+          "csharpMethod": "ASpeedRegionChangesTheRateOfItsSpan",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "speedIsClampedToAQuarterToFourTimes",
+          "csharpMethod": "SpeedIsClampedToAQuarterToFourTimes",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aTrimInsideASpeedRegionCutsItAndKeepsTheRateAroundIt",
+          "csharpMethod": "ATrimInsideASpeedRegionCutsItAndKeepsTheRateAroundIt",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "seekingIntoATrimLandsWherePlaybackResumes",
+          "csharpMethod": "SeekingIntoATrimLandsWherePlaybackResumes",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "trimAndSpeedUndoAndRedo",
+          "csharpMethod": "TrimAndSpeedUndoAndRedo",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "trimsAndSpeedsRoundTripThroughJSON",
+          "csharpMethod": "TrimsAndSpeedsRoundTripThroughJSON",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aProjectSavedWithClipsMigratesToTrimsAndSpeeds",
+          "csharpMethod": "AProjectSavedWithClipsMigratesToTrimsAndSpeeds",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aProjectWithoutACursorThemeGetsTheMacOSArrow",
+          "csharpMethod": "AProjectWithoutACursorThemeGetsTheMacOSArrow",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "aStudioProjectStartsWithNoPaddingOrCorners",
+          "csharpMethod": "AStudioProjectStartsWithNoPaddingOrCorners",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        },
+        {
+          "swiftMethod": "theDefaultClickColourIsTheRecordersYellow",
+          "csharpMethod": "TheDefaultClickColourIsTheRecordersYellow",
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
+        }
+      ]
+    },
+    "StyleFieldsTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "eachKindShowsOnlyTheStyleItIsDrawnWith",
+          "csharpMethod": "EachKindShowsOnlyTheStyleItIsDrawnWith",
+          "status": "ported"
+        }
+      ]
+    },
+    "TextCaptureTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "linesGivenOutOfOrderComeBackTopToBottom",
+          "csharpMethod": "LinesGivenOutOfOrderComeBackTopToBottom",
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
+        },
+        {
+          "swiftMethod": "linesSharingARowJoinWithASpaceLeftToRight",
+          "csharpMethod": "LinesSharingARowJoinWithASpaceLeftToRight",
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
+        },
+        {
+          "swiftMethod": "slightlySkewedLinesOverlappingByHalfShareARow",
+          "csharpMethod": "SlightlySkewedLinesOverlappingByHalfShareARow",
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
+        },
+        {
+          "swiftMethod": "linesOverlappingByLessThanHalfAreSeparateRows",
+          "csharpMethod": "LinesOverlappingByLessThanHalfAreSeparateRows",
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
+        },
+        {
+          "swiftMethod": "theResultIsTrimmedAndEmptyInputIsEmpty",
+          "csharpMethod": "TheResultIsTrimmedAndEmptyInputIsEmpty",
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
+        },
+        {
+          "swiftMethod": "eachLineKeepsItsRecognisedText",
+          "csharpMethod": "EachLineKeepsItsRecognisedText",
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
+        },
+        {
+          "swiftMethod": "withoutLineBreaksRowsJoinIntoOneParagraph",
+          "csharpMethod": "WithoutLineBreaksRowsJoinIntoOneParagraph",
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
+        },
+        {
+          "swiftMethod": "withoutLineBreaksSideBySideLinesStillJoinWithOneSpace",
+          "csharpMethod": "WithoutLineBreaksSideBySideLinesStillJoinWithOneSpace",
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
+        },
+        {
+          "swiftMethod": "lineBreaksAreKeptByDefault",
+          "csharpMethod": "LineBreaksAreKeptByDefault",
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
+        },
+        {
+          "swiftMethod": "codesComeBackInReadingOrderOnePerLine",
+          "csharpMethod": "CodesComeBackInReadingOrderOnePerLine",
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
+        },
+        {
+          "swiftMethod": "duplicateAndBlankPayloadsAreDropped",
+          "csharpMethod": "DuplicateAndBlankPayloadsAreDropped",
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
+        },
+        {
+          "swiftMethod": "aMultiLinePayloadIsKeptIntact",
+          "csharpMethod": "AMultiLinePayloadIsKeptIntact",
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
+        },
+        {
+          "swiftMethod": "noReadableCodeIsNoCodeCapture",
+          "csharpMethod": "NoReadableCodeIsNoCodeCapture",
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
+        },
+        {
+          "swiftMethod": "theFirstCodeInReadingOrderNamesTheKind",
+          "csharpMethod": "TheFirstCodeInReadingOrderNamesTheKind",
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
+        }
+      ]
+    },
+    "TextLayoutTests": {
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render",
+      "tests": [
+        {
+          "swiftMethod": "aNewLabelIsOneLineTallAndGrowsAsItIsTyped",
+          "csharpMethod": "ANewLabelIsOneLineTallAndGrowsAsItIsTyped",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "aSideHandleSetsTheWidthAndTheTextWraps",
+          "csharpMethod": "ASideHandleSetsTheWidthAndTheTextWraps",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "theCornerScalesTheTextAndOtherHandlesLeaveALabelAlone",
+          "csharpMethod": "TheCornerScalesTheTextAndOtherHandlesLeaveALabelAlone",
+          "status": "pending: PackageR"
+        },
+        {
+          "swiftMethod": "aNewFontSizeRefitsTheBox",
+          "csharpMethod": "ANewFontSizeRefitsTheBox",
+          "status": "pending: PackageR"
+        }
+      ]
+    },
+    "VideoEditTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "aTrimIsClampedToTheClipAndNeverShorterThanHalfASecond",
+          "csharpMethod": "ATrimIsClampedToTheClipAndNeverShorterThanHalfASecond",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "presetsCapTheLongestEdgeKeepingAspectWithEvenEdgesNeverUp",
+          "csharpMethod": "PresetsCapTheLongestEdgeKeepingAspectWithEvenEdgesNeverUp",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "aTypedEdgeKeepsTheAspectAndIsClampedToTheSource",
+          "csharpMethod": "ATypedEdgeKeepsTheAspectAndIsClampedToTheSource",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "theBitRateCurvePassesThroughTheRecordersRateAtTheDefaultQuality",
+          "csharpMethod": "TheBitRateCurvePassesThroughTheRecordersRateAtTheDefaultQuality",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "theEstimateIsBitRateTimesTheCutPlusOverhead",
+          "csharpMethod": "TheEstimateIsBitRateTimesTheCutPlusOverhead",
+          "status": "ported"
+        }
+      ]
+    },
+    "VideoTimelineTests": {
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit",
+      "tests": [
+        {
+          "swiftMethod": "timeAndPositionMapBothWaysClampedToTheClip",
+          "csharpMethod": "TimeAndPositionMapBothWaysClampedToTheClip",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "theRulerPicksTheFinestStepThatKeepsLabelsApart",
+          "csharpMethod": "TheRulerPicksTheFinestStepThatKeepsLabelsApart",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "labelsReadAsMinutesAndSecondsAndHoursPastAnHour",
+          "csharpMethod": "LabelsReadAsMinutesAndSecondsAndHoursPastAnHour",
+          "status": "ported"
+        },
+        {
+          "swiftMethod": "filmstripSlotsTakeTheNearestFrameAndRepeatWhenThereAreMoreSlots",
+          "csharpMethod": "FilmstripSlotsTakeTheNearestFrameAndRepeatWhenThereAreMoreSlots",
+          "status": "ported"
+        }
+      ]
+    }
+  },
+  "new": [
+    {
+      "className": "AnnotationDocumentTests",
+      "csharpMethod": "UndoRestoresSnapshot",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "HotkeyBindingTests",
+      "csharpMethod": "DefaultsArePrintScreenVariants",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "FilenameFormatterTests",
+      "csharpMethod": "StripsWindowsForbiddenCharacters",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "FrameCadencePlannerTests",
+      "csharpMethod": "RepeatsLastFrameWhenSourceIdle",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "GifQuantizerTests",
+      "csharpMethod": "IsDeterministicWithAtMost256Colours",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "GifWriterTests",
+      "csharpMethod": "RoundTripsFramesAndDelays",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    }
+  ]
+}
