@@ -74,11 +74,12 @@ try {
     Write-Log "Executing probe: $exePath $($argsList -join ' ')..."
 
     # 4. Run probe directly to avoid stream redirection deadlocks
-    $dllPath = [System.IO.Path]::ChangeExtension($exePath, ".dll")
-    if (Test-Path $dllPath) {
-        & $dotnetExe exec $dllPath $argsList
-    } else {
+    # The apphost exe is launched (not "dotnet exec") so the embedded app.manifest, including its DPI awareness, applies to the process.
+    if (Test-Path $exePath) {
+        $env:DOTNET_ROOT = Split-Path -Parent $dotnetExe
         & $exePath $argsList
+    } else {
+        & $dotnetExe exec ([System.IO.Path]::ChangeExtension($exePath, ".dll")) $argsList
     }
     $procExit = $LASTEXITCODE
 
