@@ -64,7 +64,12 @@ public class TakeFinalizerTests : IDisposable
 
         var finalizer = new TakeFinalizer(
             fakeRemuxer,
-            delay: ts => recordedDelays.Add(ts),
+            delay: ts =>
+            {
+                // Assert remux partial was deleted after first failure before retry delay
+                Assert.False(File.Exists(partialPath), "Partial file must be deleted after first failure before retry delay.");
+                recordedDelays.Add(ts);
+            },
             validator: (take, partial) => true
         );
 
@@ -117,7 +122,12 @@ public class TakeFinalizerTests : IDisposable
 
         var finalizer = new TakeFinalizer(
             fakeRemuxer,
-            delay: ts => recordedDelays.Add(ts),
+            delay: ts =>
+            {
+                // Assert remux partial was deleted after first failure before retry delay
+                Assert.False(File.Exists(partialPath), "Partial file must be deleted after first failure before retry delay.");
+                recordedDelays.Add(ts);
+            },
             validator: (take, partial) => File.ReadAllText(partial).Contains("valid progressive mp4 content")
         );
 

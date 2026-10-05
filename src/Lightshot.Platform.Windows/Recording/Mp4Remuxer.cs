@@ -107,6 +107,7 @@ public sealed class Mp4Remuxer : IRemuxer
         catch (Exception ex)
         {
             try { if (File.Exists(tempProgressive)) File.Delete(tempProgressive); } catch { }
+            try { if (File.Exists(outputPath)) File.Delete(outputPath); } catch { }
             return new RemuxResult(false, 0, 0, $"{ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}");
         }
     }
@@ -214,65 +215,184 @@ public sealed class Mp4Remuxer : IRemuxer
         }
     }
 
-    private static void PatchChunkOffsets(byte[] moov, uint shift)
+    /// <summary>
+    /// Traverses the box hierarchy (moov > trak > mdia > minf > stbl) and patches chunk offsets in 'stco' and 'co64'.
+    /// Throws OverflowException if any 32-bit stco offset would exceed uint.MaxValue after shifting.
+    /// </summary>
+    public static void PatchChunkOffsets(byte[] moov, uint shift)
     {
-        // Scan for 'stco' and 'co64' boxes inside moov
-        for (int i = 0; i < moov.Length - 16; i++)
+        int moovHdr = ReadHeaderSize(moov, 0);
+        WalkContainer(moov, moovHdr, moov.Length, "trak", trakStart =>
         {
-            if (moov[i] == 's' && moov[i + 1] == 't' && moov[i + 2] == 'c' && moov[i + 3] == 'o')
+            int trakHdr = ReadHeaderSize(moov, trakStart);
+            int trakEnd = trakStart + (int)ReadBoxSize(moov, trakStart);
+            WalkContainer(moov, trakStart + trakHdr, trakEnd, "mdia", mdiaStart =>
             {
-                // Box structure: [size:4] ['stco':4] [version:1, flags:3] [entry_count:4] [entries: entry_count * 4]
-                int entryCountOffset = i + 8;
-                if (entryCountOffset + 4 > moov.Length) continue;
-
-                uint count = (uint)((moov[entryCountOffset] << 24) | (moov[entryCountOffset + 1] << 16) |
-                                    (moov[entryCountOffset + 2] << 8) | moov[entryCountOffset + 3]);
-
-                int entriesStart = entryCountOffset + 4;
-                for (int e = 0; e < count; e++)
+                int mdiaHdr = ReadHeaderSize(moov, mdiaStart);
+                int mdiaEnd = mdiaStart + (int)ReadBoxSize(moov, mdiaStart);
+                WalkContainer(moov, mdiaStart + mdiaHdr, mdiaEnd, "minf", minfStart =>
                 {
-                    int o = entriesStart + e * 4;
-                    if (o + 4 > moov.Length) break;
+                    int minfHdr = ReadHeaderSize(moov, minfStart);
+                    int minfEnd = minfStart + (int)ReadBoxSize(moov, minfStart);
+                    WalkContainer(moov, minfStart + minfHdr, minfEnd, "stbl", stblStart =>
+                    {
+                        int stblHdr = ReadHeaderSize(moov, stblStart);
+                        int stblEnd = stblStart + (int)ReadBoxSize(moov, stblStart);
+                        PatchStblChunkOffsets(moov, stblStart + stblHdr, stblEnd, shift);
+                    });
+                });
+            });
+        });
+    }
 
-                    uint oldOff = (uint)((moov[o] << 24) | (moov[o + 1] << 16) | (moov[o + 2] << 8) | moov[o + 3]);
-                    uint newOff = oldOff + shift;
+    private static void WalkContainer(byte[] data, int start, int end, string targetTag, Action<int> onBoxFound)
+    {
+        int pos = start;
+        while (pos + 8 <= end)
+        {
+            long boxSize = ReadBoxSize(data, pos);
+            string tag = ReadAscii(data, pos + 4, 4);
 
-                    moov[o] = (byte)((newOff >> 24) & 0xFF);
-                    moov[o + 1] = (byte)((newOff >> 16) & 0xFF);
-                    moov[o + 2] = (byte)((newOff >> 8) & 0xFF);
-                    moov[o + 3] = (byte)(newOff & 0xFF);
-                }
-            }
-            else if (moov[i] == 'c' && moov[i + 1] == 'o' && moov[i + 2] == '6' && moov[i + 3] == '4')
+            if (tag == targetTag)
             {
-                // Box structure: [size:4] ['co64':4] [version:1, flags:3] [entry_count:4] [entries: entry_count * 8]
-                int entryCountOffset = i + 8;
-                if (entryCountOffset + 4 > moov.Length) continue;
-
-                uint count = (uint)((moov[entryCountOffset] << 24) | (moov[entryCountOffset + 1] << 16) |
-                                    (moov[entryCountOffset + 2] << 8) | moov[entryCountOffset + 3]);
-
-                int entriesStart = entryCountOffset + 4;
-                for (int e = 0; e < count; e++)
-                {
-                    int o = entriesStart + e * 8;
-                    if (o + 8 > moov.Length) break;
-
-                    ulong oldOff = ((ulong)moov[o] << 56) | ((ulong)moov[o + 1] << 48) | ((ulong)moov[o + 2] << 40) | ((ulong)moov[o + 3] << 32) |
-                                   ((ulong)moov[o + 4] << 24) | ((ulong)moov[o + 5] << 16) | ((ulong)moov[o + 6] << 8) | moov[o + 7];
-                    ulong newOff = oldOff + shift;
-
-                    moov[o] = (byte)((newOff >> 56) & 0xFF);
-                    moov[o + 1] = (byte)((newOff >> 48) & 0xFF);
-                    moov[o + 2] = (byte)((newOff >> 40) & 0xFF);
-                    moov[o + 3] = (byte)((newOff >> 32) & 0xFF);
-                    moov[o + 4] = (byte)((newOff >> 24) & 0xFF);
-                    moov[o + 5] = (byte)((newOff >> 16) & 0xFF);
-                    moov[o + 6] = (byte)((newOff >> 8) & 0xFF);
-                    moov[o + 7] = (byte)(newOff & 0xFF);
-                }
+                onBoxFound(pos);
             }
+
+            if (boxSize <= 0 || pos + boxSize > end)
+            {
+                break;
+            }
+
+            pos += (int)boxSize;
         }
+    }
+
+    private static void PatchStblChunkOffsets(byte[] data, int start, int end, uint shift)
+    {
+        int pos = start;
+        while (pos + 8 <= end)
+        {
+            long boxSize = ReadBoxSize(data, pos);
+            string tag = ReadAscii(data, pos + 4, 4);
+
+            if (tag == "stco")
+            {
+                // FullBox: 4 bytes size, 4 bytes tag ('stco'), 1 byte version, 3 bytes flags, 4 bytes entry_count
+                int entryCountPos = pos + 12;
+                if (entryCountPos + 4 <= end)
+                {
+                    uint count = ReadUInt32BE(data, entryCountPos);
+                    int entriesPos = entryCountPos + 4;
+                    for (int i = 0; i < count; i++)
+                    {
+                        int offsetPos = entriesPos + i * 4;
+                        if (offsetPos + 4 > end) break;
+
+                        uint oldOff = ReadUInt32BE(data, offsetPos);
+                        ulong sum = (ulong)oldOff + (ulong)shift;
+                        if (sum > uint.MaxValue)
+                        {
+                            throw new OverflowException(
+                                $"Chunk offset 0x{oldOff:X8} + shift {shift} (0x{sum:X}) exceeds uint.MaxValue in 32-bit stco table. " +
+                                "Remux cannot proceed without 64-bit co64 box; take preserved intact.");
+                        }
+
+                        WriteUInt32BE(data, offsetPos, (uint)sum);
+                    }
+                }
+            }
+            else if (tag == "co64")
+            {
+                // FullBox: 4 bytes size, 4 bytes tag ('co64'), 1 byte version, 3 bytes flags, 4 bytes entry_count
+                int entryCountPos = pos + 12;
+                if (entryCountPos + 4 <= end)
+                {
+                    uint count = ReadUInt32BE(data, entryCountPos);
+                    int entriesPos = entryCountPos + 4;
+                    for (int i = 0; i < count; i++)
+                    {
+                        int offsetPos = entriesPos + i * 8;
+                        if (offsetPos + 8 > end) break;
+
+                        ulong oldOff = ReadUInt64BE(data, offsetPos);
+                        ulong newOff = checked(oldOff + (ulong)shift);
+                        WriteUInt64BE(data, offsetPos, newOff);
+                    }
+                }
+            }
+
+            if (boxSize <= 0 || pos + boxSize > end)
+            {
+                break;
+            }
+
+            pos += (int)boxSize;
+        }
+    }
+
+    private static long ReadBoxSize(byte[] data, int pos)
+    {
+        if (pos + 4 > data.Length) return 0;
+        uint sz = ReadUInt32BE(data, pos);
+        if (sz == 1)
+        {
+            if (pos + 16 > data.Length) return 0;
+            return (long)ReadUInt64BE(data, pos + 8);
+        }
+        if (sz == 0)
+        {
+            return data.Length - pos;
+        }
+        return sz;
+    }
+
+    private static int ReadHeaderSize(byte[] data, int pos)
+    {
+        if (pos + 4 > data.Length) return 8;
+        uint sz = ReadUInt32BE(data, pos);
+        return sz == 1 ? 16 : 8;
+    }
+
+    private static uint ReadUInt32BE(byte[] data, int pos)
+    {
+        return (uint)((data[pos] << 24) | (data[pos + 1] << 16) | (data[pos + 2] << 8) | data[pos + 3]);
+    }
+
+    private static void WriteUInt32BE(byte[] data, int pos, uint val)
+    {
+        data[pos] = (byte)((val >> 24) & 0xFF);
+        data[pos + 1] = (byte)((val >> 16) & 0xFF);
+        data[pos + 2] = (byte)((val >> 8) & 0xFF);
+        data[pos + 3] = (byte)(val & 0xFF);
+    }
+
+    private static ulong ReadUInt64BE(byte[] data, int pos)
+    {
+        return ((ulong)data[pos] << 56) |
+               ((ulong)data[pos + 1] << 48) |
+               ((ulong)data[pos + 2] << 40) |
+               ((ulong)data[pos + 3] << 32) |
+               ((ulong)data[pos + 4] << 24) |
+               ((ulong)data[pos + 5] << 16) |
+               ((ulong)data[pos + 6] << 8) |
+               (ulong)data[pos + 7];
+    }
+
+    private static void WriteUInt64BE(byte[] data, int pos, ulong val)
+    {
+        data[pos] = (byte)((val >> 56) & 0xFF);
+        data[pos + 1] = (byte)((val >> 48) & 0xFF);
+        data[pos + 2] = (byte)((val >> 40) & 0xFF);
+        data[pos + 3] = (byte)((val >> 32) & 0xFF);
+        data[pos + 4] = (byte)((val >> 24) & 0xFF);
+        data[pos + 5] = (byte)((val >> 16) & 0xFF);
+        data[pos + 6] = (byte)((val >> 8) & 0xFF);
+        data[pos + 7] = (byte)(val & 0xFF);
+    }
+
+    private static string ReadAscii(byte[] data, int pos, int length)
+    {
+        return Encoding.ASCII.GetString(data, pos, length);
     }
 
     private static List<int> GetStreamIndices(IMFSourceReader reader)
