@@ -195,7 +195,18 @@ public class HistoryStore
     /// </summary>
     public CaptureRecord AddGif(string gifPath, CaptureSource source, DateTime? date = null)
     {
-        throw new HistoryException($"Unreadable media: {gifPath}", HistoryError.UnreadableMedia);
+        if (_thumbnailer == null)
+        {
+            throw new HistoryException($"Unreadable media: {gifPath}", HistoryError.UnreadableMedia);
+        }
+
+        var meta = _thumbnailer.ReadGifMetadata(gifPath);
+        if (meta == null)
+        {
+            throw new HistoryException($"Unreadable media: {gifPath}", HistoryError.UnreadableMedia);
+        }
+
+        return Add(gifPath, CaptureKind.Gif, meta.Width, meta.Height, meta.Duration, meta.Thumbnail, source, date);
     }
 
     /// <summary>

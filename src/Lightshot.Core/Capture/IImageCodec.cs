@@ -10,4 +10,5 @@ namespace Lightshot.Core;
 public interface IImageCodec
 {
     byte[] Encode(RenderedImage image, ImageFormat format);
+    CapturedImage? Decode(byte[] data);
 }

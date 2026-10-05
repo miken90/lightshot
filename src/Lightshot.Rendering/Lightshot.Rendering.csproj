@@ -15,4 +15,9 @@
   <ItemGroup>
     <InternalsVisibleTo Include="Lightshot.Rendering.Tests" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\..\assets\fonts\Inter-Regular.ttf" Link="assets\fonts\Inter-Regular.ttf" />
+    <EmbeddedResource Include="..\..\assets\fonts\Inter-Bold.ttf" Link="assets\fonts\Inter-Bold.ttf" />
+  </ItemGroup>
 </Project>

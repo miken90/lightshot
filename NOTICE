@@ -13,3 +13,8 @@ Derived components and sources:
 - App/Sources -> src/Lightshot.Platform.Windows, src/Lightshot.App
 - specs/ -> architectural specifications and test vectors
 - docs/adr/ -> architecture decision records
+
+Third-party software and assets:
+- Inter font family (assets/fonts/Inter-*.ttf)
+  Copyright (c) 2016-2024 The Inter Project Authors
+  Licensed under the SIL Open Font License, Version 1.1 (assets/fonts/OFL.txt)
