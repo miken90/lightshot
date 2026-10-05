@@ -1,6 +1,6 @@
 # Phase 7: Recording (video, GIF, audio, input overlays, recovery, video editor)
 
-Status: pending | Effort: 26–35d (was 30–40d; camera package R4 deferred post-MVP, -4 to -5d) | Priority: P1 | Depends on: phases 2, 4, 5
+Status: in-progress (package R2 media core implemented: QpcClock, PauseClock, ScratchStore, EncoderSelector, MfFragmentedWriter, Mp4Remuxer, TakeFinalizer) | Effort: 26–35d (was 30–40d; camera package R4 deferred post-MVP, -4 to -5d) | Priority: P1 | Depends on: phases 2, 4, 5
 
 ## Overview
 

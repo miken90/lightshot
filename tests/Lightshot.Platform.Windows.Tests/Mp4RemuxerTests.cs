@@ -1,0 +1,266 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using Lightshot.Platform.Windows.Recording;
+using Lightshot.TestSupport;
+using Vortice.Direct3D;
+using Vortice.Direct3D11;
+using Vortice.DXGI;
+using Vortice.MediaFoundation;
+using Xunit;
+
+namespace Lightshot.Platform.Windows.Tests;
+
+public class Mp4RemuxerTests : IDisposable
+{
+    private readonly string _tempDir;
+
+    public Mp4RemuxerTests()
+    {
+        _tempDir = Path.Combine(Path.GetTempPath(), "lightshot_remuxer_test_" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(_tempDir);
+        MediaFactory.MFStartup().CheckError();
+    }
+
+    public void Dispose()
+    {
+        if (Directory.Exists(_tempDir))
+        {
+            try { Directory.Delete(_tempDir, recursive: true); } catch { }
+        }
+    }
+
+
+
+    private static ID3D11Device CreateD3DDevice()
+    {
+        var result = D3D11.D3D11CreateDevice(
+            null,
+            DriverType.Hardware,
+            DeviceCreationFlags.BgraSupport | DeviceCreationFlags.VideoSupport,
+            new[] { FeatureLevel.Level_11_1, FeatureLevel.Level_11_0 },
+            out ID3D11Device? device);
+
+        if (result.Failure || device == null)
+        {
+            D3D11.D3D11CreateDevice(
+                null,
+                DriverType.Warp,
+                DeviceCreationFlags.BgraSupport | DeviceCreationFlags.VideoSupport,
+                new[] { FeatureLevel.Level_11_1, FeatureLevel.Level_11_0 },
+                out device).CheckError();
+        }
+
+        return device!;
+    }
+
+    /// <summary>
+    /// Generates a synthetic 4-second recording take with 1 H.264 video stream and 2 AAC audio streams
+    /// spanning 2 full GOPs (GOP = 2 s).
+    /// Returns (strippedTakePath, unstrippedTakePath).
+    /// </summary>
+    private (string strippedPath, string unstrippedPath) CreateSyntheticTake()
+    {
+        string rawTakePath = Path.Combine(_tempDir, "synthetic_take.frag.mp4");
+        string unstrippedCopyPath = Path.Combine(_tempDir, "synthetic_take_unstripped.frag.mp4");
+
+        using var device = CreateD3DDevice();
+
+        int width = 1280;
+        int height = 720;
+        int fps = 30;
+        int totalFrames = 120; // 4.0 seconds at 30 fps
+
+        var texDesc = new Texture2DDescription
+        {
+            Width = (uint)width,
+            Height = (uint)height,
+            MipLevels = 1,
+            ArraySize = 1,
+            Format = Format.NV12,
+            SampleDescription = new SampleDescription(1, 0),
+            Usage = ResourceUsage.Default,
+            BindFlags = BindFlags.None,
+            CPUAccessFlags = CpuAccessFlags.None
+        };
+
+        using var nv12Tex = device.CreateTexture2D(texDesc);
+        using var writer = new MfFragmentedWriter(
+            rawTakePath,
+            device,
+            width: width,
+            height: height,
+            fps: fps,
+            audioTrackCount: 2,
+            useHevc: false,
+            bitRate: 4_000_000
+        );
+
+        long frameDurationHns = 10_000_000 / fps;
+        for (int i = 0; i < totalFrames; i++)
+        {
+            long sampleTimeHns = i * frameDurationHns;
+            writer.WriteVideoFrame(nv12Tex, sampleTimeHns, frameDurationHns);
+        }
+
+        // 2 AAC streams (Mic: 440 Hz, Loopback: 660 Hz), 4.0 seconds = 200 chunks of 20 ms
+        int sampleRate = 48000;
+        int chunkSamples = 960; // 20 ms
+        long audioChunkDurationHns = 200_000;
+
+        byte[] micChunk = new byte[chunkSamples * 4];
+        byte[] loopbackChunk = new byte[chunkSamples * 4];
+
+        for (int chunk = 0; chunk < 200; chunk++)
+        {
+            long audioTimeHns = chunk * audioChunkDurationHns;
+
+            // Generate tone PCM
+            for (int s = 0; s < chunkSamples; s++)
+            {
+                double t = (chunk * chunkSamples + s) / (double)sampleRate;
+                short micVal = (short)(Math.Sin(2.0 * Math.PI * 440.0 * t) * 16000.0);
+                short loopVal = (short)(Math.Sin(2.0 * Math.PI * 660.0 * t) * 16000.0);
+
+                // Stereo 16-bit
+                micChunk[4 * s + 0] = (byte)(micVal & 0xFF);
+                micChunk[4 * s + 1] = (byte)((micVal >> 8) & 0xFF);
+                micChunk[4 * s + 2] = (byte)(micVal & 0xFF);
+                micChunk[4 * s + 3] = (byte)((micVal >> 8) & 0xFF);
+
+                loopbackChunk[4 * s + 0] = (byte)(loopVal & 0xFF);
+                loopbackChunk[4 * s + 1] = (byte)((loopVal >> 8) & 0xFF);
+                loopbackChunk[4 * s + 2] = (byte)(loopVal & 0xFF);
+                loopbackChunk[4 * s + 3] = (byte)((loopVal >> 8) & 0xFF);
+            }
+
+            writer.WriteAudioSample(writer.MicStreamIndex, micChunk, audioTimeHns, audioChunkDurationHns);
+            writer.WriteAudioSample(writer.LoopbackStreamIndex, loopbackChunk, audioTimeHns, audioChunkDurationHns);
+        }
+
+        // Finalize writing without stripping to save the unstripped take copy
+        writer.FinalizeWriting(stripMfra: false);
+
+        // Copy unstripped take for negative control
+        File.Copy(rawTakePath, unstrippedCopyPath, overwrite: true);
+
+        // Strip the raw take
+        MfFragmentedWriter.StripRandomAccessIndex(rawTakePath);
+
+        return (rawTakePath, unstrippedCopyPath);
+    }
+
+    [Fact]
+    [Media]
+    public void OutputHasMoovBeforeMdatAndAllStreams()
+    {
+        var (strippedTake, _) = CreateSyntheticTake();
+        string remuxedPath = Path.Combine(_tempDir, "remuxed_progressive.mp4");
+
+        var remuxer = new Mp4Remuxer();
+        var remuxResult = remuxer.Remux(strippedTake, remuxedPath);
+
+        Assert.True(remuxResult.Success, $"Remuxing failed: {remuxResult.ErrorMessage}");
+        Assert.Equal(3, remuxResult.StreamCount);
+        Assert.True(remuxResult.DurationSeconds >= 3.9, $"Duration was {remuxResult.DurationSeconds}s");
+
+        // 1. Box order verification: 'moov' before 'mdat'
+        bool hasMoovBeforeMdat = Mp4Remuxer.HasMoovBeforeMdat(remuxedPath);
+        Assert.True(hasMoovBeforeMdat, "Remuxed file must have 'moov' box placed before 'mdat'.");
+
+        // 2. Validate all streams present (1 video + 2 audio) and duration match
+        using var reader = MediaFactory.MFCreateSourceReaderFromURL(remuxedPath, null);
+        int videoCount = 0;
+        int audioCount = 0;
+
+        for (int i = 0; i < 8; i++)
+        {
+            try
+            {
+                using var nt = reader.GetNativeMediaType((SourceReaderIndex)i, 0);
+                Guid major = nt.GetGUID(MediaTypeAttributeKeys.MajorType);
+                if (major == MediaTypeGuids.Video) videoCount++;
+                else if (major == MediaTypeGuids.Audio) audioCount++;
+            }
+            catch { break; }
+        }
+
+        Assert.Equal(1, videoCount);
+        Assert.Equal(2, audioCount);
+
+        bool isValid = Mp4Remuxer.ValidateRemux(strippedTake, remuxedPath, durationToleranceSec: 0.1);
+        Assert.True(isValid, "Remuxed file must pass stream and duration validation against take.");
+    }
+
+    [Fact]
+    [Media]
+    public void DecodedTimestampsNeverStepBackward()
+    {
+        var (strippedTake, unstrippedTake) = CreateSyntheticTake();
+        string remuxedPath = Path.Combine(_tempDir, "remuxed_timestamps.mp4");
+
+        var remuxer = new Mp4Remuxer();
+        var remuxResult = remuxer.Remux(strippedTake, remuxedPath);
+        Assert.True(remuxResult.Success, remuxResult.ErrorMessage);
+
+        // 1. Check decoded timestamps of remuxed progressive MP4
+        using var remuxReader = MediaFactory.MFCreateSourceReaderFromURL(remuxedPath, null);
+        remuxReader.SetStreamSelection(SourceReaderIndex.AllStreams, false);
+        remuxReader.SetStreamSelection(SourceReaderIndex.FirstVideoStream, true);
+
+        long lastRemuxTs = -1;
+        int remuxFrames = 0;
+        bool remuxSteppedBackward = false;
+
+        while (true)
+        {
+            var sample = remuxReader.ReadSample(SourceReaderIndex.FirstVideoStream, SourceReaderControlFlag.None, out _, out var flags, out long ts);
+            if (flags.HasFlag(SourceReaderFlag.EndOfStream)) break;
+            if (sample != null)
+            {
+                remuxFrames++;
+                if (ts < lastRemuxTs)
+                {
+                    remuxSteppedBackward = true;
+                }
+                lastRemuxTs = ts;
+                sample.Dispose();
+            }
+        }
+
+        Assert.True(remuxFrames >= 100, $"Expected >= 100 frames, decoded {remuxFrames}");
+        Assert.False(remuxSteppedBackward, "Decoded timestamps in remuxed MP4 must never step backward.");
+
+        // 2. Negative control: Read unstripped take and check if backward jumps occur
+        using var unstrippedReader = MediaFactory.MFCreateSourceReaderFromURL(unstrippedTake, null);
+        unstrippedReader.SetStreamSelection(SourceReaderIndex.AllStreams, false);
+        unstrippedReader.SetStreamSelection(SourceReaderIndex.FirstVideoStream, true);
+
+        long lastUnstrippedTs = -1;
+        int unstrippedFrames = 0;
+        int unstrippedBackwardJumps = 0;
+
+        while (true)
+        {
+            var sample = unstrippedReader.ReadSample(SourceReaderIndex.FirstVideoStream, SourceReaderControlFlag.None, out _, out var flags, out long ts);
+            if (flags.HasFlag(SourceReaderFlag.EndOfStream)) break;
+            if (sample != null)
+            {
+                unstrippedFrames++;
+                if (ts < lastUnstrippedTs)
+                {
+                    unstrippedBackwardJumps++;
+                }
+                lastUnstrippedTs = ts;
+                sample.Dispose();
+            }
+        }
+
+        // Gate amendment 3 reporting requirement:
+        // "DecodedTimestampsNeverStepBackward gets a negative control: read the unstripped take too.
+        // If the backward jumps do not reproduce on synthetic input, report that plainly; never tune the input to make it pass."
+        Console.WriteLine($"[Negative Control] Unstripped take decoded {unstrippedFrames} frames, backward jumps: {unstrippedBackwardJumps}");
+        // We assert unstripped frames were read, but we never fail if backward jumps don't reproduce on synthetic input
+        Assert.True(unstrippedFrames > 0, "Unstripped take must be readable.");
+    }
+}
