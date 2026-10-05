@@ -12,6 +12,7 @@ param(
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition
 . (Join-Path $ScriptDir "_common.ps1")
+Set-Location $RepoRoot
 
 $exitCode = 0
 $powerRequestHandle = [IntPtr]::Zero
