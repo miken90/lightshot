@@ -18,6 +18,15 @@ public class OcrProbeResult
     public int TotalEntities { get; set; }
     public int MatchedEntities { get; set; }
     public double OverallRecall { get; set; }
+    public int FirstPassMatchedEntities { get; set; }
+    public double FirstPassRecall { get; set; }
+    public int LenientMatchedEntities { get; set; }
+    public double LenientRecall { get; set; }
+    public string MatchRule { get; set; } = "strict: case-sensitive, whole OCR line equals the entity after whitespace normalisation, per entity";
+    public string RenderRule { get; set; } = "fixtures rendered at native font size (1x, grayscale AA), upscaled 2x with bicubic (Mitchell) resampling, 5 entities tiled per bitmap; 3x retry upscales the native-size bitmap and binarises";
+    public int RetryRecovered { get; set; }
+    public int MinFontSizePx { get; set; }
+    public int MaxFontSizePx { get; set; }
     public Dictionary<string, double> RecallByFont { get; set; } = new();
     public Dictionary<string, double> RecallByCategory { get; set; } = new();
     public string? FallbackTriggered { get; set; }
@@ -60,6 +69,8 @@ public static class OcrProbe
             Console.WriteLine($"[OcrProbe] Generated {seeds.Count} seeded entities (>=200 required).");
 
             int matchedCount = 0;
+            int firstPassCount = 0;
+            int lenientCount = 0;
             var fontStats = new Dictionary<string, (int total, int matched)>();
             var catStats = new Dictionary<string, (int total, int matched)>();
 
@@ -74,20 +85,29 @@ public static class OcrProbe
             foreach (var batchArr in groupedBatches)
             {
                 var batch = batchArr.ToList();
-                var ocrText = await RenderAndRecognizeBatchAsync(ocr, batch, fonts, upscale: 2);
+                var ocrLines = await RenderAndRecognizeBatchAsync(ocr, batch, fonts, upscale: 2);
+                var batchText = string.Join(" ", ocrLines);
 
                 foreach (var entity in batch)
                 {
-                    bool matched = IsEntityMatched(ocrText, entity.Text);
+                    bool matched = IsEntityMatchedStrict(ocrLines, entity.Text);
+                    bool lenient = matched || IsEntityMatchedLenient(batchText, entity.Text);
+                    if (matched) firstPassCount++;
 
-                    // Fallback retry at 3x scale with binarization if missed
+                    // Fallback retry at 3x scale (native bitmap upscaled) with binarization if missed
                     if (!matched)
                     {
-                        var retryText = await RenderAndRecognizeSingleAsync(ocr, entity, fonts, upscale: 3, binarize: true);
-                        if (IsEntityMatched(retryText, entity.Text))
+                        var retryLines = await RenderAndRecognizeSingleAsync(ocr, entity, fonts, upscale: 3, binarize: true);
+                        if (IsEntityMatchedStrict(retryLines, entity.Text))
                         {
                             matched = true;
+                            lenient = true;
+                            result.RetryRecovered++;
                             result.FallbackTriggered ??= "Retry at 3x upscale with binarization triggered for difficult glyphs";
+                        }
+                        else if (!lenient)
+                        {
+                            lenient = IsEntityMatchedLenient(string.Join(" ", retryLines), entity.Text);
                         }
                     }
 
@@ -98,9 +118,16 @@ public static class OcrProbe
                     catStats[entity.Category] = (cs.total + 1, cs.matched + (matched ? 1 : 0));
 
                     if (matched) matchedCount++;
+                    if (lenient) lenientCount++;
                 }
             }
 
+            result.FirstPassMatchedEntities = firstPassCount;
+            result.FirstPassRecall = (double)firstPassCount / seeds.Count;
+            result.LenientMatchedEntities = lenientCount;
+            result.LenientRecall = (double)lenientCount / seeds.Count;
+            result.MinFontSizePx = (int)seeds.Min(e => e.FontSize);
+            result.MaxFontSizePx = (int)seeds.Max(e => e.FontSize);
             result.MatchedEntities = matchedCount;
             result.OverallRecall = (double)matchedCount / seeds.Count;
 
@@ -114,9 +141,9 @@ public static class OcrProbe
             }
 
             // Pass bar: recall >= 90%
-            result.Pass = result.OverallRecall >= 0.895 && result.TotalEntities >= 200;
+            result.Pass = result.OverallRecall >= 0.90 && result.TotalEntities >= 200;
 
-            Console.WriteLine($"[OcrProbe] Overall Recall: {result.OverallRecall:P1} ({result.MatchedEntities}/{result.TotalEntities})");
+            Console.WriteLine($"[OcrProbe] Strict recall (with 3x retry): {result.OverallRecall:P1} ({result.MatchedEntities}/{result.TotalEntities}); first pass only {result.FirstPassRecall:P1}; lenient (informational) {result.LenientRecall:P1}");
             foreach (var (k, v) in result.RecallByFont)
             {
                 Console.WriteLine($"  - Font {k}: {v:P1}");
@@ -135,54 +162,62 @@ public static class OcrProbe
         return result;
     }
 
-    private static async Task<string> RenderAndRecognizeBatchAsync(OcrEngine ocr, List<SeededEntity> batch, Dictionary<string, SKTypeface> fonts, int upscale)
+    private static SKPaint MakePaint(SeededEntity entity, Dictionary<string, SKTypeface> fonts) => new SKPaint
     {
-        int scaledWidth = 1000 * upscale;
-        int lineHeight = 60 * upscale;
-        int scaledHeight = batch.Count * lineHeight + 50 * upscale;
+        Color = entity.DarkBackground ? SKColors.White : SKColors.Black,
+        TextSize = entity.FontSize, // native size: 1x, never scaled; scaling happens on the bitmap
+        IsAntialias = true,
+        Typeface = fonts.GetValueOrDefault(entity.FontName, SKTypeface.Default)
+    };
 
-        using var bmp = new SKBitmap(scaledWidth, scaledHeight, SKColorType.Bgra8888, SKAlphaType.Premul);
-        using (var canvas = new SKCanvas(bmp))
+    // Resamples a rendered bitmap; bicubic (Mitchell) as a stand-in for the filter a product would use.
+    private static SKBitmap Upscale(SKBitmap src, int factor)
+    {
+        var dst = new SKBitmap(src.Width * factor, src.Height * factor, SKColorType.Bgra8888, SKAlphaType.Premul);
+        using var img = SKImage.FromBitmap(src);
+        using var canvas = new SKCanvas(dst);
+        using var paint = new SKPaint();
+        canvas.DrawImage(img, new SKRect(0, 0, dst.Width, dst.Height), new SKSamplingOptions(SKCubicResampler.Mitchell), paint);
+        return dst;
+    }
+
+    private static async Task<List<string>> RenderAndRecognizeBatchAsync(OcrEngine ocr, List<SeededEntity> batch, Dictionary<string, SKTypeface> fonts, int upscale)
+    {
+        // Native-size canvas: 1x lines sized for 11-24 px text.
+        const int width = 500;
+        const int lineHeight = 40;
+        int height = batch.Count * lineHeight + 20;
+
+        using var native = new SKBitmap(width, height, SKColorType.Bgra8888, SKAlphaType.Premul);
+        using (var canvas = new SKCanvas(native))
         {
             bool isDark = batch[0].DarkBackground;
             canvas.Clear(isDark ? new SKColor(20, 20, 20) : SKColors.White);
 
-            float y = 50 * upscale;
+            float y = 30;
             foreach (var entity in batch)
             {
-                using var paint = new SKPaint
-                {
-                    Color = isDark ? SKColors.White : SKColors.Black,
-                    TextSize = entity.FontSize * upscale,
-                    IsAntialias = true,
-                    Typeface = fonts.GetValueOrDefault(entity.FontName, SKTypeface.Default)
-                };
-                canvas.DrawText(entity.Text, 40 * upscale, y, paint);
+                using var paint = MakePaint(entity, fonts);
+                canvas.DrawText(entity.Text, 20, y, paint);
                 y += lineHeight;
             }
         }
 
-        return await RecognizeSkBitmapAsync(ocr, bmp, invertIfDark: batch[0].DarkBackground);
+        using var scaled = Upscale(native, upscale);
+        return await RecognizeSkBitmapAsync(ocr, scaled, invertIfDark: batch[0].DarkBackground);
     }
 
-    private static async Task<string> RenderAndRecognizeSingleAsync(OcrEngine ocr, SeededEntity entity, Dictionary<string, SKTypeface> fonts, int upscale, bool binarize)
+    private static async Task<List<string>> RenderAndRecognizeSingleAsync(OcrEngine ocr, SeededEntity entity, Dictionary<string, SKTypeface> fonts, int upscale, bool binarize)
     {
-        int scaledWidth = 1000 * upscale;
-        int scaledHeight = 100 * upscale;
-
-        using var bmp = new SKBitmap(scaledWidth, scaledHeight, SKColorType.Bgra8888, SKAlphaType.Premul);
-        using (var canvas = new SKCanvas(bmp))
+        using var native = new SKBitmap(500, 50, SKColorType.Bgra8888, SKAlphaType.Premul);
+        using (var canvas = new SKCanvas(native))
         {
             canvas.Clear(entity.DarkBackground ? new SKColor(20, 20, 20) : SKColors.White);
-            using var paint = new SKPaint
-            {
-                Color = entity.DarkBackground ? SKColors.White : SKColors.Black,
-                TextSize = entity.FontSize * upscale,
-                IsAntialias = true,
-                Typeface = fonts.GetValueOrDefault(entity.FontName, SKTypeface.Default)
-            };
-            canvas.DrawText(entity.Text, 40 * upscale, 60 * upscale, paint);
+            using var paint = MakePaint(entity, fonts);
+            canvas.DrawText(entity.Text, 20, 32, paint);
         }
+
+        using var bmp = Upscale(native, upscale);
 
         if (binarize)
         {
@@ -210,7 +245,7 @@ public static class OcrProbe
         return await RecognizeSkBitmapAsync(ocr, bmp, invertIfDark: entity.DarkBackground);
     }
 
-    private static async Task<string> RecognizeSkBitmapAsync(OcrEngine ocr, SKBitmap bmp, bool invertIfDark)
+    private static async Task<List<string>> RecognizeSkBitmapAsync(OcrEngine ocr, SKBitmap bmp, bool invertIfDark)
     {
         using var target = new SKBitmap(bmp.Info);
         bmp.CopyTo(target);
@@ -237,7 +272,7 @@ public static class OcrProbe
         var sbm = await decoder.GetSoftwareBitmapAsync(BitmapPixelFormat.Bgra8, BitmapAlphaMode.Premultiplied);
 
         var result = await ocr.RecognizeAsync(sbm);
-        return result.Text ?? "";
+        return result.Lines.Select(l => l.Text ?? "").ToList();
     }
 
     private static string NormalizeWhitespace(string s)
@@ -245,7 +280,15 @@ public static class OcrProbe
         return Regex.Replace(s, @"\s+", " ").Trim();
     }
 
-    private static bool IsEntityMatched(string ocrText, string entityText)
+    // Spec rule: exact (case-sensitive, ordinal) string match after whitespace normalisation, per entity.
+    private static bool IsEntityMatchedStrict(List<string> ocrLines, string entityText)
+    {
+        string normEntity = NormalizeWhitespace(entityText);
+        return ocrLines.Any(l => string.Equals(NormalizeWhitespace(l), normEntity, StringComparison.Ordinal));
+    }
+
+    // Informational only, never used for PASS/FAIL: case-insensitive, punctuation-insensitive, over the whole batch text.
+    private static bool IsEntityMatchedLenient(string ocrText, string entityText)
     {
         string normOcr = NormalizeWhitespace(ocrText);
         string normEntity = NormalizeWhitespace(entityText);
@@ -253,26 +296,16 @@ public static class OcrProbe
         if (normOcr.Contains(normEntity, StringComparison.OrdinalIgnoreCase))
             return true;
 
-        // Check with punctuation-boundary spacing normalized
-        string cleanOcr = Regex.Replace(normOcr, @"[\s\-_\.:]+", " ");
-        string cleanEntity = Regex.Replace(normEntity, @"[\s\-_\.:]+", " ");
-        if (cleanOcr.Contains(cleanEntity, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        // Strip non-alphanumeric for dense structured entities (cards, tokens, IBANs, IPs)
         string alnumOcr = Regex.Replace(normOcr, @"[^a-zA-Z0-9]", "");
         string alnumEntity = Regex.Replace(normEntity, @"[^a-zA-Z0-9]", "");
-        if (alnumOcr.Contains(alnumEntity, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-        return false;
+        return alnumOcr.Contains(alnumEntity, StringComparison.OrdinalIgnoreCase);
     }
 
     private static List<SeededEntity> GenerateSeededEntities(IEnumerable<string> fontNames)
     {
         var list = new List<SeededEntity>();
         var fonts = fontNames.ToList();
-        float[] fontSizes = { 12f, 14f, 16f, 18f, 22f };
+        float[] fontSizes = { 11f, 12f, 14f, 16f, 18f, 20f, 24f };
 
         int id = 100;
         int fontIdx = 0;

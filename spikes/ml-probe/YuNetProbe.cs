@@ -17,6 +17,10 @@ public class YuNetProbeResult
     public int TotalGtFaces { get; set; }
     public int MatchedFaces { get; set; }
     public double Recall { get; set; }
+    public string FilterDescription { get; set; } = "prominent faces only: w >= 40 px, h >= 40 px, blur <= 1, occlusion <= 1, invalid = 0; match IoU >= 0.4";
+    public int UnfilteredGtFaces { get; set; }
+    public int UnfilteredMatchedFaces { get; set; }
+    public double UnfilteredRecall { get; set; }
     public int EvaluatedImages { get; set; }
     public double ScoreThreshold { get; set; } = 0.6;
     public double NmsThreshold { get; set; } = 0.3;
@@ -71,6 +75,8 @@ public static class YuNetProbe
 
             int totalGt = 0;
             int matchedGt = 0;
+            int unfilteredGt = 0;
+            int unfilteredMatched = 0;
             int evaluatedImages = 0;
 
             foreach (var imgPath in imageFiles)
@@ -80,6 +86,7 @@ public static class YuNetProbe
                     continue;
 
                 // Prominent faces filter (w >= 40, h >= 40, clear/normal blur, no/partial occlusion, valid)
+                var allValidGts = rawGtBoxes.Where(b => b.Invalid == 0).ToList();
                 var validGts = rawGtBoxes
                     .Where(b => b.Invalid == 0 && b.Blur <= 1 && b.Occlusion <= 1 && b.W >= 40 && b.H >= 40)
                     .ToList();
@@ -158,32 +165,11 @@ public static class YuNetProbe
 
                 var finalDetections = RunNms(candBoxes, (float)result.NmsThreshold);
 
-                // IoU matching against ground truth
-                var matched = new bool[validGts.Count];
-                foreach (var pred in finalDetections)
-                {
-                    float bestIou = 0.0f;
-                    int bestGtIdx = -1;
-
-                    for (int g = 0; g < validGts.Count; g++)
-                    {
-                        var gt = validGts[g];
-                        float overlap = ComputeIoU(pred.X, pred.Y, pred.Width, pred.Height, gt.X, gt.Y, gt.W, gt.H);
-                        if (overlap > bestIou)
-                        {
-                            bestIou = overlap;
-                            bestGtIdx = g;
-                        }
-                    }
-
-                    if (bestIou >= (float)result.MatchIouThreshold && bestGtIdx >= 0)
-                    {
-                        matched[bestGtIdx] = true;
-                    }
-                }
+                matchedGt += CountMatched(finalDetections, validGts.Select(g => (g.X, g.Y, g.W, g.H)).ToList(), (float)result.MatchIouThreshold);
+                unfilteredGt += allValidGts.Count;
+                unfilteredMatched += CountMatched(finalDetections, allValidGts.Select(g => (g.X, g.Y, g.W, g.H)).ToList(), (float)result.MatchIouThreshold);
 
                 totalGt += validGts.Count;
-                matchedGt += matched.Count(m => m);
                 evaluatedImages++;
 
                 if (totalGt >= 200)
@@ -193,10 +179,13 @@ public static class YuNetProbe
             result.TotalGtFaces = totalGt;
             result.MatchedFaces = matchedGt;
             result.EvaluatedImages = evaluatedImages;
+            result.UnfilteredGtFaces = unfilteredGt;
+            result.UnfilteredMatchedFaces = unfilteredMatched;
+            result.UnfilteredRecall = unfilteredGt > 0 ? (double)unfilteredMatched / unfilteredGt : 0.0;
             result.Recall = totalGt > 0 ? (double)matchedGt / totalGt : 0.0;
-            result.Pass = totalGt >= 200 && result.Recall >= 0.895; // Spec >= 90%
+            result.Pass = totalGt >= 200 && result.Recall >= 0.90; // Spec >= 90%
 
-            Console.WriteLine($"[YuNetProbe] Evaluated {evaluatedImages} images: GT={totalGt}, Matched={matchedGt}, Recall={result.Recall:P2} (Pass={result.Pass})");
+            Console.WriteLine($"[YuNetProbe] Evaluated {evaluatedImages} images: GT={totalGt}, Matched={matchedGt}, Recall={result.Recall:P2} (Pass={result.Pass}); unfiltered valid GT={unfilteredGt}, Matched={unfilteredMatched}, Recall={result.UnfilteredRecall:P2}");
         }
         catch (Exception ex)
         {
@@ -253,6 +242,29 @@ public static class YuNetProbe
         }
 
         return dict;
+    }
+
+    // Each prediction claims its best-IoU GT box (>= threshold); a GT counts once.
+    private static int CountMatched(List<FaceBox> detections, List<(int X, int Y, int W, int H)> gts, float iouThreshold)
+    {
+        var matched = new bool[gts.Count];
+        foreach (var pred in detections)
+        {
+            float bestIou = 0.0f;
+            int bestGtIdx = -1;
+            for (int g = 0; g < gts.Count; g++)
+            {
+                float overlap = ComputeIoU(pred.X, pred.Y, pred.Width, pred.Height, gts[g].X, gts[g].Y, gts[g].W, gts[g].H);
+                if (overlap > bestIou)
+                {
+                    bestIou = overlap;
+                    bestGtIdx = g;
+                }
+            }
+            if (bestIou >= iouThreshold && bestGtIdx >= 0)
+                matched[bestGtIdx] = true;
+        }
+        return matched.Count(m => m);
     }
 
     private static float ComputeIoU(float x1, float y1, float w1, float h1, float x2, float y2, float w2, float h2)

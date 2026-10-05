@@ -148,12 +148,15 @@ public static class WhisperProbe
             // Pass criteria per spec: within 300 ms word-timing error (median) and faster than real time on CPU (RTF < 1.0)
             bool timingPass = result.MedianErrorMs <= 300.0;
             bool rtfPass = result.RealTimeFactor < 1.0;
-            result.Pass = timingPass && rtfPass;
+            // Spec asks for a 5-minute narration: a shorter run is not a valid measurement.
+            bool durationValid = result.AudioDurationSec >= 300.0;
+            result.Pass = timingPass && rtfPass && durationValid;
 
             if (!result.Pass)
             {
                 result.FallbackTriggered = result.RealTimeFactor >= 1.0 
                     ? "Whisper base too slow on CPU -> ship tiny q5 as default and base as optional import"
+                    : !durationValid ? "Narration shorter than 300 s: measurement invalid"
                     : "Word timing error exceeded 300 ms";
             }
 
@@ -211,6 +214,21 @@ Voice narration and captioning features leverage compact quantized transformer m
 This allows content creators, software engineers, and remote teams to record instructional walk-throughs and generate synchronized captions entirely offline without subscription fees.
 Translation models based on Marian architectures provide accurate bilingual translations between English and Vietnamese, enabling effortless cross language communication.
 Every component has been engineered to minimize memory consumption, preserve battery life on laptop computers, and eliminate external dependencies.
+Security and reliability remain central design goals for every subsystem in the application.
+The settings dialog stores preferences in a small local file, and never transmits usage statistics or crash reports without explicit user consent.
+When the application is updated, the installer verifies a cryptographic signature before replacing any binaries on disk.
+A background update service checks for new releases once per day, downloads the package in small chunks, and resumes automatically after a network interruption.
+If an update fails for any reason, the previous version is restored immediately so that the user never loses access to the tool.
+The image editor offers arrows, rectangles, text labels, numbered markers, highlights, and pixel perfect blur tools for annotating screenshots quickly.
+Every annotation is stored as a vector object until the final image is exported, so users can move, resize, or delete elements at any time during editing.
+Keyboard shortcuts are fully customizable, and conflicts with other applications are detected and reported before the new shortcut is saved.
+The video editor provides trimming, zooming, cursor highlighting, and smooth transitions, all rendered by the same engine that produces the final exported file.
+Because the preview and the export share one rendering path, what the user sees on screen is exactly what appears in the finished recording.
+Accessibility has been considered from the first prototype, with full keyboard navigation, screen reader labels, high contrast themes, and scalable interface elements.
+Performance budgets are enforced during development, and automated benchmarks run on every build to detect regressions in startup time, memory use, and frame pacing.
+In summary, this narration exercises roughly five minutes of continuous speech so that the caption pipeline can be measured on a realistic length of audio.
+The next sentences are intentionally plain, repeating familiar words so that the recognizer faces ordinary vocabulary, numbers like one hundred and twenty, and names like Windows and Marian.
+After the final sentence, the recording ends and the timing report is written to disk for review.
 Thank you for participating in this evaluation of high performance desktop technology and on device intelligence.";
     }
 }
