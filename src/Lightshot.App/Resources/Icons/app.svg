@@ -12,9 +12,9 @@
       <feGaussianBlur stdDeviation="6"/>
     </filter>
   </defs>
-  <rect x="16" y="16" width="224" height="224" rx="52" fill="#000000" fill-opacity="0.3" filter="url(#shadow)" transform="translate(0 6)"/>
-  <rect x="16" y="16" width="224" height="224" rx="52" fill="url(#tile)"/>
-  <rect x="16" y="16" width="224" height="123" rx="52" fill="url(#gloss)"/>
+  <rect x="16" y="16" width="224" height="224" rx="32" fill="#000000" fill-opacity="0.3" filter="url(#shadow)" transform="translate(0 6)"/>
+  <rect x="16" y="16" width="224" height="224" rx="32" fill="url(#tile)"/>
+  <rect x="16" y="16" width="224" height="123" rx="32" fill="url(#gloss)"/>
   <path d="M56,104 L56,56 L104,56 M152,56 L200,56 L200,104 M56,152 L56,200 L104,200 M200,152 L200,200 L152,200" fill="none" stroke="#FFFFFF" stroke-width="19.2" stroke-linecap="round" stroke-linejoin="round"/>
   <circle cx="128" cy="128" r="28.8" fill="#FFC53D"/>
 </svg>

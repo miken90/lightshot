@@ -32,8 +32,8 @@ SHADOW_ALPHA = 0.30
 GLOSS_ALPHA = 0.20
 
 # Geometry on the 256 grid. The glyph is the tray's 24 grid mapped through x' = origin + scale * x.
-DETAIL = {"inset": 16, "radius": 52, "scale": 8.0, "stroke": None, "dot": None, "effects": True}
-SMALL = {"inset": 0, "radius": 60, "scale": 9.5, "stroke": 3.0, "dot": 3.9, "effects": False}
+DETAIL = {"inset": 16, "radius": 32, "scale": 8.0, "stroke": None, "dot": None, "effects": True}
+SMALL = {"inset": 0, "radius": 40, "scale": 9.5, "stroke": 3.0, "dot": 3.9, "effects": False}
 
 
 def _load_tray():
@@ -184,7 +184,7 @@ def render(size):
     ImageDraw.Draw(dot).ellipse((c - r, c - r, c + r, c + r), fill=255)
     img = Image.alpha_composite(img, _layer(canvas, DOT, dot))
 
-    return img.resize((size, size), Image.LANCZOS)
+    return img.resize((size, size), Image.BOX)
 
 
 def _bmp_frame(img):
