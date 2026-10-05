@@ -1,6 +1,6 @@
 # Phase 3: Core domain port and deterministic rendering
 
-Status: in progress (Package C done; Package R pending) | Effort: 12d | Priority: P1 | Depends on: phase 1 (only Core/Capture interfaces wait for the spike A verdict; split gates: A, D gate 4; B gates 7; C gates 8; E gates 6, 8, 10)
+Status: done (Package C done; Package R done) | Effort: 12d | Priority: P1 | Depends on: phase 1 (only Core/Capture interfaces wait for the spike A verdict; split gates: A, D gate 4; B gates 7; C gates 8; E gates 6, 8, 10)
 
 ## Overview
 

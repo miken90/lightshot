@@ -1235,132 +1235,132 @@
         {
           "swiftMethod": "emptyDocumentKeepsBaseDimensions",
           "csharpMethod": "EmptyDocumentKeepsBaseDimensions",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "emptyDocumentReproducesTheBasePixels",
           "csharpMethod": "EmptyDocumentReproducesTheBasePixels",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "cropShrinksOutputToTheCropRect",
           "csharpMethod": "CropShrinksOutputToTheCropRect",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "cropOffsetsAnnotationsIntoTheCroppedFrame",
           "csharpMethod": "CropOffsetsAnnotationsIntoTheCroppedFrame",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "reversingACropRestoresTheFullFrameWithElementsIntact",
           "csharpMethod": "ReversingACropRestoresTheFullFrameWithElementsIntact",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "filledRectanglePaintsItsInterior",
           "csharpMethod": "FilledRectanglePaintsItsInterior",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "strokedLineMarksThePixelsAlongIt",
           "csharpMethod": "StrokedLineMarksThePixelsAlongIt",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "filledEllipsePaintsCenterButNotBoundingBoxCorner",
           "csharpMethod": "FilledEllipsePaintsCenterButNotBoundingBoxCorner",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "highlighterWashesTheRegionButLetsContentShowThrough",
           "csharpMethod": "HighlighterWashesTheRegionButLetsContentShowThrough",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "blackoutErasesTheSentinelBeneathIt",
           "csharpMethod": "BlackoutErasesTheSentinelBeneathIt",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "blurChangesTheRegionWithoutErasingIt",
           "csharpMethod": "BlurChangesTheRegionWithoutErasingIt",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "pixelateChangesTheRegion",
           "csharpMethod": "PixelateChangesTheRegion",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "laterElementDrawsOnTopAtOverlap",
           "csharpMethod": "LaterElementDrawsOnTopAtOverlap",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "standardArrowIsThinAtTheTailAndWideAtTheHead",
           "csharpMethod": "StandardArrowIsThinAtTheTailAndWideAtTheHead",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "curvedArrowIsDrawnThroughItsBendNotAlongItsChord",
           "csharpMethod": "CurvedArrowIsDrawnThroughItsBendNotAlongItsChord",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "theSameElementAlwaysFlattensToTheSamePixels",
           "csharpMethod": "TheSameElementAlwaysFlattensToTheSamePixels",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "aDifferentSeedScramblesDifferently",
           "csharpMethod": "ADifferentSeedScramblesDifferently",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "strengthChangesTheResult",
           "csharpMethod": "StrengthChangesTheResult",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "blurSmearsTheSeamWidelyAndStaysInsideItsRegion",
           "csharpMethod": "BlurSmearsTheSeamWidelyAndStaysInsideItsRegion",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "blurObscuresAnnotationsBeneathItButNotThoseAbove",
           "csharpMethod": "BlurObscuresAnnotationsBeneathItButNotThoseAbove",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "theCanvasPreviewPatchIsExactlyWhatExports",
           "csharpMethod": "TheCanvasPreviewPatchIsExactlyWhatExports",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "blackoutNeedsNoPatch",
           "csharpMethod": "BlackoutNeedsNoPatch",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "aRegionPokingOutsideTheCropIsClippedToTheVisibleFrame",
           "csharpMethod": "ARegionPokingOutsideTheCropIsClippedToTheVisibleFrame",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "everythingOutsideTheFocusAreasIsDimmedAndTheAreasStayClear",
           "csharpMethod": "EverythingOutsideTheFocusAreasIsDimmedAndTheAreasStayClear",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "marksStayBrightOutsideTheFocusAreas",
           "csharpMethod": "MarksStayBrightOutsideTheFocusAreas",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "aFocusAreaIsGrabbedAnywhereButTheMarksItFramesWinAClick",
           "csharpMethod": "AFocusAreaIsGrabbedAnywhereButTheMarksItFramesWinAClick",
-          "status": "pending: PackageR"
+          "status": "ported"
         }
       ]
     },
@@ -1482,37 +1482,37 @@
         {
           "swiftMethod": "extensionsAndTypesMatchTheFormat",
           "csharpMethod": "ExtensionsAndTypesMatchTheFormat",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "clampingFactoryNormalizesQualityIntoRange",
           "csharpMethod": "ClampingFactoryNormalizesQualityIntoRange",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "expandsTokensZeroPadded",
           "csharpMethod": "ExpandsTokensZeroPadded",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "passesUnknownTokensAndLonePercentThrough",
           "csharpMethod": "PassesUnknownTokensAndLonePercentThrough",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "destinationURLJoinsLocationNameAndExtension",
           "csharpMethod": "DestinationURLJoinsLocationNameAndExtension",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "pngEncodePassesTheRenderBytesThrough",
           "csharpMethod": "PngEncodePassesTheRenderBytesThrough",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "jpegEncodeProducesDecodableJPEGBytes",
           "csharpMethod": "JpegEncodeProducesDecodableJPEGBytes",
-          "status": "pending: PackageR"
+          "status": "ported"
         }
       ]
     },
@@ -1563,7 +1563,7 @@
         {
           "swiftMethod": "aWindowIsItsFrozenImageAsAPNG",
           "csharpMethod": "AWindowIsItsFrozenImageAsAPNG",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "aWindowWithNoFrozenImageGivesNothing",
@@ -1578,7 +1578,7 @@
         {
           "swiftMethod": "aStillInAnyImageIOFormatCropsToAPNG",
           "csharpMethod": "AStillInAnyImageIOFormatCropsToAPNG",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "windowImagesAreMatchedToTheirWindowsById",
@@ -1630,7 +1630,7 @@
         {
           "swiftMethod": "addWritesTheImageAndAThumbnailToDisk",
           "csharpMethod": "AddWritesTheImageAndAThumbnailToDisk",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "capturedImageReopensWithOriginalBytesAndDimensions",
@@ -1670,7 +1670,7 @@
         {
           "swiftMethod": "addGIFReadsDimensionsThumbnailAndDurationThroughImageIO",
           "csharpMethod": "AddGIFReadsDimensionsThumbnailAndDurationThroughImageIO",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "removeClearAndRetentionDeleteRecordingsExactlyLikeScreenshots",
@@ -2071,22 +2071,22 @@
         {
           "swiftMethod": "aGIFTakeIsConvertedThenRoutedAsAGIFAndTheVideoIsDeleted",
           "csharpMethod": "AGIFTakeIsConvertedThenRoutedAsAGIFAndTheVideoIsDeleted",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "progressReachesThePopupOnTheMainActor",
           "csharpMethod": "ProgressReachesThePopupOnTheMainActor",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "cancellingOffersTheVideoInsteadOrDeletesTheTake",
           "csharpMethod": "CancellingOffersTheVideoInsteadOrDeletesTheTake",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "aFailedConversionSurfacesAndFallsBackToTheVideo",
           "csharpMethod": "AFailedConversionSurfacesAndFallsBackToTheVideo",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "aGIFNeverGoesToTheVideoEditor",
@@ -2126,7 +2126,7 @@
         {
           "swiftMethod": "aFinishedGIFJoinsHistoryAndSilentSaveCopiesItOut",
           "csharpMethod": "AFinishedGIFJoinsHistoryAndSilentSaveCopiesItOut",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "aRecoveredTakeJoinsHistoryToo",
@@ -2408,7 +2408,7 @@
         {
           "swiftMethod": "aGIFConversionAndTheKeepTheVideoQuestionAreWork",
           "csharpMethod": "AGIFConversionAndTheKeepTheVideoQuestionAreWork",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "filingAStudioExportIntoHistoryIsWork",
@@ -3327,22 +3327,22 @@
         {
           "swiftMethod": "aNewLabelIsOneLineTallAndGrowsAsItIsTyped",
           "csharpMethod": "ANewLabelIsOneLineTallAndGrowsAsItIsTyped",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "aSideHandleSetsTheWidthAndTheTextWraps",
           "csharpMethod": "ASideHandleSetsTheWidthAndTheTextWraps",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "theCornerScalesTheTextAndOtherHandlesLeaveALabelAlone",
           "csharpMethod": "TheCornerScalesTheTextAndOtherHandlesLeaveALabelAlone",
-          "status": "pending: PackageR"
+          "status": "ported"
         },
         {
           "swiftMethod": "aNewFontSizeRefitsTheBox",
           "csharpMethod": "ANewFontSizeRefitsTheBox",
-          "status": "pending: PackageR"
+          "status": "ported"
         }
       ]
     },
@@ -3458,6 +3458,48 @@
       "csharpMethod": "StacksFromTopLeftOfWorkArea",
       "targetProject": "Lightshot.Core.Tests",
       "tier": "Unit"
+    },
+    {
+      "className": "DocumentRenderTests",
+      "csharpMethod": "PreviewPatchEqualsExportPatch",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "CoordinatorRenderTests",
+      "csharpMethod": "RenderAndExportFlows",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "FrozenScreenCodecTests",
+      "csharpMethod": "EncodesAndDecodesPixelSurface",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "GaussianBlurTests",
+      "csharpMethod": "OutputHashMatchesGolden",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "ScrambleTests",
+      "csharpMethod": "SeedFixesOutput",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "ThumbnailTests",
+      "csharpMethod": "CreatesThumbnailWithinBounds",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "ThumbnailTests",
+      "csharpMethod": "UnreadableImageReturnsNull",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
     }
   ]
 }
