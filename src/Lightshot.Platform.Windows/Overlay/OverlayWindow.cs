@@ -23,6 +23,7 @@ public sealed class OverlayWindow : IDisposable
 {
     public const int MIN_SELECTION_SIDE = 4;
 
+    private static readonly List<Win32Window.WndProc> s_pinnedWndProcs = new();
     private readonly Win32Window.WndProc _wndProc;
     private readonly string _className;
     private readonly IntPtr _hBrushBlack;
@@ -60,6 +61,10 @@ public sealed class OverlayWindow : IDisposable
         MonitorBounds = monitorBounds;
 
         _wndProc = WndProc;
+        lock (s_pinnedWndProcs)
+        {
+            s_pinnedWndProcs.Add(_wndProc);
+        }
         _className = $"LightshotOverlayWindow_{Guid.NewGuid():N}";
         _hBrushBlack = CreateSolidBrush(0x000000);
 
@@ -467,6 +472,9 @@ public sealed class OverlayWindow : IDisposable
             Win32Window.DestroyWindow(Handle);
             Handle = IntPtr.Zero;
         }
+
+        IntPtr hInst = Win32Window.GetModuleHandleW(null);
+        Win32Window.UnregisterClassW(_className, hInst);
 
         if (_hBrushBlack != IntPtr.Zero)
         {

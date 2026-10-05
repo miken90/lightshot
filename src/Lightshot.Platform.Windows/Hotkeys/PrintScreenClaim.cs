@@ -46,19 +46,23 @@ public static class PrintScreenClaim
         return null;
     }
 
+    private static readonly Win32Window.WndProc s_defWndProc = Win32Window.DefWindowProcW;
+
     public static PrintScreenClaimResult CheckClaim(IntPtr hWnd = default)
     {
         int? snippingEnabled = GetSnippingToolSetting();
         bool ownsWindow = false;
+        string? createdClassName = null;
 
         if (hWnd == IntPtr.Zero)
         {
             string className = $"PrintScreenProbe_{Guid.NewGuid():N}";
+            createdClassName = className;
             IntPtr hInst = Win32Window.GetModuleHandleW(null);
             var wc = new Win32Window.WNDCLASSEXW
             {
                 cbSize = (uint)Marshal.SizeOf<Win32Window.WNDCLASSEXW>(),
-                lpfnWndProc = Marshal.GetFunctionPointerForDelegate((Win32Window.WndProc)Win32Window.DefWindowProcW),
+                lpfnWndProc = Marshal.GetFunctionPointerForDelegate(s_defWndProc),
                 hInstance = hInst,
                 lpszClassName = className
             };
@@ -100,9 +104,17 @@ public static class PrintScreenClaim
         }
         finally
         {
-            if (ownsWindow && hWnd != IntPtr.Zero)
+            if (ownsWindow)
             {
-                Win32Window.DestroyWindow(hWnd);
+                if (hWnd != IntPtr.Zero)
+                {
+                    Win32Window.DestroyWindow(hWnd);
+                }
+                if (createdClassName != null)
+                {
+                    IntPtr hInst = Win32Window.GetModuleHandleW(null);
+                    Win32Window.UnregisterClassW(createdClassName, hInst);
+                }
             }
         }
     }

@@ -18,6 +18,7 @@ public sealed class HotkeyWindow : IDisposable
     [DllImport("user32.dll", SetLastError = true)]
     private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
+    private static readonly List<Win32Window.WndProc> s_pinnedWndProcs = new();
     private readonly Win32Window.WndProc _wndProc;
     private readonly string _className;
     private readonly Dictionary<int, CaptureAction> _idToAction = new();
@@ -30,6 +31,10 @@ public sealed class HotkeyWindow : IDisposable
     public HotkeyWindow()
     {
         _wndProc = WndProc;
+        lock (s_pinnedWndProcs)
+        {
+            s_pinnedWndProcs.Add(_wndProc);
+        }
         _className = $"LightshotHotkeyWindow_{Guid.NewGuid():N}";
         IntPtr hInst = Win32Window.GetModuleHandleW(null);
 
@@ -104,5 +109,7 @@ public sealed class HotkeyWindow : IDisposable
             Win32Window.DestroyWindow(Handle);
             Handle = IntPtr.Zero;
         }
+        IntPtr hInst = Win32Window.GetModuleHandleW(null);
+        Win32Window.UnregisterClassW(_className, hInst);
     }
 }
