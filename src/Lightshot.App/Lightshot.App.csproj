@@ -6,7 +6,7 @@
     <TargetPlatformMinVersion>10.0.22621.0</TargetPlatformMinVersion>
     <UseWPF>true</UseWPF>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>..\..\assets\icons\app.ico</ApplicationIcon>
+    <ApplicationIcon>Resources\Icons\app.ico</ApplicationIcon>
     <StartupObject>Lightshot.App.Program</StartupObject>
     <EnableDefaultApplicationDefinition>false</EnableDefaultApplicationDefinition>
   </PropertyGroup>
