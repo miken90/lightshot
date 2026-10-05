@@ -305,452 +305,472 @@
         {
           "swiftMethod": "successfulCaptureReachesEditorWithTheImage",
           "csharpMethod": "SuccessfulCaptureReachesEditorWithTheImage",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "permissionDeniedRoutesToRecoveryNeverABlankEditor",
           "csharpMethod": "PermissionDeniedRoutesToRecoveryNeverABlankEditor",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "userCancelledIsASilentNoOp",
           "csharpMethod": "UserCancelledIsASilentNoOp",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "otherFailuresSurfaceADistinctMessage",
           "csharpMethod": "OtherFailuresSurfaceADistinctMessage",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "firstRunPromptsForAuthorizationBeforeCapturing",
           "csharpMethod": "FirstRunPromptsForAuthorizationBeforeCapturing",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "alreadyAuthorizedNeverRePrompts",
           "csharpMethod": "AlreadyAuthorizedNeverRePrompts",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "standingDenialDoesNotRePromptAndTheCaptureRoutesToRecovery",
           "csharpMethod": "StandingDenialDoesNotRePromptAndTheCaptureRoutesToRecovery",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "permissionRevokedAfterTheAdvisoryCheckStillRoutesToRecovery",
           "csharpMethod": "PermissionRevokedAfterTheAdvisoryCheckStillRoutesToRecovery",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "areaCaptureFirstRunPromptsThenRunsTheOverlay",
           "csharpMethod": "AreaCaptureFirstRunPromptsThenRunsTheOverlay",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "firstRunFullscreenStopsAtTheSystemPromptInsteadOfStackingTheRecoveryAlert",
           "csharpMethod": "FirstRunFullscreenStopsAtTheSystemPromptInsteadOfStackingTheRecoveryAlert",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "firstRunAreaStopsAtTheSystemPromptInsteadOfCoveringItWithTheOverlay",
           "csharpMethod": "FirstRunAreaStopsAtTheSystemPromptInsteadOfCoveringItWithTheOverlay",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "firstRunWindowStopsAtTheSystemPromptInsteadOfCoveringItWithTheOverlay",
           "csharpMethod": "FirstRunWindowStopsAtTheSystemPromptInsteadOfCoveringItWithTheOverlay",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "copyPlacesTheRenderedImageOnTheClipboard",
           "csharpMethod": "CopyPlacesTheRenderedImageOnTheClipboard",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "areaCaptureResolvesRegionThenCapturesItAndOpensTheEditor",
           "csharpMethod": "AreaCaptureResolvesRegionThenCapturesItAndOpensTheEditor",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "areaCaptureShowsTheToolbarWhenOpenInEditorIsOff",
           "csharpMethod": "AreaCaptureShowsTheToolbarWhenOpenInEditorIsOff",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "openInEditorIsReadAtCaptureTimeSoAChangeAppliesToTheNextCapture",
           "csharpMethod": "OpenInEditorIsReadAtCaptureTimeSoAChangeAppliesToTheNextCapture",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "fullscreenFollowsOpenInEditorButOpenFileAlwaysOpensTheEditor",
           "csharpMethod": "FullscreenFollowsOpenInEditorButOpenFileAlwaysOpensTheEditor",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "theSelfTimerAndRepeatLastCapturePathsAlsoEndInQuickAccess",
           "csharpMethod": "TheSelfTimerAndRepeatLastCapturePathsAlsoEndInQuickAccess",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "fullscreenOpensTheEditorWhenOpenInEditorIsOn",
           "csharpMethod": "FullscreenOpensTheEditorWhenOpenInEditorIsOn",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "escapeInTheOverlayCancelsWithNoCapture",
           "csharpMethod": "EscapeInTheOverlayCancelsWithNoCapture",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "areaCapturePermissionDeniedRoutesToRecoveryNotAToolbar",
           "csharpMethod": "AreaCapturePermissionDeniedRoutesToRecoveryNotAToolbar",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "areaCaptureUserCancelledIsASilentNoOp",
           "csharpMethod": "AreaCaptureUserCancelledIsASilentNoOp",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "areaCaptureOtherFailureSurfacesADistinctMessage",
           "csharpMethod": "AreaCaptureOtherFailureSurfacesADistinctMessage",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "windowCaptureResolvesWindowThenCapturesItAndOpensTheEditor",
           "csharpMethod": "WindowCaptureResolvesWindowThenCapturesItAndOpensTheEditor",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "windowCaptureShowsTheToolbarWhenOpenInEditorIsOff",
           "csharpMethod": "WindowCaptureShowsTheToolbarWhenOpenInEditorIsOff",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "windowCaptureFirstRunPromptsThenRunsTheOverlay",
           "csharpMethod": "WindowCaptureFirstRunPromptsThenRunsTheOverlay",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "escapeInWindowModeCancelsWithNoCapture",
           "csharpMethod": "EscapeInWindowModeCancelsWithNoCapture",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "windowCapturePermissionDeniedRoutesToRecoveryNotAToolbar",
           "csharpMethod": "WindowCapturePermissionDeniedRoutesToRecoveryNotAToolbar",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "windowCaptureUserCancelledIsASilentNoOp",
           "csharpMethod": "WindowCaptureUserCancelledIsASilentNoOp",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "windowCaptureOtherFailureSurfacesADistinctMessage",
           "csharpMethod": "WindowCaptureOtherFailureSurfacesADistinctMessage",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "openFileLoadsTheImageIntoTheEditorViaOpenEditor",
           "csharpMethod": "OpenFileLoadsTheImageIntoTheEditorViaOpenEditor",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "openFileCancelledPanelIsASilentNoOp",
           "csharpMethod": "OpenFileCancelledPanelIsASilentNoOp",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "openFileUnreadableSurfacesADistinctFailureNotABlankEditor",
           "csharpMethod": "OpenFileUnreadableSurfacesADistinctFailureNotABlankEditor",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "openFileUnsupportedFormatSurfacesADistinctFailure",
           "csharpMethod": "OpenFileUnsupportedFormatSurfacesADistinctFailure",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "saveWritesTheRenderedImageWithTheExactFormat",
           "csharpMethod": "SaveWritesTheRenderedImageWithTheExactFormat",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "defaultSaveUsesTheConfiguredLocationPatternAndFormat",
           "csharpMethod": "DefaultSaveUsesTheConfiguredLocationPatternAndFormat",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "dragItemCarriesTheRenderedBytesInTheDefaultFormat",
           "csharpMethod": "DragItemCarriesTheRenderedBytesInTheDefaultFormat",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "fullscreenCaptureIsRecordedInHistory",
           "csharpMethod": "FullscreenCaptureIsRecordedInHistory",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "areaCaptureIsRecordedInHistory",
           "csharpMethod": "AreaCaptureIsRecordedInHistory",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "windowCaptureIsRecordedInHistory",
           "csharpMethod": "WindowCaptureIsRecordedInHistory",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "openingAFileIsNotRecordedInHistory",
           "csharpMethod": "OpeningAFileIsNotRecordedInHistory",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aFailedCaptureRecordsNothing",
           "csharpMethod": "AFailedCaptureRecordsNothing",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "fullscreenWaitsTheConfiguredSelfTimerBeforeCapturing",
           "csharpMethod": "FullscreenWaitsTheConfiguredSelfTimerBeforeCapturing",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "areaWaitsTheSelfTimerAfterResolvingTheRegion",
           "csharpMethod": "AreaWaitsTheSelfTimerAfterResolvingTheRegion",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "windowWaitsTheSelfTimerAfterPickingTheWindow",
           "csharpMethod": "WindowWaitsTheSelfTimerAfterPickingTheWindow",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aZeroSelfTimerSkipsTheWaitEntirely",
           "csharpMethod": "AZeroSelfTimerSkipsTheWaitEntirely",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "fullscreenTargetsTheChosenDisplay",
           "csharpMethod": "FullscreenTargetsTheChosenDisplay",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "fullscreenDefaultsToThePrimaryDisplay",
           "csharpMethod": "FullscreenDefaultsToThePrimaryDisplay",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "repeatWithNoPriorCaptureIsASilentNoOp",
           "csharpMethod": "RepeatWithNoPriorCaptureIsASilentNoOp",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "repeatReplaysFullscreenIncludingTheChosenDisplay",
           "csharpMethod": "RepeatReplaysFullscreenIncludingTheChosenDisplay",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "repeatReplaysAreaThroughTheOverlayAgain",
           "csharpMethod": "RepeatReplaysAreaThroughTheOverlayAgain",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "repeatUsesTheMostRecentModeNotAnEarlierOne",
           "csharpMethod": "RepeatUsesTheMostRecentModeNotAnEarlierOne",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "captureTextCopiesTheRecognisedTextOfTheSelectedArea",
           "csharpMethod": "CaptureTextCopiesTheRecognisedTextOfTheSelectedArea",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "captureTextCopiesACodeInsteadOfTheTextAroundIt",
           "csharpMethod": "CaptureTextCopiesACodeInsteadOfTheTextAroundIt",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "captureTextNamesMixedCodesByTheFirstInReadingOrder",
           "csharpMethod": "CaptureTextNamesMixedCodesByTheFirstInReadingOrder",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "captureTextNamesABarcodeByTheFirstCodesKind",
           "csharpMethod": "CaptureTextNamesABarcodeByTheFirstCodesKind",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "captureTextFallsBackToTheTextWhenCodesAreBlank",
           "csharpMethod": "CaptureTextFallsBackToTheTextWhenCodesAreBlank",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "captureTextJoinsRowsWhenLineBreaksAreOff",
           "csharpMethod": "CaptureTextJoinsRowsWhenLineBreaksAreOff",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "theLineBreakSettingLeavesCodeContentAlone",
           "csharpMethod": "TheLineBreakSettingLeavesCodeContentAlone",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "captureTextCancelledOverlayDoesNothing",
           "csharpMethod": "CaptureTextCancelledOverlayDoesNothing",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "captureTextWithNothingReadableLeavesTheClipboardAlone",
           "csharpMethod": "CaptureTextWithNothingReadableLeavesTheClipboardAlone",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "captureTextRecognitionFailureIsReportedAndCopiesNothing",
           "csharpMethod": "CaptureTextRecognitionFailureIsReportedAndCopiesNothing",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "captureTextRoutesCaptureFailuresLikeAreaCapture",
           "csharpMethod": "CaptureTextRoutesCaptureFailuresLikeAreaCapture",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "captureTextRunsFirstRunOnboardingBeforeTheOverlay",
           "csharpMethod": "CaptureTextRunsFirstRunOnboardingBeforeTheOverlay",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "captureTextIgnoresTheSelfTimer",
           "csharpMethod": "CaptureTextIgnoresTheSelfTimer",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "captureTextLeavesRepeatLastCaptureOnTheLastScreenshot",
           "csharpMethod": "CaptureTextLeavesRepeatLastCaptureOnTheLastScreenshot",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "captureTextWithoutARecognizerIsANoOp",
           "csharpMethod": "CaptureTextWithoutARecognizerIsANoOp",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "captureTextAddsNothingToHistory",
           "csharpMethod": "CaptureTextAddsNothingToHistory",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "areaCaptureSelectsOverTheFrozenScreenAndOpensItsCrop",
           "csharpMethod": "AreaCaptureSelectsOverTheFrozenScreenAndOpensItsCrop",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "areaCaptureOfTheFrozenScreenShowsAQuickAccessCardAndIsRecordedInHistory",
           "csharpMethod": "AreaCaptureOfTheFrozenScreenShowsAQuickAccessCardAndIsRecordedInHistory",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aFailedFreezeRoutesLikeACaptureFailureAndNeverShowsTheOverlay",
           "csharpMethod": "AFailedFreezeRoutesLikeACaptureFailureAndNeverShowsTheOverlay",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aSelectionOffTheFrozenScreenIsAFailureNotABlankEditor",
           "csharpMethod": "ASelectionOffTheFrozenScreenIsAFailureNotABlankEditor",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "escapeOverTheFrozenScreenCapturesNothing",
           "csharpMethod": "EscapeOverTheFrozenScreenCapturesNothing",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "areaCaptureWithASelfTimerSkipsTheFreezeAndCapturesLive",
           "csharpMethod": "AreaCaptureWithASelfTimerSkipsTheFreezeAndCapturesLive",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "windowCaptureGivesThePickedWindowAsItWasAtTheFreeze",
           "csharpMethod": "WindowCaptureGivesThePickedWindowAsItWasAtTheFreeze",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aWindowWithNoFrozenImageIsCapturedLive",
           "csharpMethod": "AWindowWithNoFrozenImageIsCapturedLive",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "windowCaptureWithASelfTimerFreezesThePickerButCapturesLiveAfterTheWait",
           "csharpMethod": "WindowCaptureWithASelfTimerFreezesThePickerButCapturesLiveAfterTheWait",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "areaAndOCRFreezesSkipTheWindowImages",
           "csharpMethod": "AreaAndOCRFreezesSkipTheWindowImages",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "ocrTextReadsTheFrozenPixelsOfTheSelection",
           "csharpMethod": "OcrTextReadsTheFrozenPixelsOfTheSelection",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "ocrTextFreezeFailureRoutesLikeACaptureFailure",
           "csharpMethod": "OcrTextFreezeFailureRoutesLikeACaptureFailure",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "repeatingAnAreaCaptureFreezesAfresh",
           "csharpMethod": "RepeatingAnAreaCaptureFreezesAfresh",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "fullscreenNeverFreezes",
           "csharpMethod": "FullscreenNeverFreezes",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "areaCaptureCapturesOnReleaseByDefault",
           "csharpMethod": "AreaCaptureCapturesOnReleaseByDefault",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "withTheSettingOnAreaCaptureAsksForAnAdjustableSelectionAndCapturesItAsUsual",
           "csharpMethod": "WithTheSettingOnAreaCaptureAsksForAnAdjustableSelectionAndCapturesItAsUsual",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "withTheSettingOnAnAdjustedAreaStillFollowsAfterCaptureToQuickAccess",
           "csharpMethod": "WithTheSettingOnAnAdjustedAreaStillFollowsAfterCaptureToQuickAccess",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "withTheSettingOnASelfTimerAdjustsOverTheLiveScreenThenWaits",
           "csharpMethod": "WithTheSettingOnASelfTimerAdjustsOverTheLiveScreenThenWaits",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "withTheSettingOnRepeatLastCaptureAdjustsToo",
           "csharpMethod": "WithTheSettingOnRepeatLastCaptureAdjustsToo",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "theSettingIsReadLiveOnEachCapture",
           "csharpMethod": "TheSettingIsReadLiveOnEachCapture",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "withTheSettingOnCancellingCapturesNothing",
           "csharpMethod": "WithTheSettingOnCancellingCapturesNothing",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "ocrTextCopiesOnReleaseWhateverTheSetting",
           "csharpMethod": "OcrTextCopiesOnReleaseWhateverTheSetting",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         }
       ]
     },
@@ -1503,67 +1523,67 @@
         {
           "swiftMethod": "cropOfOneQuadrantIsThatQuadrantAtNativePixels",
           "csharpMethod": "CropOfOneQuadrantIsThatQuadrantAtNativePixels",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aReversedDragIsStandardizedBeforeCropping",
           "csharpMethod": "AReversedDragIsStandardizedBeforeCropping",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aSelectionOvershootingTheEdgeIsClampedToTheScreen",
           "csharpMethod": "ASelectionOvershootingTheEdgeIsClampedToTheScreen",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aSelectionEntirelyOffTheScreenCropsNothing",
           "csharpMethod": "ASelectionEntirelyOffTheScreenCropsNothing",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aDisplayAwayFromTheOriginIsOffsetBeforeCropping",
           "csharpMethod": "ADisplayAwayFromTheOriginIsOffsetBeforeCropping",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aDisplayRegionIsNeverCutFromTheStills",
           "csharpMethod": "ADisplayRegionIsNeverCutFromTheStills",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "anAreaOnTheSecondDisplayIsCutFromItsStillAtItsOwnScale",
           "csharpMethod": "AnAreaOnTheSecondDisplayIsCutFromItsStillAtItsOwnScale",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "anAreaStraddlingTwoDisplaysIsClampedToTheOneItOverlapsMost",
           "csharpMethod": "AnAreaStraddlingTwoDisplaysIsClampedToTheOneItOverlapsMost",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aWindowIsItsFrozenImageAsAPNG",
           "csharpMethod": "AWindowIsItsFrozenImageAsAPNG",
-          "status": "pending: C2"
+          "status": "pending: PackageR"
         },
         {
           "swiftMethod": "aWindowWithNoFrozenImageGivesNothing",
           "csharpMethod": "AWindowWithNoFrozenImageGivesNothing",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "fractionalSelectionsRoundLikeTheLiveRectCapture",
           "csharpMethod": "FractionalSelectionsRoundLikeTheLiveRectCapture",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aStillInAnyImageIOFormatCropsToAPNG",
           "csharpMethod": "AStillInAnyImageIOFormatCropsToAPNG",
-          "status": "pending: C2"
+          "status": "pending: PackageR"
         },
         {
           "swiftMethod": "windowImagesAreMatchedToTheirWindowsById",
           "csharpMethod": "WindowImagesAreMatchedToTheirWindowsById",
-          "status": "pending: C2"
+          "status": "ported"
         }
       ]
     },
@@ -1605,72 +1625,73 @@
         {
           "swiftMethod": "addRecordsCapturesAndListsThemNewestFirst",
           "csharpMethod": "AddRecordsCapturesAndListsThemNewestFirst",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "addWritesTheImageAndAThumbnailToDisk",
           "csharpMethod": "AddWritesTheImageAndAThumbnailToDisk",
-          "status": "pending: C2"
+          "status": "pending: PackageR"
         },
         {
           "swiftMethod": "capturedImageReopensWithOriginalBytesAndDimensions",
           "csharpMethod": "CapturedImageReopensWithOriginalBytesAndDimensions",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "removeDeletesTheItemAndItsFiles",
           "csharpMethod": "RemoveDeletesTheItemAndItsFiles",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "clearEmptiesHistoryAndDeletesEveryFile",
           "csharpMethod": "ClearEmptiesHistoryAndDeletesEveryFile",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "retentionTrimsOldestBeyondTheLimit",
           "csharpMethod": "RetentionTrimsOldestBeyondTheLimit",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "setRetentionTrimsImmediatelyWhenLoweredBelowCount",
           "csharpMethod": "SetRetentionTrimsImmediatelyWhenLoweredBelowCount",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "recordsSurviveAReloadAndTheCallerSuppliesRetention",
           "csharpMethod": "RecordsSurviveAReloadAndTheCallerSuppliesRetention",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "addMediaMovesTheFileInKeepsItsExtensionAndRecordsWhatTheCallerKnows",
           "csharpMethod": "AddMediaMovesTheFileInKeepsItsExtensionAndRecordsWhatTheCallerKnows",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "addGIFReadsDimensionsThumbnailAndDurationThroughImageIO",
           "csharpMethod": "AddGIFReadsDimensionsThumbnailAndDurationThroughImageIO",
-          "status": "pending: C2"
+          "status": "pending: PackageR"
         },
         {
           "swiftMethod": "removeClearAndRetentionDeleteRecordingsExactlyLikeScreenshots",
           "csharpMethod": "RemoveClearAndRetentionDeleteRecordingsExactlyLikeScreenshots",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aPre0006IndexDecodesEveryRecordAsAScreenshot",
           "csharpMethod": "APre0006IndexDecodesEveryRecordAsAScreenshot",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "addMediaRefusesWhenRetentionIsOffAndRollsBackAFailedIndexWrite",
           "csharpMethod": "AddMediaRefusesWhenRetentionIsOffAndRollsBackAFailedIndexWrite",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aTakesInputSidecarMovesInWithItAndIsDeletedWithIt",
           "csharpMethod": "ATakesInputSidecarMovesInWithItAndIsDeletedWithIt",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "StudioTake input sidecar deferred with Studio"
         }
       ]
     },
@@ -1911,67 +1932,67 @@
         {
           "swiftMethod": "cardsStackOldestFirstWithDistinctIDs",
           "csharpMethod": "CardsStackOldestFirstWithDistinctIDs",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "removingACardKeepsTheOthersInOrder",
           "csharpMethod": "RemovingACardKeepsTheOthersInOrder",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "theOldestCardsCloseFirstWhenTheStackDoesNotFit",
           "csharpMethod": "TheOldestCardsCloseFirstWhenTheStackDoesNotFit",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "theNewestCardIsKeptEvenWhenItAloneIsTooTall",
           "csharpMethod": "TheNewestCardIsKeptEvenWhenItAloneIsTooTall",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "cardsAre220WideWithTheImagesAspectClampedTo90Through220",
           "csharpMethod": "CardsAre220WideWithTheImagesAspectClampedTo90Through220",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "cardsStackUpFromTheBottomLeftNewestAtTheBottom",
           "csharpMethod": "CardsStackUpFromTheBottomLeftNewestAtTheBottom",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "onTheRightCardsHugTheRightEdge",
           "csharpMethod": "OnTheRightCardsHugTheRightEdge",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "framesFollowAnOffsetVisibleFrame",
           "csharpMethod": "FramesFollowAnOffsetVisibleFrame",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "theHeightTheStackMayFillLeavesAMarginTopAndBottom",
           "csharpMethod": "TheHeightTheStackMayFillLeavesAMarginTopAndBottom",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "quickAccessDefaultsToBottomLeftNeverAutoClosingAndClosingAfterADrag",
           "csharpMethod": "QuickAccessDefaultsToBottomLeftNeverAutoClosingAndClosingAfterADrag",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "quickAccessSettingsRoundTripAndFillMissingFields",
           "csharpMethod": "QuickAccessSettingsRoundTripAndFillMissingFields",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "arrangingPlacesEveryCardThatFitsAndClosesTheRest",
           "csharpMethod": "ArrangingPlacesEveryCardThatFitsAndClosesTheRest",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "autoCloseChoicesHaveTheirSettingsLabels",
           "csharpMethod": "AutoCloseChoicesHaveTheirSettingsLabels",
-          "status": "pending: C2"
+          "status": "ported"
         }
       ]
     },
@@ -1982,17 +2003,17 @@
         {
           "swiftMethod": "aPickedWindowRecordsItsAreaOfTheDisplayNotTheWindowAlone",
           "csharpMethod": "APickedWindowRecordsItsAreaOfTheDisplayNotTheWindowAlone",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aDrawnRectRecordsThatAreaStandardized",
           "csharpMethod": "ADrawnRectRecordsThatAreaStandardized",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aDisplayRecordsTheWholeDisplay",
           "csharpMethod": "ADisplayRecordsTheWholeDisplay",
-          "status": "pending: C2"
+          "status": "ported"
         }
       ]
     },
@@ -2003,382 +2024,397 @@
         {
           "swiftMethod": "toggleStartsAVideoRecordingOfTheDisplayAndReportsTheState",
           "csharpMethod": "ToggleStartsAVideoRecordingOfTheDisplayAndReportsTheState",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aTakeHidesWhatTheSettingsAskFor",
           "csharpMethod": "ATakeHidesWhatTheSettingsAskFor",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aTakeHidesNothingByDefault",
           "csharpMethod": "ATakeHidesNothingByDefault",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "toggleAgainStopsFinishesAndSavesToTheDefaultDestination",
           "csharpMethod": "ToggleAgainStopsFinishesAndSavesToTheDefaultDestination",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "ocrTextIsIgnoredWhileARecordingIsActive",
           "csharpMethod": "OcrTextIsIgnoredWhileARecordingIsActive",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "ocrTextRunsAgainOnceTheTakeHasEnded",
           "csharpMethod": "OcrTextRunsAgainOnceTheTakeHasEnded",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP OCR Text Capture (Phase 6)"
         },
         {
           "swiftMethod": "theDefaultShowsTheOverlayAndKeepsTheTakeInScratchUntilItDecides",
           "csharpMethod": "TheDefaultShowsTheOverlayAndKeepsTheTakeInScratchUntilItDecides",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "openEditorSavesFirstThenOpensTheEditor",
           "csharpMethod": "OpenEditorSavesFirstThenOpensTheEditor",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "theOverlaysActionsCopySaveRenameAndDismiss",
           "csharpMethod": "TheOverlaysActionsCopySaveRenameAndDismiss",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aGIFTakeIsConvertedThenRoutedAsAGIFAndTheVideoIsDeleted",
           "csharpMethod": "AGIFTakeIsConvertedThenRoutedAsAGIFAndTheVideoIsDeleted",
-          "status": "pending: C2"
+          "status": "pending: PackageR"
         },
         {
           "swiftMethod": "progressReachesThePopupOnTheMainActor",
           "csharpMethod": "ProgressReachesThePopupOnTheMainActor",
-          "status": "pending: C2"
+          "status": "pending: PackageR"
         },
         {
           "swiftMethod": "cancellingOffersTheVideoInsteadOrDeletesTheTake",
           "csharpMethod": "CancellingOffersTheVideoInsteadOrDeletesTheTake",
-          "status": "pending: C2"
+          "status": "pending: PackageR"
         },
         {
           "swiftMethod": "aFailedConversionSurfacesAndFallsBackToTheVideo",
           "csharpMethod": "AFailedConversionSurfacesAndFallsBackToTheVideo",
-          "status": "pending: C2"
+          "status": "pending: PackageR"
         },
         {
           "swiftMethod": "aGIFNeverGoesToTheVideoEditor",
           "csharpMethod": "AGIFNeverGoesToTheVideoEditor",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aVideoTakeNeverTouchesTheEncoder",
           "csharpMethod": "AVideoTakeNeverTouchesTheEncoder",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "openEditorFromTheOverlaySavesThenOpensTheEditor",
           "csharpMethod": "OpenEditorFromTheOverlaySavesThenOpensTheEditor",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aFinishedVideoJoinsHistoryAndTheOverlayGetsHistorysFile",
           "csharpMethod": "AFinishedVideoJoinsHistoryAndTheOverlayGetsHistorysFile",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "unreadableMetadataLeavesTheTakeInScratchAndRoutesItAnyway",
           "csharpMethod": "UnreadableMetadataLeavesTheTakeInScratchAndRoutesItAnyway",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "deletingAHistoryOwnedTakeRemovesItsRecord",
           "csharpMethod": "DeletingAHistoryOwnedTakeRemovesItsRecord",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "reopeningFromHistoryRoutesByKindAndADismissedGIFStaysPut",
           "csharpMethod": "ReopeningFromHistoryRoutesByKindAndADismissedGIFStaysPut",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aFinishedGIFJoinsHistoryAndSilentSaveCopiesItOut",
           "csharpMethod": "AFinishedGIFJoinsHistoryAndSilentSaveCopiesItOut",
-          "status": "pending: C2"
+          "status": "pending: PackageR"
         },
         {
           "swiftMethod": "aRecoveredTakeJoinsHistoryToo",
           "csharpMethod": "ARecoveredTakeJoinsHistoryToo",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "reopeningAGIFKeepsAFreshTakeFirst",
           "csharpMethod": "ReopeningAGIFKeepsAFreshTakeFirst",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aNewTakeKeepsThePendingOneBeforeItStarts",
           "csharpMethod": "ANewTakeKeepsThePendingOneBeforeItStarts",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "deleteTrashesTheTakeAndAFailureKeepsItPending",
           "csharpMethod": "DeleteTrashesTheTakeAndAFailureKeepsItPending",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aFailedSaveFromTheOverlayKeepsTheTakePending",
           "csharpMethod": "AFailedSaveFromTheOverlayKeepsTheTakePending",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "anEmptyOrDottedRenameFallsBackToThePattern",
           "csharpMethod": "AnEmptyOrDottedRenameFallsBackToThePattern",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aSecondStartWhileActiveAndAStopWhileIdleAreNoOps",
           "csharpMethod": "ASecondStartWhileActiveAndAStopWhileIdleAreNoOps",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "elapsedTimeFollowsTheClockWhileRecording",
           "csharpMethod": "ElapsedTimeFollowsTheClockWhileRecording",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aStopWhileStartIsStillInFlightIsIgnored",
           "csharpMethod": "AStopWhileStartIsStillInFlightIsIgnored",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aStopDuringTheCountdownDiscardsAndDeletesTheScratchFile",
           "csharpMethod": "AStopDuringTheCountdownDiscardsAndDeletesTheScratchFile",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aStreamDyingMidTakeFailsTheSessionDeletesThePartialAndRestoresTheStatusItem",
           "csharpMethod": "AStreamDyingMidTakeFailsTheSessionDeletesThePartialAndRestoresTheStatusItem",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "recordScreenRunsTheOverlayFirstAndStartsOnItsRegion",
           "csharpMethod": "RecordScreenRunsTheOverlayFirstAndStartsOnItsRegion",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "theToolbarsOutputAndTogglesReachTheServiceWithoutTouchingSettings",
           "csharpMethod": "TheToolbarsOutputAndTogglesReachTheServiceWithoutTouchingSettings",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "escapeInTheOverlayIsASilentNoOp",
           "csharpMethod": "EscapeInTheOverlayIsASilentNoOp",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "theChosenRegionIsRememberedAndPreFilledOnlyWhenTheSettingIsOn",
           "csharpMethod": "TheChosenRegionIsRememberedAndPreFilledOnlyWhenTheSettingIsOn",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aLostMicrophoneAsksAndContinuesOrStops",
           "csharpMethod": "ALostMicrophoneAsksAndContinuesOrStops",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "theToolbarsMicrophoneChoiceBecomesTheDefaultAndReachesTheOptions",
           "csharpMethod": "TheToolbarsMicrophoneChoiceBecomesTheDefaultAndReachesTheOptions",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "theToolbarsCameraChoiceBecomesTheDefaultAndReachesTheOptions",
           "csharpMethod": "TheToolbarsCameraChoiceBecomesTheDefaultAndReachesTheOptions",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "pauseFreezesTheTimerAndResumeContinuesThroughTheService",
           "csharpMethod": "PauseFreezesTheTimerAndResumeContinuesThroughTheService",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "restartThrowsTheTakeAwayAndStartsAgainWithTheSameOptions",
           "csharpMethod": "RestartThrowsTheTakeAwayAndStartsAgainWithTheSameOptions",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "restartGoesBackThroughTheCountdownWhenOneIsConfigured",
           "csharpMethod": "RestartGoesBackThroughTheCountdownWhenOneIsConfigured",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aDeclinedConfirmationLeavesTheTakeRunning",
           "csharpMethod": "ADeclinedConfirmationLeavesTheTakeRunning",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "discardDeletesThePartialAndEndsInIdleWithNoSave",
           "csharpMethod": "DiscardDeletesThePartialAndEndsInIdleWithNoSave",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aStopDuringRestartsTeardownWaitsForTheNewStream",
           "csharpMethod": "AStopDuringRestartsTeardownWaitsForTheNewStream",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "discardIsLegalDuringTheCountdownAndRestartIsNot",
           "csharpMethod": "DiscardIsLegalDuringTheCountdownAndRestartIsNot",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "restartAndDiscardAreNoOpsWhenNothingIsRecording",
           "csharpMethod": "RestartAndDiscardAreNoOpsWhenNothingIsRecording",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aConfiguredCountdownRunsInTheUIThenBeginsRecording",
           "csharpMethod": "AConfiguredCountdownRunsInTheUIThenBeginsRecording",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "escapeDuringTheCountdownDiscardsBeforeAnythingIsRecorded",
           "csharpMethod": "EscapeDuringTheCountdownDiscardsBeforeAnythingIsRecorded",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "permissionDeniedOnStartRoutesToRecoveryAndFailsTheSession",
           "csharpMethod": "PermissionDeniedOnStartRoutesToRecoveryAndFailsTheSession",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aMissingMicrophoneGrantRoutesToTheMicrophoneRecoveryNotScreenRecording",
           "csharpMethod": "AMissingMicrophoneGrantRoutesToTheMicrophoneRecoveryNotScreenRecording",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "userCancelledIsSilentAndOtherFailuresGetADistinctMessage",
           "csharpMethod": "UserCancelledIsSilentAndOtherFailuresGetADistinctMessage",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aStopFailureFailsTheSessionWithAMessageAndSavesNothing",
           "csharpMethod": "AStopFailureFailsTheSessionWithAMessageAndSavesNothing",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aSaveFailureIsSurfacedAndTheTakeStaysFinished",
           "csharpMethod": "ASaveFailureIsSurfacedAndTheTakeStaysFinished",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "firstRunPromptsThroughTheRecorderBeforeStarting",
           "csharpMethod": "FirstRunPromptsThroughTheRecorderBeforeStarting",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aStandingGrantOrDenialNeverRePrompts",
           "csharpMethod": "AStandingGrantOrDenialNeverRePrompts",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "recordingDestinationUsesTheSaveLocationPatternAndContainerExtension",
           "csharpMethod": "RecordingDestinationUsesTheSaveLocationPatternAndContainerExtension",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aStudioModeTakeOpensTheEditorWhateverTheSettingSays",
           "csharpMethod": "AStudioModeTakeOpensTheEditorWhateverTheSettingSays",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aStudioTakeBecomesAProjectAndOpensInTheStudio",
           "csharpMethod": "AStudioTakeBecomesAProjectAndOpensInTheStudio",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
         },
         {
           "swiftMethod": "aRecentStudioProjectReopensInTheStudio",
           "csharpMethod": "ARecentStudioProjectReopensInTheStudio",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
         },
         {
           "swiftMethod": "aStudioExportIsFiledIntoHistoryAndSavedLikeARecording",
           "csharpMethod": "AStudioExportIsFiledIntoHistoryAndSavedLikeARecording",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
         },
         {
           "swiftMethod": "aStudioExportIsStillSavedWhenHistoryIsOff",
           "csharpMethod": "AStudioExportIsStillSavedWhenHistoryIsOff",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
         },
         {
           "swiftMethod": "anOrdinaryTakeFromBeforeS8ReopensWithItsInputData",
           "csharpMethod": "AnOrdinaryTakeFromBeforeS8ReopensWithItsInputData",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
         },
         {
           "swiftMethod": "everyTakeBecomesAProjectWithItsInputData",
           "csharpMethod": "EveryTakeBecomesAProjectWithItsInputData",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
         },
         {
           "swiftMethod": "aTakeWhoseFileIsMissingStillRoutesThePlainWay",
           "csharpMethod": "ATakeWhoseFileIsMissingStillRoutesThePlainWay",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
         },
         {
           "swiftMethod": "aTakeForTheOverlayIsRenderedWithItsOwnLookAndLinkedToItsProject",
           "csharpMethod": "ATakeForTheOverlayIsRenderedWithItsOwnLookAndLinkedToItsProject",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
         },
         {
           "swiftMethod": "openEditorAfterRecordingOpensTheProjectWithoutRendering",
           "csharpMethod": "OpenEditorAfterRecordingOpensTheProjectWithoutRendering",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
         },
         {
           "swiftMethod": "cancellingTheRenderOpensTheProjectSoTheTakeIsNeverLost",
           "csharpMethod": "CancellingTheRenderOpensTheProjectSoTheTakeIsNeverLost",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
         },
         {
           "swiftMethod": "aFailedRenderIsReportedAndTheProjectOpens",
           "csharpMethod": "AFailedRenderIsReportedAndTheProjectOpens",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
         },
         {
           "swiftMethod": "aSilentlySavedTakeIsTheRenderedMovie",
           "csharpMethod": "ASilentlySavedTakeIsTheRenderedMovie",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
         },
         {
           "swiftMethod": "nothingIsInProgressWhenIdle",
           "csharpMethod": "NothingIsInProgressWhenIdle",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aTakeIsWorkFromStartThroughPauseUntilItsResultIsRouted",
           "csharpMethod": "ATakeIsWorkFromStartThroughPauseUntilItsResultIsRouted",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aCountdownIsWorkAndEscapingItEndsIt",
           "csharpMethod": "ACountdownIsWorkAndEscapingItEndsIt",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aDiscardedTakeEndsTheWork",
           "csharpMethod": "ADiscardedTakeEndsTheWork",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "aGIFConversionAndTheKeepTheVideoQuestionAreWork",
           "csharpMethod": "AGIFConversionAndTheKeepTheVideoQuestionAreWork",
-          "status": "pending: C2"
+          "status": "pending: PackageR"
         },
         {
           "swiftMethod": "filingAStudioExportIntoHistoryIsWork",
           "csharpMethod": "FilingAStudioExportIntoHistoryIsWork",
-          "status": "pending: C2"
+          "status": "deferred",
+          "reason": "Post-MVP Studio Compositor (Phase 8)"
         }
       ]
     },
@@ -2556,12 +2592,12 @@
         {
           "swiftMethod": "packageVersionIsExposed",
           "csharpMethod": "PackageVersionIsExposed",
-          "status": "pending: C2"
+          "status": "ported"
         },
         {
           "swiftMethod": "capturedImageCarriesPixelDimensionsAndBytes",
           "csharpMethod": "CapturedImageCarriesPixelDimensionsAndBytes",
-          "status": "pending: C2"
+          "status": "ported"
         }
       ]
     },
@@ -3404,6 +3440,24 @@
       "csharpMethod": "RoundTripsFramesAndDelays",
       "targetProject": "Lightshot.Rendering.Tests",
       "tier": "Render"
+    },
+    {
+      "className": "FrozenScreenTests",
+      "csharpMethod": "CropPicksLargestOverlapAcrossMixedScale",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "QuickAccessTests",
+      "csharpMethod": "StacksFromBottomRightOfWorkArea",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "QuickAccessTests",
+      "csharpMethod": "StacksFromTopLeftOfWorkArea",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
     }
   ]
 }

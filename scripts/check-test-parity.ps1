@@ -23,7 +23,6 @@ try {
     # 1. Verify status totals add up to 595
     $totalPorted = 0
     $totalDeferred = 0
-    $totalPendingC2 = 0
     $totalPendingR = 0
     $totalOther = 0
 
@@ -46,8 +45,6 @@ try {
                 $manifestPortedByClass[$className][$t.csharpMethod] = $t.swiftMethod
             } elseif ($status -eq "deferred") {
                 $totalDeferred++
-            } elseif ($status -eq "pending: C2") {
-                $totalPendingC2++
             } elseif ($status -eq "pending: PackageR") {
                 $totalPendingR++
             } else {
@@ -56,8 +53,12 @@ try {
         }
     }
 
-    $totalManifest = $totalPorted + $totalDeferred + $totalPendingC2 + $totalPendingR + $totalOther
-    Write-Log "Manifest totals: Ported=$totalPorted, PendingC2=$totalPendingC2, PendingR=$totalPendingR, Deferred=$totalDeferred, Other=$totalOther (Total: $totalManifest)"
+    $totalManifest = $totalPorted + $totalDeferred + $totalPendingR + $totalOther
+    Write-Log "Manifest totals: Ported=$totalPorted, PendingR=$totalPendingR, Deferred=$totalDeferred, Other=$totalOther (Total: $totalManifest)"
+
+    if ($totalOther -gt 0) {
+        throw "Found $totalOther unrecognised or pending: C2 test status(es) in manifest"
+    }
 
     if ($totalManifest -ne 595) {
         throw "Status totals in manifest do not add up to 595 (found $totalManifest)"
