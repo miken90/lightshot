@@ -28,6 +28,9 @@ public interface ISettingsStore
     bool HideDesktopIcons { get; set; }
     bool AdjustAreaBeforeCapture { get; set; }
     QuickAccessSettings QuickAccess { get; set; }
+
+    string? GetSetting(string key) => null;
+    void SetSetting(string key, string? value) { }
 }
 
 public static class SettingsStoreExtensions
