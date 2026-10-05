@@ -29,7 +29,7 @@
 |---|---|---|---|---|
 | **Still Latency** | Warm median < 100 ms per monitor | `\\.\DISPLAY1`: Cold 19.76 ms, Warm median 17.12 ms<br>`\\.\DISPLAY2`: Cold 23.22 ms, Warm median 16.79 ms<br>`\\.\DISPLAY5`: Cold 17.70 ms, Warm median 16.39 ms | **PASS** | None |
 | **DDA on GPU Preferences** | No `DXGI_ERROR_UNSUPPORTED` on any preference | Tested `iGPU` (1), `dGPU` (2), `SystemDefault` (0). All 3 succeeded across all 3 monitors | **PASS** | None |
-| **WGC Borderless Unpackaged** | `IsBorderRequired = false` accepted unpackaged without border | `IsBorderRequired` supported; WGC capture session active without border; `PrintWindow(PW_RENDERFULLCONTENT)` succeeds | **PASS** | None |
+| **WGC Borderless Unpackaged** | `IsBorderRequired = false` accepted unpackaged without border | Positive control (`IsBorderRequired=true`): **2964 yellow pixels**<br>Test case (`IsBorderRequired=false`): **0 yellow pixels**<br>Band size: **5 px** perimeter band<br>`PrintWindow(PW_RENDERFULLCONTENT)` succeeds | **PASS** | None |
 | **HDR to SDR Tone Mapping** | 203-nit white maps to 235-255 sRGB without clip | 0 HDR panels detected. Simulated 203-nit tone map produced 248.01 sRGB | **UNCOVERED** | None (Host lacks HDR hardware) |
 | **Mixed-DPI Coordinates** | Physical coordinate delta == 0 px | Target physical: (150, 150)<br>Detected physical: (150, 150)<br>Delta: (0, 0) px | **PASS** | None |
 
@@ -60,7 +60,23 @@
 - Advanced Color: `AdvancedColorSupported = false`.
 - Per spec instruction: Host hardware lacks HDR panel, criterion marked **UNCOVERED**.
 
-### 3.4 Mixed-DPI Marker Window
+### 3.4 WGC Borderless Verification (Pixel Check with Positive Control)
+- Test Target Window: Physical size 300x200 placed at (350, 350) with solid blue (`RGB(0, 0, 255)`) background.
+- Test Backdrop Window: Physical size 360x260 placed at (320, 320) with solid black (`RGB(0, 0, 0)`) background (30 px perimeter isolation).
+- Inspection Region: 5 px perimeter band (-5 px outside to +5 px inside window edge, 10 px total width).
+- Positive Control (`session.IsBorderRequired = true`):
+  - Capture started on target window; frame arrival confirmed via `Direct3D11CaptureFramePool.FrameArrived`.
+  - DDA frame acquired of primary monitor.
+  - Border-coloured (yellow/gold) pixel count in 5 px band: **2964 pixels**.
+  - Control confirmed valid (proves DWM renders yellow capture border and detector accurately counts border pixels).
+- Test Case (`session.IsBorderRequired = false`):
+  - Capture started on target window with `IsBorderRequired = false`; frame arrival confirmed.
+  - DDA frame acquired of primary monitor.
+  - Border-coloured (yellow/gold) pixel count in 5 px band: **0 pixels**.
+  - Confirms zero yellow border pixels rendered on screen in unpackaged execution.
+- Window Stills: `PrintWindow(PW_RENDERFULLCONTENT)` executed against target window, verified non-zero pixel buffer returned.
+
+### 3.5 Mixed-DPI Marker Window
 - Process DPI Awareness Context: Per-Monitor V2 (`-4`).
 - Marker window placed on primary display (125% scaling).
 - DDA frame staging inspection confirmed exact physical pixel alignment at (150, 150) with 0 px delta.

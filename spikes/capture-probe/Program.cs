@@ -119,7 +119,10 @@ public class Program
                 {
                     isBorderRequiredSupported = wgcRes.IsBorderRequiredSupported,
                     wgcWindowCaptureSuccess = wgcRes.WgcWindowCaptureSuccess,
-                    printWindowSuccess = wgcRes.PrintWindowSuccess
+                    printWindowSuccess = wgcRes.PrintWindowSuccess,
+                    yellowPixelsBorderOff = wgcRes.YellowPixelsBorderOff,
+                    yellowPixelsBorderOn = wgcRes.YellowPixelsBorderOn,
+                    bandSizePx = wgcRes.BandSizePx
                 },
                 Details = $"{wgcRes.BorderReason}. {wgcRes.Details}",
                 Fallback = wgcRes.BorderStatus == "PASS" ? null : "DDA for display captures; PrintWindow(PW_RENDERFULLCONTENT) for window stills; accept border for window recording as DEGRADE"
