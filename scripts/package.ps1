@@ -5,7 +5,7 @@
 param(
     [string]$Version = "0.1.0",
     [switch]$SkipVpk,
-    [int]$MaxSetupMB = 300
+    [int]$MaxSetupMB = 113
 )
 
 $ScriptDir = Split-Path -Parent $MyInvocation.MyCommand.Definition

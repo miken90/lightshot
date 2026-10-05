@@ -5,6 +5,9 @@
     <Project Path="src/Lightshot.Platform.Windows/Lightshot.Platform.Windows.csproj" />
     <Project Path="src/Lightshot.App/Lightshot.App.csproj" />
   </Folder>
+  <Folder Name="/tools/">
+    <Project Path="tools/Lightshot.ReleaseTool/Lightshot.ReleaseTool.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Lightshot.TestSupport/Lightshot.TestSupport.csproj" />
     <Project Path="tests/Lightshot.Architecture.Tests/Lightshot.Architecture.Tests.csproj" />
@@ -13,5 +16,6 @@
     <Project Path="tests/Lightshot.Platform.Windows.Tests/Lightshot.Platform.Windows.Tests.csproj" />
     <Project Path="tests/Lightshot.App.Tests/Lightshot.App.Tests.csproj" />
     <Project Path="tests/Lightshot.App.UiTests/Lightshot.App.UiTests.csproj" />
+    <Project Path="tests/Lightshot.ReleaseTool.Tests/Lightshot.ReleaseTool.Tests.csproj" />
   </Folder>
 </Solution>

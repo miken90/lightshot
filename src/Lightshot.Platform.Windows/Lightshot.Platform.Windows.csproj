@@ -17,9 +17,11 @@
     <PackageReference Include="Vortice.Direct3D11" />
     <PackageReference Include="Vortice.DXGI" />
     <PackageReference Include="Vortice.MediaFoundation" />
+    <PackageReference Include="Velopack" />
   </ItemGroup>
 
   <ItemGroup>
     <InternalsVisibleTo Include="Lightshot.Platform.Windows.Tests" />
+    <InternalsVisibleTo Include="Lightshot.ReleaseTool.Tests" />
   </ItemGroup>
 </Project>

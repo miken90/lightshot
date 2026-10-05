@@ -1,6 +1,6 @@
 # Phase 9: Update check, packaging and release
 
-Status: pending | Effort: 6d | Priority: P1 | Depends on: phases 1, 4, 5 (runs straight after phase 5)
+Status: in-progress (updater core, release tooling, keygen, and tests implemented; UI and Velopack hooks pending phase 4/5) | Effort: 6d | Priority: P1 | Depends on: phases 1, 4, 5 (runs straight after phase 5)
 
 ## Overview
 

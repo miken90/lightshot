@@ -102,9 +102,20 @@ powershell.exe -NoProfile -File 'D:\WORKSPACES\PERSONAL\lightshot\scripts\test.p
 ```
 *Always inspect git diffs of updated golden images before committing.*
 
-## SmartScreen Notice for Unsigned Builds
+## Installation & SmartScreen Notice
 
-Development and CI release builds produce unsigned Velopack installers (`artifacts/release/Lightshot-win-Setup.exe`). When launching on Windows 11:
+Lightshot releases produce unsigned Velopack installers (`Lightshot-win-Setup.exe`) and portable archives (`Lightshot-win-Portable.zip`) by design.
+
+### Windows Defender SmartScreen
+When launching the installer on Windows 11:
 1. Windows Defender SmartScreen may display: *"Windows protected your PC"*.
 2. Click **More info**.
 3. Click **Run anyway**.
+
+You can verify binary integrity before running by checking against `SHA256SUMS.txt` provided with each release:
+```powershell
+Get-FileHash Lightshot-win-Setup.exe -Algorithm SHA256
+```
+
+### Smart App Control (SAC)
+Windows 11 Smart App Control in enforcement mode automatically blocks unsigned applications that have not established sufficient cloud reputation, without providing a "Run anyway" option. Users with Smart App Control enabled in enforcement mode cannot run unsigned Lightshot builds unless they choose to configure SAC in Evaluation or Off mode at their own discretion. Lightshot never attempts to modify SAC settings.
