@@ -14,7 +14,7 @@ Ships the only network feature (update check), the installer and release tooling
 - Downgrade protection: manifest version must be greater than the running version; the manifest contains a monotonic `sequence`.
 - Packaging: self-contained x64, ReadyToRun, no single-file trimming unless proven safe for WPF and Skia; `vpk pack` produces Setup.exe, nupkg and releases file; installer is per-user (no admin); shortcuts; uninstall removes the HKCU Run value and `%AppData%` only if the user chooses.
 - `VelopackApp.Build().Run();` is the first line of `Main` in phase 1; phase 9 wires the hooks for install, update, uninstall (Run key cleanup).
-- Size gate: `scripts/package.ps1 -MaxSetupMB` fails when exceeded; models and native runtimes counted. The gate is 300 MB until Spike E sets measured size plus 15% headroom; int8 models if needed (resolved decision 2026-10-05).
+- Size gate: `scripts/package.ps1 -MaxSetupMB` fails when exceeded. The MVP bundles no ML models (phases 6, 8, 10 deferred). Phase 1 measured an unsigned Setup.exe of 98 MB; keeping 15% headroom (98 * 1.15 = 112.7 MB), the `-MaxSetupMB` gate is set to **113 MB**. The gate no longer waits on Spike E.
 - Builds are unsigned by decision. The README documents SmartScreen "More info -> Run anyway" and SHA256SUMS.
 - Unpackaged execution: display capture uses DDA (borderless); window stills use `PrintWindow(PW_RENDERFULLCONTENT)`; unpackaged WGC window recording border is accepted as documented DEGRADE. Sparse package fallback deleted (requires trusted certificate, violating Q4).
 - `NetworkPolicyTests`: the only code allowed to reference `HttpClient` or sockets is `Lightshot.Platform.Windows.Updates`.
@@ -49,7 +49,7 @@ Tests: `tests/Lightshot.Platform.Windows.Tests/{ManifestVerifierTests, UpdateChe
 5. Update policy (second launch, work-in-progress hold) in a pure class.
 6. Release tool and scripts; generate the keypair once, store the public key as a constant, document where the private key must live.
 7. Packaging, size gate, install on a clean user profile in a Windows Sandbox or fresh VM when available, upgrade from the previous build.
-8. Add `NetworkPolicyTests`, replacing the interim reference test from phase 6.
+8. Add `NetworkPolicyTests` (verifies only the Updates namespace references network types).
 9. Documentation: `docs/release.md` covers key custody, rollback of a bad release, SmartScreen, and Smart App Control.
 
 ## Acceptance criteria
@@ -65,7 +65,7 @@ Tests: `tests/Lightshot.Platform.Windows.Tests/{ManifestVerifierTests, UpdateChe
 | Only the Updates namespace references network types | `Lightshot.Architecture.Tests.NetworkPolicyTests.OnlyUpdatesNamespaceUsesNetwork` (`Unit`) |
 | Release tool round trip signs and verifies | `Lightshot.ReleaseTool.Tests.RoundTripTests.SignedManifestVerifiesWithAppVerifier` (`Unit`) |
 | Dry-run release builds, packs, verifies | `scripts/release.ps1 -DryRun` exit code, run by `Lightshot.App.UiTests.InstallerSmokeTests.DryRunSucceeds` (`Desktop`) |
-| Installer size within the gate | `scripts/package.ps1 -MaxSetupMB` (script check; gate is 300 MB until Spike E, then measured size + 15% headroom; resolved decision 2026-10-05) |
+| Installer size within the gate | `scripts/package.ps1 -MaxSetupMB` (script check; gate is 113 MB based on phase 1 measured 98 MB unsigned Setup.exe + 15% headroom; MVP bundles no ML models, no longer waits on Spike E) |
 | Installed app starts, hotkey works, uninstall removes the Run value | `Lightshot.App.UiTests.InstallerSmokeTests.InstallLaunchUninstall` (`Desktop`, needs a clean user profile; UNCOVERED on hosts without a sandbox) |
 | Real upgrade across two versions | UNCOVERED: needs two published builds; manual release rehearsal |
 | SmartScreen behaviour | UNCOVERED: SmartScreen warns on every new release (expected; reputation is per file hash; unsigned by decision). README steps verified by manual release check |
@@ -82,10 +82,10 @@ Updating can be disabled by a setting and by removing the scheduler registration
 | Private signing key lost or leaked | L | H | Offline custody, documented rotation by installer |
 | SmartScreen warnings reduce installs | H | M | README install steps with screenshots of the SmartScreen dialog; portable zip as second asset; SHA256SUMS in release notes; in-app updates (no MOTW) |
 | Smart App Control (enforcement mode) blocks unsigned apps with no reputation; there is no 'run anyway' | M | M | Accepted by Q4. README states that SAC users cannot run the app, and that turning SAC off is their own choice. Never advise it in-app |
-| Installer exceeds size budget | M | M | ReadyToRun without trimming; int8 models if needed to stay under `-MaxSetupMB` (300 MB until Spike E, then measured + 15%) |
+| Installer exceeds size budget | M | M | ReadyToRun without trimming; installer stays under `-MaxSetupMB` (113 MB: 98 MB baseline + 15% headroom; ML models deferred post-MVP) |
 | Update applies while recording | L | H | Work-in-progress hold test |
 | Antivirus flags hooks plus updater | M | M | No network outside Updates; open-source build instructions |
 
 ## Dependencies
 
-Runs straight after phase 5: depends on phase 1 (scripts, package gate), phase 4 (tray, settings store), and phase 5 (Settings/About pane). Provides the update path for the first public screenshot release. Re-run size gate on every later release (phases 6, 7, 8, 10).
+Runs after phase 4 and 5 (and can package phase 7): depends on phase 1 (scripts, package gate), phase 4 (tray, settings store), and phase 5 (Settings/About pane). Provides the update path for MVP public releases. Re-run size gate if/when post-MVP phases (6, 8, 10) are integrated.

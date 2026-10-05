@@ -6,7 +6,7 @@ Status: pending | Effort: 12d | Priority: P1 | Depends on: phase 1 (only Core/Ca
 
 Two work packages with disjoint file ownership, runnable in parallel:
 
-- **Package C**: port `LightshotKit` (63 source files, 41 test classes, 595 tests across 41 classes; authoritative count from cloned manifest) to `Lightshot.Core` as plain `net10.0` with zero packages.
+- **Package C**: port `LightshotKit` to `Lightshot.Core` as plain `net10.0` with zero packages. For the MVP, 28 core test classes (451 tests) and their underlying domain types are ported. Types and test classes used exclusively by deferred features (13 test classes, 144 tests: 10 Studio classes [93 tests], `AutoRedactTests` [30 tests], `TextCaptureTests` [14 tests], `CameraBubbleTests` [7 tests]) are deferred to their respective post-MVP phases (6, 7-R4, 8).
 - **Package R**: build `Lightshot.Rendering` (SkiaSharp CPU `render()`, `TextLayout`, redaction patch, own blur and scramble, PNG/JPEG codecs, thumbnails, bundled Inter) and re-baseline the pixel tests.
 
 The slice shipped is a tested library pair: later phases code against stable interfaces and a pure core. Clone the upstream SHA into a scratch directory first and read `HotkeyBindings.defaults`, `RecordingDefaults.standard`, `QuickAccessSettings`, ADR 0001 and the real `LightshotKit/Sources`; the analysis reports describe but do not contain them (KIT §6, APP "Risks").
@@ -28,21 +28,21 @@ The slice shipped is a tested library pair: later phases code against stable int
 
 ### Package C: create under `src/Lightshot.Core/`
 
-| Folder | Files (source name in KIT §2 -> `.cs`) |
-|---|---|
-| `Geometry/` | `Geometry.cs` (Point, Size, Rect as `readonly record struct` of double), `Transform.cs`, `CanvasProjection.cs`, `ArrowGeometry.cs`, `EditableSelection.cs` |
-| `Annotation/` | `AnnotationDocument.cs`, `AnnotationElement.cs`, `Style.cs`, `StyleFields.cs`, `AutoRedactPlan.cs` |
-| `Scanner/` | `SensitiveDataScanner.cs` (.NET `Regex` with `RegexOptions.CultureInvariant` and match timeouts, `IPAddress.TryParse` replaces `inet_pton`), `IWeakEntityDetector.cs`, `TextRecognition.cs`, `TextCapture.cs` |
-| `Capture/` | `CaptureAction.cs`, `CaptureAuthorizationStatus.cs`, `CapturedImage.cs`, `CaptureError.cs`, `CaptureRegion.cs`, `ICaptureService.cs`, `FrozenScreen.cs` (raw `PixelSurface` per display), `PixelSurface.cs`, `ImageFormat.cs`, `ImageLoadError.cs`, `IImageSink.cs`, `IImageSource.cs`, `IOverlayController.cs`, `IImageRenderer.cs`, `IImageCodec.cs`, `IThumbnailer.cs`, `QuickAccess.cs`, `AppCoordinator.cs` (+ partial files per flow) |
-| `Hotkeys/` | `HotkeyBinding.cs` (key code is a Windows virtual-key), `IHotkeyService.cs`, `KeyLabel.cs` (VK name table) |
-| `Settings/` | `ISettingsStore.cs`, `FilenameFormatter.cs` (adds Windows-forbidden characters), `RecordingDefaults.cs` |
-| `History/` | `HistoryStore.cs` (file I/O plus injected `IThumbnailer`) |
-| `Appearance/` | `Appearance.cs`, `ThemePalette.cs` |
-| `Permissions/` | `IPermissionAuthorizing.cs`, `PermissionGate.cs`, `PermissionKind.cs`, `PermissionOnboardingModel.cs` (`INotifyPropertyChanged`) |
-| `Recording/` | `RecordingOptions.cs`, `IRecordingService.cs`, `RecordingSession.cs`, `RecordingError.cs`, `IAudioInputService.cs`, `ICameraService.cs`, `AudioMixer.cs`, `CameraBubble.cs`, `ClickHighlight.cs`, `KeystrokeOverlay.cs`, `IInputEventSource.cs`, `MutedMicrophoneDetector.cs`, `GifFramePlan.cs`, `IGifEncoding.cs`, `GifWriter.cs`, `GifQuantizer.cs`, `FrameCadencePlanner.cs`, `IMediaSink.cs`, `IMediaMetadataSource.cs` |
-| `Studio/` | `StudioCapture.cs`, `StudioCaptions.cs`, `StudioDocument.cs`, `StudioEdits.cs`, `StudioInput.cs`, `StudioTimeline.cs`, `CanvasLayout.cs`, `CursorPath.cs`, `ZoomCamera.cs`, `TimelineSnap.cs`, `VideoEdit.cs` (with `VideoBitRate`, `SizeEstimator`), `VideoTimeline.cs`, `IStudioFlattening.cs`, `StudioProjectStore.cs` |
-| `Threading/` | `IUiDispatcher.cs` (replaces `@MainActor`), `ImmediateDispatcher.cs` |
-| `Lightshot.Core.csproj` | no packages |
+| Folder | Files (source name in KIT §2 -> `.cs`) | Status |
+|---|---|---|
+| `Geometry/` | `Geometry.cs` (Point, Size, Rect as `readonly record struct` of double), `Transform.cs`, `CanvasProjection.cs`, `ArrowGeometry.cs`, `EditableSelection.cs` | MVP |
+| `Annotation/` | `AnnotationDocument.cs`, `AnnotationElement.cs`, `Style.cs`, `StyleFields.cs` [MVP]; `AutoRedactPlan.cs` [Deferred: Phase 6] | MVP (except AutoRedactPlan) |
+| `Scanner/` | `SensitiveDataScanner.cs` (.NET `Regex` with `RegexOptions.CultureInvariant`), `IWeakEntityDetector.cs`, `TextRecognition.cs`, `TextCapture.cs` | Deferred (Phase 6 Auto Redact & OCR) |
+| `Capture/` | `CaptureAction.cs`, `CaptureAuthorizationStatus.cs`, `CapturedImage.cs`, `CaptureError.cs`, `CaptureRegion.cs`, `ICaptureService.cs`, `FrozenScreen.cs` (raw `PixelSurface` per display), `PixelSurface.cs`, `ImageFormat.cs`, `ImageLoadError.cs`, `IImageSink.cs`, `IImageSource.cs`, `IOverlayController.cs`, `IImageRenderer.cs`, `IImageCodec.cs`, `IThumbnailer.cs`, `QuickAccess.cs`, `AppCoordinator.cs` (+ partial files per flow) | MVP |
+| `Hotkeys/` | `HotkeyBinding.cs` (key code is a Windows virtual-key), `IHotkeyService.cs`, `KeyLabel.cs` (VK name table) | MVP |
+| `Settings/` | `ISettingsStore.cs`, `FilenameFormatter.cs` (adds Windows-forbidden characters), `RecordingDefaults.cs` | MVP |
+| `History/` | `HistoryStore.cs` (file I/O plus injected `IThumbnailer`) | MVP |
+| `Appearance/` | `Appearance.cs`, `ThemePalette.cs` | MVP |
+| `Permissions/` | `IPermissionAuthorizing.cs`, `PermissionGate.cs`, `PermissionKind.cs`, `PermissionOnboardingModel.cs` (`INotifyPropertyChanged`) | MVP |
+| `Recording/` | `RecordingOptions.cs`, `IRecordingService.cs`, `RecordingSession.cs`, `RecordingError.cs`, `IAudioInputService.cs`, `AudioMixer.cs`, `ClickHighlight.cs`, `KeystrokeOverlay.cs`, `IInputEventSource.cs`, `MutedMicrophoneDetector.cs`, `GifFramePlan.cs`, `IGifEncoding.cs`, `GifWriter.cs`, `GifQuantizer.cs`, `FrameCadencePlanner.cs`, `IMediaSink.cs`, `IMediaMetadataSource.cs` [MVP]; `ICameraService.cs`, `CameraBubble.cs` [Deferred: Post-MVP Camera] | MVP (except Camera types) |
+| `Studio/` | `VideoEdit.cs` (with `VideoBitRate`, `SizeEstimator`, `TrimRange`), `VideoTimeline.cs` [MVP, used by recording/trim editor]; `StudioCapture.cs`, `StudioCaptions.cs`, `StudioDocument.cs`, `StudioEdits.cs`, `StudioInput.cs`, `StudioTimeline.cs`, `CanvasLayout.cs`, `CursorPath.cs`, `ZoomCamera.cs`, `TimelineSnap.cs`, `IStudioFlattening.cs`, `StudioProjectStore.cs` [Deferred: Phase 8] | Partial MVP (trim/video types); Studio-only types deferred |
+| `Threading/` | `IUiDispatcher.cs` (replaces `@MainActor`), `ImmediateDispatcher.cs` | MVP |
+| `Lightshot.Core.csproj` | no packages | MVP |
 
 `GifWriter` (LZW) and `GifQuantizer` (deterministic median-cut, per-frame local palette) are new pure Core code because the ruling places the GIF quantiser in Core. `FrameCadencePlanner` is new pure logic (duplicate or drop frames to hold constant fps from a variable-rate source) used by phase 7.
 
@@ -56,21 +56,31 @@ The slice shipped is a tested library pair: later phases code against stable int
 - `tests/Lightshot.Rendering.Tests/**`: `DocumentRenderTests`, `ExportTests`, `TextLayoutTests`, `GaussianBlurTests`, `ScrambleTests`, `ThumbnailTests`, `FrozenScreenCodecTests`, `CoordinatorRenderTests`, `Goldens/*.png`, `Goldens/hashes.json`, `PixelAssert.cs`.
 - `docs/porting/test-manifest.json` and `scripts/check-test-parity.ps1`.
 
-## Test porting ledger (41 classes; counts from KIT §5)
+## Test porting ledger (41 upstream classes, 595 tests; KIT §5)
 
-| Source class (count) | Target project and tier | Notes |
-|---|---|---|
-| AnnotationDocumentTests (58), ArrowGeometryTests (12), CanvasProjectionTests (6), EditableSelectionTests (21), StyleFieldsTests (1) | Core.Tests, Unit | Verbatim; method names preserved |
-| AppCoordinatorTests (90) | Core.Tests, Unit (~80); Rendering.Tests, Render (~10 that call real render or history) | Fakes ported once; `ImmediateDispatcher` replaces `@MainActor` |
-| RecordingCoordinatorTests (76) | Core.Tests, Unit (~70); Rendering.Tests, Render (~6) | Same split |
-| AppearanceTests (8), AudioMixerTests (7), CameraBubbleTests (7), ClickHighlightTests (5), GIFFramePlanTests (5), HotkeyBindingTests (11), KeystrokeOverlayTests (12), MutedMicrophoneDetectorTests (3), PermissionGateTests (5), PermissionOnboardingModelTests (9), QuickAccessTests (13), RecordedAreaTests (3), RecordingOptionsTests (18), RecordingSessionTests (13), SeamTests (2), TextCaptureTests (14), VideoEditTests (5), VideoTimelineTests (4) | Core.Tests, Unit | HotkeyBinding and KeystrokeOverlay fixtures switch from macOS key codes to VKs; QuickAccessTests re-checked for the y-axis (below) |
-| Studio*: AnnotationTests (5), CaptionTests (13), CaptureTests (10), DocumentTests (11), EngineTests (22), ExportBitRateTests (5), ExportFrameRateTests (5), FlattenTests (4), SnapTests (4), TrimSpeedTests (14) | Core.Tests, Unit | `StudioCaptureTests` use a temp directory |
-| AutoRedactTests (30) | Core.Tests, Unit for scanner logic, plan and undo; detector cases move to phase 6 | Phone, link, address cases (those that used `NSDataDetector`) are re-pinned in phase 6 against `IWeakEntityDetector` |
-| DocumentRenderTests (26), ExportTests (7), TextLayoutTests (4) | Rendering.Tests, Render | Pixel; re-baselined |
-| FrozenScreenTests (13) | Core.Tests, Unit for crop maths on synthetic surfaces; Rendering.Tests, Render for PNG round trips | Adapted to `PixelSurface` |
-| HistoryStoreTests (14) | Core.Tests, Unit (retention, trim, ordering, back-compat decode) with a fake thumbnailer; Rendering.Tests, Render (thumbnails, GIF metadata) | |
+**MVP Active Scope:** 28 classes, 451 tests.  
+**Deferred Post-MVP Scope:** 13 classes, 144 tests.
 
-`docs/porting/test-manifest.json` lists each source class, its count and its target; `check-test-parity.ps1` fails if a target class has fewer tests than the manifest. `check-test-parity.ps1` must handle split targets: AppCoordinator 80 Unit + 10 Render, Recording 70 + 6, AutoRedact 30 (21 scanner here, detector cases in phase 6 at `PhoneLinkDetectorTests`). Method names are taken from the cloned source at port time; new tests are named below.
+| Source class (count) | Target project and tier | Status | Notes |
+|---|---|---|---|
+| AnnotationDocumentTests (58), ArrowGeometryTests (12), CanvasProjectionTests (6), EditableSelectionTests (21), StyleFieldsTests (1) | Core.Tests, Unit | **MVP** | Verbatim; method names preserved (98 tests) |
+| AppCoordinatorTests (90) | Core.Tests, Unit (~80); Rendering.Tests, Render (~10) | **MVP** | Fakes ported once; `ImmediateDispatcher` replaces `@MainActor` (90 tests) |
+| RecordingCoordinatorTests (76) | Core.Tests, Unit (~70); Rendering.Tests, Render (~6) | **MVP** | Same split; covers MVP recording coordination (76 tests) |
+| AppearanceTests (8), AudioMixerTests (7), ClickHighlightTests (5), GIFFramePlanTests (5), HotkeyBindingTests (11), KeystrokeOverlayTests (12), MutedMicrophoneDetectorTests (3), PermissionGateTests (5), PermissionOnboardingModelTests (9), QuickAccessTests (13), RecordedAreaTests (3), RecordingOptionsTests (18), RecordingSessionTests (13), SeamTests (2), VideoEditTests (5), VideoTimelineTests (4) | Core.Tests, Unit | **MVP** | 16 classes, 119 tests. HotkeyBinding and KeystrokeOverlay switch to VKs; VideoEdit/Timeline used by trim editor |
+| CameraBubbleTests (7) | Core.Tests, Unit | **Deferred (Post-MVP)** | Camera bubble package R4 deferred (7 tests) |
+| TextCaptureTests (14) | Core.Tests, Unit | **Deferred (Post-MVP)** | Phase 6 OCR Text capture deferred (14 tests) |
+| Studio*: AnnotationTests (5), CaptionTests (13), CaptureTests (10), DocumentTests (11), EngineTests (22), ExportBitRateTests (5), ExportFrameRateTests (5), FlattenTests (4), SnapTests (4), TrimSpeedTests (14) | Core.Tests, Unit | **Deferred (Post-MVP)** | 10 classes, 93 tests deferred to Phase 8 |
+| AutoRedactTests (30) | Core.Tests, Unit | **Deferred (Post-MVP)** | Auto Redact deferred to Phase 6 (30 tests) |
+| DocumentRenderTests (26), ExportTests (7), TextLayoutTests (4) | Rendering.Tests, Render | **MVP** | Pixel tests; re-baselined (37 tests) |
+| FrozenScreenTests (13) | Core.Tests, Unit (crop maths); Rendering.Tests, Render (PNG round trips) | **MVP** | Adapted to `PixelSurface` (13 tests) |
+| HistoryStoreTests (14) | Core.Tests, Unit (history decode); Rendering.Tests, Render (thumbnails) | **MVP** | 14 tests |
+
+**Arithmetic Verification:**  
+MVP tests: 98 + 90 + 76 + 119 + 37 + 13 + 14 = **451 tests** across **28 classes**.  
+Deferred tests: 7 (CameraBubble) + 14 (TextCapture) + 93 (Studio 10 classes) + 30 (AutoRedact) = **144 tests** across **13 classes**.  
+Total: 451 + 144 = **595 tests** across **41 classes** (exact match to cloned manifest).
+
+`docs/porting/test-manifest.json` lists all 41 source classes (595 tests). In the MVP, the 28 active classes (451 tests) are enforced by `check-test-parity.ps1` (e.g. AppCoordinator 80 Unit + 10 Render, Recording 70 + 6), while the 13 deferred classes (144 tests) are marked with `deferred: true` in the manifest so they are excluded from the MVP build and parity check, not silently lost. Method names are taken from the cloned source at port time; new tests are named below.
 
 ## Implementation steps
 
@@ -79,8 +89,8 @@ The slice shipped is a tested library pair: later phases code against stable int
 1. Clone upstream at the SHA into a scratch directory. Fill `docs/porting/test-manifest.json` from the clone. Read the real defaults and ADR 0001; record them in `docs/porting/defaults.md` (WHY and WHERE only).
 2. Port Geometry and Annotation, then their tests. Use `System.Text.Json` for `Codable` types with explicit converters for element unions.
 3. Port Capture models, `FrozenScreen` on `PixelSurface`, `CaptureRegion` as physical pixels, coordinators, settings seam, hotkeys (VK; set defaults PrintScreen = area, Ctrl+PrintScreen = fullscreen, other actions unbound like the source in `HotkeyBinding.cs`, tested by `HotkeyBindingTests.DefaultsArePrintScreenVariants`), permissions, history, appearance, quick access. Quick Access layout: the source stacks from a bottom-up visible frame; port with an explicit `ScreenAnchor` (top-left origin plus work area) and test both corners.
-4. Port the scanner. Phone, link and address detection go through `IWeakEntityDetector`; the Core test fake returns pinned fixtures.
-5. Port Recording and Studio models, `AudioMixer`, `CursorPath` (120 Hz critically damped spring, `omega = 40 - 35*smoothing`, 4 sub-steps), `ZoomCamera`, `CaptionBuilder`, `StudioEdits` (version 2, with v1 migration), `VideoBitRate`. Decide reachability of burn-in (`studio: true` vs non-Studio) from the cloned source and record it in `docs/porting/defaults.md` (why and where only), so phase 7 can either list `BurnInCompositorTests` or drop R6 and its criterion.
+4. Scanner and weak entity detector (`SensitiveDataScanner`, `IWeakEntityDetector`, `TextCapture`) are deferred to post-MVP Phase 6. Manual redaction in Phase 4 uses `AnnotationElement` directly.
+5. Port Recording models and video trim editor types: `RecordingOptions`, `IRecordingService`, `RecordingSession`, `RecordingError`, `AudioMixer`, `VideoEdit` (with `VideoBitRate`, `SizeEstimator`, `TrimRange`), `VideoTimeline`, `ClickHighlight`, `KeystrokeOverlay`. (Studio-only models — `CursorPath`, `ZoomCamera`, `CaptionBuilder`, `StudioEdits`, `StudioDocument`, `StudioCapture` — are deferred to Phase 8; camera types `ICameraService`/`CameraBubble` are deferred to post-MVP Package R4). Decide reachability of burn-in (`studio: true` vs non-Studio) from the cloned source and record it in `docs/porting/defaults.md` (why and where only), so phase 7 can either list `BurnInCompositorTests` or drop R6.
 6. Add `GifWriter`, `GifQuantizer`, `FrameCadencePlanner` with new tests.
 7. Run `check-core.ps1` after each folder; it must stay green.
 
@@ -99,7 +109,7 @@ The slice shipped is a tested library pair: later phases code against stable int
 | Criterion | Test |
 |---|---|
 | Undo restores state and no-op leaves no undo step | `Lightshot.Core.Tests.AnnotationDocumentTests` (58, verbatim) incl. `UndoRestoresSnapshot` (new, explicit) |
-| Step numbers stay stable after deletion; `add(contentsOf:)` is one undo step | `AnnotationDocumentTests` and `AutoRedactTests` plan/undo cases |
+| Step numbers stay stable after deletion; `add(contentsOf:)` is one undo step | `AnnotationDocumentTests` plan/undo cases (`AutoRedactTests` cases deferred to Phase 6) |
 | Arrow constants (head, shaft, 16-sample centreline) | `Lightshot.Core.Tests.ArrowGeometryTests` (12) |
 | Coordinator routing, onboarding gate, self-timer, repeat last | `Lightshot.Core.Tests.AppCoordinatorTests` (~80) |
 | Recording coordination and GIF fallback | `Lightshot.Core.Tests.RecordingCoordinatorTests` (~70), `RecordingSessionTests` (13) |
@@ -109,7 +119,7 @@ The slice shipped is a tested library pair: later phases code against stable int
 | Hotkey conflicts by VK plus modifiers | `Lightshot.Core.Tests.HotkeyBindingTests` (11) |
 | GIF writer round-trips frames, delays, loop count | `Lightshot.Rendering.Tests.GifWriterTests.RoundTripsFramesAndDelays` (new; decodes with `SKCodec`) |
 | Frame cadence holds constant fps from a bursty source | `Lightshot.Core.Tests.FrameCadencePlannerTests.RepeatsLastFrameWhenSourceIdle` (new) |
-| Studio v1 project migrates to v2; JSON round trip | `Lightshot.Core.Tests.StudioDocumentTests` (11) and `StudioEditsTests.MigratesVersionOneToTwo` (new) |
+| Studio v1 project migrates to v2; JSON round trip | [DEFERRED to Phase 8] `Lightshot.Core.Tests.StudioDocumentTests` (11) and `StudioEditsTests.MigratesVersionOneToTwo` |
 | Blur is bit-exact and CPU-independent | `Lightshot.Rendering.Tests.GaussianBlurTests.OutputHashMatchesGolden` (new, exact) |
 | Scramble matches the SplitMix64 sequence and is deterministic per seed | `Lightshot.Rendering.Tests.ScrambleTests.SeedFixesOutput` (new, exact) |
 | Render output matches re-baselined goldens (arrow styles, focus dim, text, redaction) | `Lightshot.Rendering.Tests.DocumentRenderTests` (26; 1-2 LSB for Skia paths) |
@@ -118,7 +128,7 @@ The slice shipped is a tested library pair: later phases code against stable int
 | Text metrics stable with bundled font | `Lightshot.Rendering.Tests.TextLayoutTests` (4, re-baselined) |
 | Copy-and-close writes no file (sink records a copy, zero writes) | `Lightshot.Core.Tests.AppCoordinatorTests` ported guard |
 | Core free of Windows and package references | `Lightshot.Architecture.Tests.CoreAssemblyTests.HasNoPackageOrWindowsReferences` |
-| Ported test count equals manifest | `scripts/check-test-parity.ps1` (script check; UNCOVERED by xUnit because it counts tests) |
+| Ported test count equals manifest | `scripts/check-test-parity.ps1` (enforces 451 MVP tests across 28 classes; 144 tests across 13 classes tracked as deferred) |
 | Render goldens pass on a second CPU | UNCOVERED by local automation: second-machine run is a manual release check or covered by a GitHub Actions `windows-latest` runner (build 26100) |
 
 ## Rollback
