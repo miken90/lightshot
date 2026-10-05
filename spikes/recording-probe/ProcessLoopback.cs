@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Runtime.InteropServices;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
@@ -22,6 +23,15 @@ public sealed class ProcessLoopback : IDisposable
     public string EndpointName => _endpointName;
     public string FallbackTriggered { get; private set; } = "None (NAudio 3.1.0 Process Loopback)";
     public event Action<byte[], long, long>? OnAudioSample;
+
+    private long _missingQpcPackets;
+    private long _discontinuityPackets;
+    private long _silentPackets;
+    public long MissingQpcPackets => Interlocked.Read(ref _missingQpcPackets);
+    public long DiscontinuityPackets => Interlocked.Read(ref _discontinuityPackets);
+    public long SilentPackets => Interlocked.Read(ref _silentPackets);
+    public bool ProbeToneStarted { get; private set; }
+    public bool ProbeToneStillPlaying => _tonePlayer?.PlaybackState == PlaybackState.Playing;
 
     public ProcessLoopback()
     {
@@ -71,7 +81,20 @@ public sealed class ProcessLoopback : IDisposable
                 Array.Clear(arr, 0, arr.Length);
             }
 
-            long currentQpc = qpcPosition != 0 ? (long)qpcPosition - _totalPauseTicks : Stopwatch.GetTimestamp() - _totalPauseTicks;
+            // WASAPI reports qpcPosition in 100 ns units of the QPC clock; fall back to the callback time when absent.
+            long pauseHns = QpcClock.ToHns(_totalPauseTicks);
+            long currentQpcHns;
+            if (qpcPosition != 0)
+            {
+                currentQpcHns = qpcPosition - pauseHns;
+            }
+            else
+            {
+                Interlocked.Increment(ref _missingQpcPackets);
+                currentQpcHns = QpcClock.ToHns(Stopwatch.GetTimestamp()) - pauseHns;
+            }
+            if ((flags & AudioClientBufferFlags.DataDiscontinuity) != 0) Interlocked.Increment(ref _discontinuityPackets);
+            if ((flags & AudioClientBufferFlags.Silent) != 0) Interlocked.Increment(ref _silentPackets);
             int inputSampleRate = _recorder?.WaveFormat.SampleRate ?? 48000;
             int inputChannels = _recorder?.WaveFormat.Channels ?? 2;
             var inputEncoding = _recorder?.WaveFormat.Encoding ?? WaveFormatEncoding.IeeeFloat;
@@ -80,7 +103,7 @@ public sealed class ProcessLoopback : IDisposable
             int sampleCount = pcm48kStereo.Length / 4;
             long durationHns = (long)((sampleCount / 48000.0) * 10_000_000.0);
 
-            OnAudioSample?.Invoke(pcm48kStereo, currentQpc, durationHns);
+            OnAudioSample?.Invoke(pcm48kStereo, currentQpcHns, durationHns);
         }
         catch (Exception ex)
         {
@@ -111,6 +134,7 @@ public sealed class ProcessLoopback : IDisposable
             }
             _tonePlayer.Init(toneProvider);
             _tonePlayer.Play();
+            ProbeToneStarted = true;
         }
         catch (Exception ex)
         {

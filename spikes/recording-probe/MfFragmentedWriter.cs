@@ -80,6 +80,32 @@ public sealed class MfFragmentedWriter : IDisposable
         _writingStarted = true;
     }
 
+    /// <summary>Encoder MFT the sink writer actually instantiated for the video stream (read after BeginWriting).</summary>
+    public string EncoderTransformName
+    {
+        get
+        {
+            try
+            {
+                using var ex = _writer.QueryInterface<IMFSinkWriterEx>();
+                ex.GetTransformForStream(_videoStreamIndex, 0, out Guid category, out IMFTransform? transform);
+                using (transform)
+                {
+                    if (transform == null) return "unknown (no transform returned)";
+                    string hw = "?";
+                    try { hw = transform.Attributes.GetString(TransformAttributeKeys.MftEnumHardwareUrlAttribute); } catch { hw = "(no hardware url attribute)"; }
+                    string name = "?";
+                    try { name = transform.Attributes.GetString(TransformAttributeKeys.MftFriendlyNameAttribute); } catch { }
+                    return $"friendlyName={name}; hardwareUrl={hw}";
+                }
+            }
+            catch (Exception ex)
+            {
+                return $"unavailable ({ex.GetType().Name}: {ex.Message})";
+            }
+        }
+    }
+
     private int ConfigureAudioStream(int sampleRate, int channels, int bitrate)
     {
         using var aOutType = MediaFactory.MFCreateMediaType();

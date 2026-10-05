@@ -64,7 +64,6 @@ public sealed class WasapiMic : IDisposable
         {
             if (_paused || e.BytesRecorded == 0) return;
 
-            long currentQpc = Stopwatch.GetTimestamp() - _totalPauseTicks;
             int inputSampleRate = _capture?.WaveFormat.SampleRate ?? 48000;
             int inputChannels = _capture?.WaveFormat.Channels ?? 2;
             var inputEncoding = _capture?.WaveFormat.Encoding ?? WaveFormatEncoding.IeeeFloat;
@@ -76,7 +75,9 @@ public sealed class WasapiMic : IDisposable
             int sampleCount = pcm48kStereo.Length / 4;
             long durationHns = (long)((sampleCount / 48000.0) * 10_000_000.0);
 
-            OnAudioSample?.Invoke(pcm48kStereo, currentQpc, durationHns);
+            // Timestamp in QPC 100 ns units (pause offset removed): the packet ends about now, so it started one duration ago.
+            long nowHns = QpcClock.ToHns(Stopwatch.GetTimestamp() - _totalPauseTicks);
+            OnAudioSample?.Invoke(pcm48kStereo, nowHns - durationHns, durationHns);
         }
         catch (Exception ex)
         {

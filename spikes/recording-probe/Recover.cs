@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
@@ -40,103 +41,68 @@ public static class Recover
             // Step 3: Setup passthrough IMFSinkWriter for normal MP4
             using var writer = MediaFactory.MFCreateSinkWriterFromURL(outputPath, null, null);
 
-            int videoStreamIdx = -1;
-            int micStreamIdx = -1;
-            int loopbackStreamIdx = -1;
-
-            // Configure Video Passthrough
-            try
+            // Source-reader order is not the write order: classify every stream by its major type and copy
+            // them all in passthrough, keeping each stream's own index mapping.
+            var configErrors = new System.Collections.Generic.List<string>();
+            var map = new System.Collections.Generic.Dictionary<int, int>();   // reader index -> writer index
+            var counts = new System.Collections.Generic.Dictionary<int, int>();
+            var kinds = new System.Collections.Generic.Dictionary<int, string>();
+            var streams = TakeAnalyzer.ClassifyStreams(inputPath);
+            var audioOrder = 0;
+            foreach (int ri in new System.Collections.Generic.List<int>(streams.video).Concat(streams.audio))
             {
-                using var vType = reader.GetNativeMediaType(SourceReaderIndex.FirstVideoStream, 0);
-                reader.SetCurrentMediaType(SourceReaderIndex.FirstVideoStream, vType);
-                videoStreamIdx = writer.AddStream(vType);
-                writer.SetInputMediaType(videoStreamIdx, vType, null);
+                string kind = streams.video.Contains(ri) ? "video" : (audioOrder++ == 0 ? "mic" : "loopback");
+                try
+                {
+                    using var nt = reader.GetNativeMediaType((SourceReaderIndex)ri, 0);
+                    reader.SetCurrentMediaType((SourceReaderIndex)ri, nt);
+                    int wi = writer.AddStream(nt);
+                    writer.SetInputMediaType(wi, nt, null);
+                    map[ri] = wi; counts[ri] = 0; kinds[ri] = kind;
+                }
+                catch (Exception ex) { configErrors.Add($"{kind}: {ex.Message}"); }
             }
-            catch { }
-
-            // Configure Mic Audio Passthrough
-            try
-            {
-                using var a1Type = reader.GetNativeMediaType(SourceReaderIndex.FirstAudioStream, 0);
-                reader.SetCurrentMediaType(SourceReaderIndex.FirstAudioStream, a1Type);
-                micStreamIdx = writer.AddStream(a1Type);
-                writer.SetInputMediaType(micStreamIdx, a1Type, null);
-            }
-            catch { }
-
-            // Configure Loopback Audio Passthrough
-            try
-            {
-                using var a2Type = reader.GetNativeMediaType((SourceReaderIndex)2, 0);
-                reader.SetCurrentMediaType((SourceReaderIndex)2, a2Type);
-                loopbackStreamIdx = writer.AddStream(a2Type);
-                writer.SetInputMediaType(loopbackStreamIdx, a2Type, null);
-            }
-            catch { }
-
             writer.BeginWriting();
 
-            int vCount = 0, a1Count = 0, a2Count = 0;
-            bool vDone = videoStreamIdx < 0;
-            bool a1Done = micStreamIdx < 0;
-            bool a2Done = loopbackStreamIdx < 0;
+            // Feed the stream that is furthest behind in time: the MP4 muxer buffers the leading streams and blocks
+            // in WriteSample once the gap to a lagging stream grows (audio runs ahead of video by seconds in a take).
+            var done = new System.Collections.Generic.HashSet<int>();
+            var lastTs = map.Keys.ToDictionary(k => k, _ => 0L);
             long maxTimestampHns = 0;
-
-            while (!vDone || !a1Done || !a2Done)
+            while (done.Count < map.Count)
             {
-                if (!vDone)
-                {
-                    var s = reader.ReadSample(SourceReaderIndex.FirstVideoStream, SourceReaderControlFlag.None, out _, out var flags, out long ts);
-                    if (flags.HasFlag(SourceReaderFlag.EndOfStream)) vDone = true;
-                    else if (s != null)
-                    {
-                        writer.WriteSample(videoStreamIdx, s);
-                        vCount++;
-                        if (ts > maxTimestampHns) maxTimestampHns = ts;
-                        s.Dispose();
-                    }
-                }
-                if (!a1Done)
-                {
-                    var s = reader.ReadSample(SourceReaderIndex.FirstAudioStream, SourceReaderControlFlag.None, out _, out var flags, out long ts);
-                    if (flags.HasFlag(SourceReaderFlag.EndOfStream)) a1Done = true;
-                    else if (s != null)
-                    {
-                        writer.WriteSample(micStreamIdx, s);
-                        a1Count++;
-                        if (ts > maxTimestampHns) maxTimestampHns = ts;
-                        s.Dispose();
-                    }
-                }
-                if (!a2Done)
-                {
-                    var s = reader.ReadSample((SourceReaderIndex)2, SourceReaderControlFlag.None, out _, out var flags, out long ts);
-                    if (flags.HasFlag(SourceReaderFlag.EndOfStream)) a2Done = true;
-                    else if (s != null)
-                    {
-                        writer.WriteSample(loopbackStreamIdx, s);
-                        a2Count++;
-                        if (ts > maxTimestampHns) maxTimestampHns = ts;
-                        s.Dispose();
-                    }
-                }
+                int ri = map.Keys.Where(k => !done.Contains(k)).OrderBy(k => lastTs[k]).First();
+                var s = reader.ReadSample((SourceReaderIndex)ri, SourceReaderControlFlag.None, out _, out var flags, out long ts);
+                if (flags.HasFlag(SourceReaderFlag.EndOfStream)) { done.Add(ri); continue; }
+                if (s == null) { lastTs[ri] = Math.Max(lastTs[ri], ts); continue; }
+                writer.WriteSample(map[ri], s);
+                counts[ri]++;
+                lastTs[ri] = Math.Max(lastTs[ri], ts);
+                if (ts > maxTimestampHns) maxTimestampHns = ts;
+                s.Dispose();
             }
-
             writer.Finalize();
 
+            int vCount = 0, a1Count = 0, a2Count = 0;
+            foreach (var ri in map.Keys)
+            {
+                if (kinds[ri] == "video") vCount += counts[ri];
+                else if (kinds[ri] == "mic") a1Count += counts[ri];
+                else a2Count += counts[ri];
+            }
             double durationSec = maxTimestampHns / 10_000_000.0;
             bool hasVideo = vCount > 0;
             bool hasMic = a1Count > 0;
             bool hasLoopback = a2Count > 0;
 
-            bool success = hasVideo && hasMic && hasLoopback;
+            bool success = hasVideo && hasMic && hasLoopback && configErrors.Count == 0;
             return new RecoveryDetails(
                 success,
                 vCount,
                 a1Count,
                 a2Count,
                 durationSec,
-                success ? null : "One or more tracks lacked samples in recovered file",
+                success ? null : "One or more tracks lacked samples or failed to configure: " + string.Join("; ", configErrors),
                 null
             );
         }
@@ -231,6 +197,7 @@ public static class Recover
         {
             bool opened = false;
             bool ended = false;
+            bool advanced = false;
             string? meError = null;
 
             var thread = new Thread(() =>
@@ -250,11 +217,16 @@ public static class Recover
                 media.MediaOpened += (s, e) =>
                 {
                     opened = true;
-                    // Fast seek to near the end so test finishes in under 2 seconds while exercising decoder to EOF
-                    if (media.NaturalDuration.HasTimeSpan && media.NaturalDuration.TimeSpan.TotalSeconds > 2.0)
+                    // Let it really play for 2 s (position must advance), then seek near the end and play to MediaEnded.
+                    var timer = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromSeconds(2) };
+                    timer.Tick += (s2, e2) =>
                     {
-                        media.Position = media.NaturalDuration.TimeSpan - TimeSpan.FromSeconds(0.5);
-                    }
+                        timer.Stop();
+                        advanced = media.Position.TotalSeconds > 0.5;
+                        if (media.NaturalDuration.HasTimeSpan && media.NaturalDuration.TimeSpan.TotalSeconds > 2.0)
+                            media.Position = media.NaturalDuration.TimeSpan - TimeSpan.FromSeconds(0.5);
+                    };
+                    timer.Start();
                 };
                 media.MediaEnded += (s, e) =>
                 {
@@ -278,7 +250,7 @@ public static class Recover
 
             if (thread.Join(15000))
             {
-                mediaElementPass = opened && ended && meError == null;
+                mediaElementPass = opened && advanced && ended && meError == null;
                 if (meError != null && error == null) error = "MediaElement error: " + meError;
             }
             else
