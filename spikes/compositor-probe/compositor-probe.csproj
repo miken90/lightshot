@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows10.0.22621.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.22621.0</SupportedOSPlatformVersion>
+    <TargetPlatformMinVersion>10.0.22621.0</TargetPlatformMinVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PlatformTarget>x64</PlatformTarget>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <RootNamespace>CompositorProbe</RootNamespace>
+    <StartupObject>CompositorProbe.Program</StartupObject>
+    <NoWarn>CS0618;CA1416</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Vortice.Direct3D11" />
+    <PackageReference Include="Vortice.Direct2D1" />
+    <PackageReference Include="Vortice.DXGI" />
+    <PackageReference Include="Vortice.MediaFoundation" />
+  </ItemGroup>
+</Project>

@@ -1,0 +1,8 @@
+<Window x:Class="CompositorProbe.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="compositor-probe" Width="1280" Height="720" Background="#101010"
+        WindowStartupLocation="Manual" Left="0" Top="0">
+    <!-- The compositor lives in a child HWND hosted here; the airspace overlay is a separate top-level window. -->
+    <Grid x:Name="HostGrid" />
+</Window>
