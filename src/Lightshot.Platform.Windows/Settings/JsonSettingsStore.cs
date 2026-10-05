@@ -145,6 +145,32 @@ public class JsonSettingsStore : ISettingsStore
         set { lock (_lock) { _quickAccess = value; Save(); } }
     }
 
+    private readonly Dictionary<string, string?> _customSettings = new(StringComparer.OrdinalIgnoreCase);
+
+    public string? GetSetting(string key)
+    {
+        lock (_lock)
+        {
+            return _customSettings.TryGetValue(key, out var val) ? val : null;
+        }
+    }
+
+    public void SetSetting(string key, string? value)
+    {
+        lock (_lock)
+        {
+            if (value == null)
+            {
+                _customSettings.Remove(key);
+            }
+            else
+            {
+                _customSettings[key] = value;
+            }
+            Save();
+        }
+    }
+
     public void Save()
     {
         lock (_lock)
@@ -180,7 +206,8 @@ public class JsonSettingsStore : ISettingsStore
                     Appearance: _appearance.ToString(),
                     OcrKeepsLineBreaks: _ocrKeepsLineBreaks,
                     HideDesktopIcons: _hideDesktopIcons,
-                    AdjustAreaBeforeCapture: _adjustAreaBeforeCapture
+                    AdjustAreaBeforeCapture: _adjustAreaBeforeCapture,
+                    CustomSettings: _customSettings.Count > 0 ? new Dictionary<string, string?>(_customSettings) : null
                 );
 
                 var options = new JsonSerializerOptions { WriteIndented = true };
@@ -256,6 +283,15 @@ public class JsonSettingsStore : ISettingsStore
                 if (data.OcrKeepsLineBreaks.HasValue) _ocrKeepsLineBreaks = data.OcrKeepsLineBreaks.Value;
                 if (data.HideDesktopIcons.HasValue) _hideDesktopIcons = data.HideDesktopIcons.Value;
                 if (data.AdjustAreaBeforeCapture.HasValue) _adjustAreaBeforeCapture = data.AdjustAreaBeforeCapture.Value;
+
+                if (data.CustomSettings != null)
+                {
+                    _customSettings.Clear();
+                    foreach (var (k, v) in data.CustomSettings)
+                    {
+                        _customSettings[k] = v;
+                    }
+                }
             }
             catch
             {
@@ -279,7 +315,8 @@ public class JsonSettingsStore : ISettingsStore
         string? Appearance,
         bool? OcrKeepsLineBreaks,
         bool? HideDesktopIcons,
-        bool? AdjustAreaBeforeCapture
+        bool? AdjustAreaBeforeCapture,
+        Dictionary<string, string?>? CustomSettings = null
     );
 
     private record HotkeyDto(ushort KeyCode, int Modifiers, string KeyLabel);
