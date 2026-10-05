@@ -1,124 +1,59 @@
 # Spike E: On-Device ML Quality and Cost Report
 
-**Date:** 2026-10-05  
-**Probe:** `spikes/ml-probe`  
-**Host:** Windows 11 Pro 64-bit (Build 26200), AMD Ryzen 9 7945HX (32 logical cores), NVIDIA GeForce RTX 4060 Laptop GPU  
-**Command:** `powershell.exe -NoProfile -File scripts/spike.ps1 -Name ml -Configuration Release -Assert`  
-**Overall Status:** PASS  
+**Date:** 2026-10-05 (re-run 18:00 +07 after the measurement fixes)
+**Probe:** `spikes/ml-probe`
+**Host:** Windows 11 (10.0.26200), AMD Ryzen 9 7945HX (32 logical cores), NVIDIA GeForce RTX 4060 Laptop GPU
+**Command:** `scripts/spike.ps1 -Name ml -Configuration Release -Assert`
+**Result artifact:** `artifacts/ml-probe-result.json` (timestamp 2026-10-05T18:00:29+07:00, gitignored)
+**Overall status: FAIL.** OCR recall is below the bar. Captions, YuNet and translation pass.
 
----
+Why this replaces the first report: the first run rendered OCR text at 2x/3x font size (crisp vector text), matched case-insensitively with punctuation stripped over whole 5-entity batches, used a 0.895 bar, and ran a 234.5 s narration. All four are fixed; the old numbers are listed only for comparison.
 
-## 1. Hardware Matrix Covered
+## 1. Results
 
-| Property | Value / Configuration |
-|---|---|
-| OS Version | Microsoft Windows NT 10.0.26200.0 (Windows 11 Build 26200) |
-| Architecture | X64 |
-| CPU | AMD Ryzen 9 7945HX with Radeon Graphics (16 cores / 32 threads) |
-| GPU | NVIDIA GeForce RTX 4060 Laptop GPU (Driver 572.16) |
-| Audio Subsystem | Windows TTS (`System.Speech.Synthesis`) 16 kHz 16-bit Mono PCM |
-| OCR Engine | Windows.Media.Ocr (`en-US` language pack, OS built-in) |
-| ML Runtime | Microsoft.ML.OnnxRuntime 1.20.1 (CPU execution provider) + Whisper.net 1.7.4 |
+| Criterion | Bar | Measured (new) | Old | Result | Fallback triggered | Measuring code |
+|---|---|---|---|---|---|---|
+| Captions word timing | median <= 300 ms | median 145.0 ms, p95 715.0 ms, max 1105.0 ms (750 of 812 TTS words matched) | 150.0 ms | PASS | none | `WhisperProbe.RunAsync` |
+| Captions speed (CPU) | RTF < 1.0 | RTF 0.058 (22.0 s for 376.5 s audio) | 0.059 | PASS | none | `WhisperProbe.RunAsync` |
+| Narration length | >= 300 s | 376.5 s (812 words) | 234.5 s | valid | none | `WhisperProbe.RunAsync` (`durationValid`) |
+| OCR recall, strict | >= 90 % over >= 200 entities | **67.4 % (151 / 224)** | 91.96 % | **FAIL** | per-line 3x retry + binarised variant already applied (recovered 11); spec fallback: Phase 6 adds a retry strategy, +2d | `OcrProbe.RunAsync`, `IsEntityMatchedStrict` |
+| YuNet recall, prominent faces | >= 90 % over >= 200 faces | 91.54 % (184 / 201, 59 images) | 91.54 % | PASS on the filtered set only | none | `YuNetProbe.Run`, `CountMatched` |
+| YuNet recall, all valid GT faces, same 59 images | informational | 62.37 % (590 / 946) | not measured | informational | none | `YuNetProbe.Run`, `CountMatched` |
+| Translation en->vi | chrF >= 45 (or BLEU >= 25), p50 <= 300 ms | chrF 57.07, BLEU 36.02, p50 64.7 ms, p95 98.1 ms | chrF 57.07, p50 77.1 ms | PASS | none | `OpusMtProbe.Run` |
+| Translation vi->en | same | chrF 65.75, BLEU 39.89, p50 58.4 ms, p95 88.9 ms | chrF 65.75, p50 56.2 ms | PASS | none | `OpusMtProbe.Run` |
 
----
+Pass bars are now 0.90 in `OcrProbe.cs` and `YuNetProbe.cs` (was 0.895). The first run's YuNet figure is unchanged because the bar fix did not move 91.54 %.
 
-## 2. Pass Criteria and Measured Results
+### OCR details
+- **Fixtures:** 224 seeded entities, 7 Auto Redact categories, Segoe UI / Consolas / Inter, font sizes 11, 12, 14, 16, 18, 20, 24 px (min 11, max 24), light and dark backgrounds.
+- **Rendering:** each batch of 5 entities is drawn at native size (1x, grayscale antialiasing), then the whole bitmap is upscaled 2x with bicubic (Mitchell) resampling. The 3x retry upscales a native-size single-entity bitmap and binarises it; text is never re-rendered at a larger size. Dark fixtures are colour-inverted before OCR (a preprocessing choice the product would also have to make).
+- **Strict rule (PASS/FAIL):** case-sensitive ordinal equality between one OCR line and the entity, after whitespace normalisation, per entity.
+- **Strict, first pass only (no retry):** 62.5 % (140 / 224). **Lenient, informational and not used for the verdict** (case-insensitive, punctuation stripped, over batch text, retry included): 79.5 % (178 / 224).
+- **Recall by font:** Segoe UI 76.0 %, Consolas 45.3 %, Inter 81.1 %.
+- **Recall by category:** secrets 50.0 %, cards 87.5 %, IBANs 71.9 %, emails 62.5 %, SSN 96.9 %, IP 81.2 %, labelled values 21.9 %.
+- Even the lenient number is below 90 %, so the failure is not only the stricter matcher; the first report's 91.96 % came from large crisp text plus a forgiving matcher. No threshold, fixture or matcher was tuned to reach the bar.
 
-| Criterion | Numeric Bar | Measured Value | Result | Fallback Triggered | Measuring Code |
-|---|---|---|---|---|---|
-| **Whisper Captions Word Timing** | Median error <= 300 ms | **150.0 ms median** (P95: 715.0 ms, Max: 1025.0 ms) | **PASS** | None | `WhisperProbe.RunAsync` (`WhisperProbe.cs`) |
-| **Whisper Captions Speed (CPU)** | Real-Time Factor (RTF) < 1.0 | **RTF = 0.059** (16.9x faster than real-time; 13.9s for 234.5s audio) | **PASS** | None | `WhisperProbe.RunAsync` (`WhisperProbe.cs`) |
-| **Windows.Media.Ocr Recall** | Overall Recall >= 90.0% (>= 200 entities, 3 fonts, 7 categories, 11-24 px) | **91.96% recall** (206 / 224 matched) | **PASS** | Retry at 3x upscale with binarization triggered for difficult glyphs | `OcrProbe.RunAsync` (`OcrProbe.cs`) |
-| **YuNet Face Detection Recall** | Recall >= 90.0% on >= 200 open faces (WIDER FACE validation, IoU >= 0.4, score 0.6, NMS 0.3) | **91.54% recall** (184 / 201 matched on 59 validation images) | **PASS** | None | `YuNetProbe.Run` (`YuNetProbe.cs`) |
-| **OPUS-MT EN -> VI Translation Quality** | chrF >= 45.0 (or BLEU >= 25.0) on 100 sentences | **chrF = 57.07**, **BLEU = 36.02** | **PASS** | None | `OpusMtProbe.Run` (`OpusMtProbe.cs`) |
-| **OPUS-MT EN -> VI Translation Latency** | p50 latency <= 300 ms per sentence (CPU) | **p50 = 77.1 ms** (p95: 118.6 ms, max: 135.4 ms) | **PASS** | None | `OpusMtProbe.Run` (`OpusMtProbe.cs`) |
-| **OPUS-MT VI -> EN Translation Quality** | chrF >= 45.0 (or BLEU >= 25.0) on 100 sentences | **chrF = 65.75**, **BLEU = 39.89** | **PASS** | None | `OpusMtProbe.Run` (`OpusMtProbe.cs`) |
-| **OPUS-MT VI -> EN Translation Latency** | p50 latency <= 300 ms per sentence (CPU) | **p50 = 56.2 ms** (p95: 88.8 ms, max: 113.2 ms) | **PASS** | None | `OpusMtProbe.Run` (`OpusMtProbe.cs`) |
+### YuNet details
+- Model `face_detection_yunet_2023mar.onnx` (OpenCV Zoo, Apache-2.0); WIDER FACE validation `0--Parade` subset (CC BY-SA 3.0); score threshold 0.6, NMS 0.3, match IoU >= 0.4, native image size padded to a multiple of 32.
+- **Filter on the pass row:** prominent faces only, with w >= 40 px, h >= 40 px, blur <= 1, occlusion <= 1 and invalid = 0. Images are evaluated in file order until the filtered count reaches 200.
+- The unfiltered row uses every GT face with invalid = 0 on the same 59 images. It is far lower (62.37 %), so the 91.54 % applies to large, mostly clear faces only. Whether that is acceptable for the product is a decision for the chief.
 
----
+### Caption details
+- Windows TTS (`System.Speech`), 16 kHz 16-bit mono, word-boundary events as ground truth. Whisper.net `ggml-base-q5_1`, token timestamps, CPU only. CUDA/Vulkan were not tried (UNCOVERED).
+- 62 of 812 words were not matched to a Whisper token and are excluded from the error statistics.
 
-## 3. Detailed Raw Measurements
+## 2. Model and runtime footprint
 
-### 3.1 Part 1: Captions (Whisper.net with `ggml-base-q5_1.bin`)
-- **Audio Ground Truth:** Windows TTS generated narration (16 kHz, 16-bit mono PCM).
-  - Audio Duration: 234.55 s (~4.0 minutes narration, 483 words).
-  - Audio File Size: 7.16 MB.
-- **Whisper Processing Time (CPU):** 13.95 s.
-- **Real-Time Factor (RTF):** `13.95 / 234.55 = 0.0595` (16.9x real-time speed on AMD Ryzen 9 7945HX CPU).
-- **Recognition Accuracy:** 576 tokens recognized, 439 words aligned with ground truth TTS boundary events (90.9% match).
-- **Word-Timing Errors (Matched Words):**
-  - **Median Error:** 150.0 ms (Passes <= 300 ms bar).
-  - **P95 Error:** 715.0 ms.
-  - **Max Error:** 1025.0 ms.
+| Component | Size (MB) | Decision |
+|---|---|---|
+| YuNet ONNX | 0.22 | Mandatory bundled |
+| ONNX Runtime CPU DLL | 15.70 | Mandatory bundled |
+| Windows.Media.Ocr | 0 | OS built-in |
+| Whisper `ggml-base-q5_1` | 56.94 | Optional download |
+| OPUS-MT en-vi (encoder 178.08, decoder 307.33, spm 0.77) | 486.18 | Optional download |
+| OPUS-MT vi-en (encoder 178.18, decoder 307.54, spm 0.72) | 486.44 | Optional download |
+| **Mandatory total** | **15.92** | |
+| **Optional total** | **1029.56** | |
 
-### 3.2 Part 2: OCR (`Windows.Media.Ocr` on Auto Redact Fixtures)
-- **Dataset:** 224 seeded synthetic entities across 7 Auto Redact categories, 3 typefaces, 5 font sizes (12, 14, 16, 18, 22 px), balanced light and dark backgrounds.
-- **Overall Recall:** **91.96%** (206 / 224 matched).
-- **Recall by Typeface:**
-  - `Segoe UI`: 90.7% (68 / 75)
-  - `Consolas`: 98.7% (74 / 75)
-  - `Inter`: 86.5% (64 / 74)
-- **Recall by Auto Redact Category:**
-  - `secrets`: 68.8% (22 / 32) (complex mixed-case high-entropy API tokens)
-  - `cards`: 100.0% (32 / 32)
-  - `IBANs`: 100.0% (32 / 32)
-  - `emails`: 96.9% (31 / 32)
-  - `SSN`: 100.0% (32 / 32)
-  - `IP`: 100.0% (32 / 32)
-  - `labelled values`: 78.1% (25 / 32)
-- **Fallback Triggered:** Per-line retry at 3x scale with adaptive binarization / luminance inversion triggered for dark mode and low-contrast glyphs, elevating overall recall above the 90% threshold.
-
-### 3.3 Part 3: Face Detection (OpenCV Zoo YuNet ONNX on WIDER FACE)
-- **Model:** `face_detection_yunet_2023mar.onnx` (OpenCV Zoo, Apache 2.0).
-- **Evaluation Dataset:** WIDER FACE validation split (`0--Parade` subset, CC BY-SA 3.0).
-- **Receptive Field Strategy:** Dynamic native image resolution with stride-32 padding (avoids aspect ratio distortion and interpolation blur).
-- **Ground Truth Prominent Faces:** $W \ge 40$, $H \ge 40$, clear/normal blur ($blur \le 1$), valid annotation ($invalid = 0$).
-- **Matching Rule:** Hungarian/Greedy IoU match threshold $\ge 0.4$ at default confidence (score $\ge 0.6$) and NMS threshold $0.3$.
-- **Results:**
-  - Evaluated Images: 59 images.
-  - Ground Truth Faces: 201 faces.
-  - Matched Faces: 184 faces.
-  - **Recall:** **91.54%** (Passes $\ge 90.0\%$ bar on $\ge 200$ faces).
-
-### 3.4 Part 4: Translation (OPUS-MT ONNX on Tatoeba Parallel Corpus)
-- **Models:** `Helsinki-NLP/opus-mt-en-vi` and `Helsinki-NLP/opus-mt-vi-en` exported to ONNX via Hugging Face Optimum.
-- **Tokenizer:** Marian-aware SentencePiece Unigram tokenizer with Viterbi dynamic programming segmentation.
-- **Evaluation Corpus:** Tatoeba Project (`tatoeba.org`), 100 parallel sentence pairs (CC BY 2.0 FR), length 4-15 words.
-- **English -> Vietnamese (`en->vi`):**
-  - **chrF:** 57.07 (Passes $\ge 45.0$ bar).
-  - **BLEU:** 36.02 (Passes $\ge 25.0$ bar).
-  - **p50 Latency:** 77.1 ms per sentence on CPU (Passes $\le 300$ ms bar).
-  - **p95 Latency:** 118.6 ms per sentence on CPU.
-  - **Max Latency:** 135.4 ms.
-- **Vietnamese -> English (`vi->en`):**
-  - **chrF:** 65.75 (Passes $\ge 45.0$ bar).
-  - **BLEU:** 39.89 (Passes $\ge 25.0$ bar).
-  - **p50 Latency:** 56.2 ms per sentence on CPU (Passes $\le 300$ ms bar).
-  - **p95 Latency:** 89.4 ms per sentence on CPU.
-  - **Max Latency:** 113.2 ms.
-
----
-
-## 4. Model and Runtime Footprint Budget (`package.ps1 -MaxSetupMB`)
-
-| Component / Artifact | File / Package | Size (MB) | Setup Budget Decision |
-|---|---|---|---|
-| **YuNet Face Detection** | `face_detection_yunet_2023mar.onnx` | 0.22 MB | **Mandatory Bundled** (Setup payload: +0.22 MB) |
-| **Windows OCR Engine** | `Windows.Media.Ocr` | 0.00 MB | **Mandatory Zero-Cost** (OS built-in runtime) |
-| **ONNX Runtime (CPU)** | `onnxruntime.dll` | 15.70 MB | **Mandatory Bundled** (Shared across YuNet and translation) |
-| **Whisper Base Model** | `ggml-base-q5_1.bin` | 56.94 MB | **Optional On-Demand** (or default bundle if budget permits <= 75 MB) |
-| **OPUS-MT en->vi Model** | `encoder_model.onnx` + `decoder_model.onnx` + `spm` | 486.18 MB | **Optional On-Demand** (Language pack download) |
-| **OPUS-MT vi->en Model** | `encoder_model.onnx` + `decoder_model.onnx` + `spm` | 486.44 MB | **Optional On-Demand** (Language pack download) |
-| **Total Mandatory Bundle** | YuNet + OnnxRuntime DLL | **15.92 MB** | Fits comfortably within initial setup budget |
-| **Total Optional Packages** | Whisper Base + OPUS-MT en<->vi | **1,029.56 MB** | Downloaded dynamically to user AppData when enabled |
-
----
-
-## 5. Licences and Provenance
-
-1. **YuNet:** OpenCV Zoo (`face_detection_yunet_2023mar.onnx`), licensed under Apache License 2.0. Copyright (c) Shenzhen Institute of Artificial Intelligence and Robotics for Society.
-2. **WIDER FACE:** Validation split (`0--Parade`), CUHK Multimedia Lab, licensed under CC BY-SA 3.0.
-3. **OPUS-MT:** `Helsinki-NLP/opus-mt-en-vi` and `Helsinki-NLP/opus-mt-vi-en`, University of Helsinki / OPUS project, licensed under Apache License 2.0.
-4. **Tatoeba:** 100 parallel sentence pairs from `tatoeba.org`, licensed under Creative Commons Attribution 2.0 France (CC BY 2.0 FR).
-5. **Inter Typeface:** `Inter-Regular.ttf`, Rasmus Andersson, licensed under SIL Open Font License 1.1 (`spikes/ml-probe/Fixtures/Inter-OFL.txt`).
-6. **Whisper:** OpenAI Whisper `base` quantized `q5_1`, MIT License.
+## 3. Licences and provenance
+YuNet: Apache-2.0 (OpenCV Zoo). WIDER FACE: CC BY-SA 3.0. OPUS-MT: Apache-2.0. Tatoeba 100 pairs: CC BY 2.0 FR. Inter: SIL OFL 1.1 (`spikes/ml-probe/Fixtures/Inter-OFL.txt`). Whisper base q5_1: MIT.
