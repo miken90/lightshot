@@ -7,3 +7,7 @@ PowerSetRequest
 PowerClearRequest
 WTSQuerySessionInformation
 Shell_NotifyIcon
+DCompositionCreateDevice
+IDCompositionDevice
+IDCompositionTarget
+IDCompositionVisual

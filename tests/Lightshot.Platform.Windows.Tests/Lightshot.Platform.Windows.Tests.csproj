@@ -16,6 +16,8 @@
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
     <PackageReference Include="Vortice.Direct3D11" />
+    <PackageReference Include="Vortice.Direct2D1" />
+    <PackageReference Include="Vortice.DXGI" />
     <PackageReference Include="Vortice.MediaFoundation" />
   </ItemGroup>
 </Project>
