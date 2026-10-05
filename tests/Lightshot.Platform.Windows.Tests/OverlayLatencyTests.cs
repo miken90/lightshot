@@ -55,18 +55,70 @@ public class OverlayLatencyTests
         var latencies = new List<double>();
         const int iterations = 20;
 
-        factory.EnumAdapters1(0, out var adapter);
-        adapter!.EnumOutputs(0, out var output);
+        IDXGIAdapter1? adapter = null;
+        IDXGIOutput? output = null;
+
+        var primaryMon = monitors.FirstOrDefault(m => m.IsPrimary) ?? monitors[0];
+
+        for (uint i = 0; factory.EnumAdapters1(i, out var ad).Success; i++)
+        {
+            if (ad == null) continue;
+            for (uint j = 0; ad.EnumOutputs(j, out var op).Success; j++)
+            {
+                if (op == null) continue;
+                if (op.Description.AttachedToDesktop)
+                {
+                    var coords = op.Description.DesktopCoordinates;
+                    if (coords.Left == (int)primaryMon.Bounds.MinX && coords.Top == (int)primaryMon.Bounds.MinY)
+                    {
+                        adapter = ad;
+                        output = op;
+                        break;
+                    }
+                    if (output == null)
+                    {
+                        adapter = ad;
+                        output = op;
+                    }
+                    else
+                    {
+                        op.Dispose();
+                    }
+                }
+                else
+                {
+                    op.Dispose();
+                }
+            }
+            if (output != null && adapter == ad) break;
+            ad.Dispose();
+        }
+
+        Assert.NotNull(adapter);
+        Assert.NotNull(output);
+
         D3D11.D3D11CreateDevice(adapter, DriverType.Unknown, DeviceCreationFlags.BgraSupport,
             new[] { FeatureLevel.Level_11_0 }, out ID3D11Device? device, out ID3D11DeviceContext? context);
-        using var output1 = output!.QueryInterface<IDXGIOutput1>();
+        using var output1 = output.QueryInterface<IDXGIOutput1>();
 
         IDXGIOutputDuplication? dup = null;
         ID3D11Texture2D? staging = null;
 
         try
         {
-            dup = output1.DuplicateOutput(device!);
+            for (int retry = 0; retry < 5; retry++)
+            {
+                try
+                {
+                    dup = output1.DuplicateOutput(device!);
+                    if (dup != null) break;
+                }
+                catch (SharpGen.Runtime.SharpGenException) when (retry < 4)
+                {
+                    Thread.Sleep(50);
+                }
+            }
+            Assert.NotNull(dup);
 
             shell.Invoke(() =>
             {

@@ -183,6 +183,10 @@ public static class LightshotSessionHelper {
             }
         }
 
+        if ($t -eq "Desktop" -or $t -eq "Media") {
+            $testArgs += @("--max-parallel-test-modules", "1", "--parallel", "none")
+        }
+
         Write-Log "Executing: dotnet $($testArgs -join ' ')..."
         & $dotnetExe @testArgs
         $runExitCode = $LASTEXITCODE

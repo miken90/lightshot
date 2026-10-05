@@ -1,4 +1,6 @@
 using System.Diagnostics;
+using System.IO;
+using System.Threading;
 using Lightshot.TestSupport;
 using Xunit;
 
@@ -34,6 +36,18 @@ public class TrayStubTests
             }
         }
 
+        // Ensure no previous instances are running and mutex is released
+        foreach (var p in Process.GetProcessesByName("Lightshot.App"))
+        {
+            try
+            {
+                p.Kill();
+                p.WaitForExit(1000);
+            }
+            catch { }
+        }
+        Thread.Sleep(500);
+
         using var process = Process.Start(psi);
         Assert.NotNull(process);
 
@@ -41,10 +55,14 @@ public class TrayStubTests
         {
             // Allow the process to initialize its mutex and quit event
             bool eventOpened = false;
-            for (int i = 0; i < 20; i++)
+            for (int i = 0; i < 30; i++)
             {
                 Thread.Sleep(200);
-                if (process.HasExited) break;
+                if (process.HasExited)
+                {
+                    Assert.Fail($"App process exited prematurely with exit code {process.ExitCode}.");
+                    break;
+                }
                 try
                 {
                     using var handle = EventWaitHandle.OpenExisting(@"Local\Lightshot.Quit");
