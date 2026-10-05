@@ -49,17 +49,17 @@ Create under `src/Lightshot.App/`:
 | `AppController.cs` | Composition root; implements the `CaptureUI` subset needed here |
 | `Views/Editor/EditorWindow.xaml(.cs)`, `EditorViewModel.cs`, `ToolPalette.xaml`, `StyleBar.xaml`, `CanvasHost.cs` (`SKElement`), `SelectionAdorner.cs`, `ColorPopup.xaml`, `CropOverlay.cs`, `TextEditorBox.cs` | Annotation editor |
 | `Views/Notices/ErrorDialog.xaml` | Capture failure and DRM-black notices |
-| `Resources/Icons/*.xaml` | Original vector tool icons (no SF Symbols) |
+| `Resources/Icons/*.xaml` | Original vector tool icons (no SF Symbols); art review gate per Boom rule 8 (cc-art, then Kongming frame review; never agy) |
 
-Create tests: `tests/Lightshot.Platform.Windows.Tests/{DisplayMathTests.cs, DdaCaptureTests.cs, WindowEnumeratorTests.cs, OverlayLatencyTests.cs, OverlayExclusionTests.cs, HotkeyServiceTests.cs, ClipboardSinkTests.cs, FileImageSinkTests.cs, BlackFrameDetectorTests.cs}`, `tests/Lightshot.App.Tests/EditorViewModelTests.cs`, `tests/Lightshot.App.UiTests/EditorFlowTests.cs`, `docs/manual-checklist.md`.
+Create tests: `tests/Lightshot.Platform.Windows.Tests/{DisplayMathTests.cs, DdaCaptureTests.cs, WindowEnumeratorTests.cs, OverlayLatencyTests.cs, OverlayExclusionTests.cs, HotkeyServiceTests.cs, ClipboardSinkTests.cs, FileImageSinkTests.cs, BlackFrameDetectorTests.cs}`, `tests/Lightshot.App.Tests/{EditorViewModelTests.cs, CanvasHostTests.cs}`, `tests/Lightshot.App.UiTests/EditorFlowTests.cs`, `docs/manual-checklist.md`.
 
-Modify: `src/Lightshot.App/Program.cs`, `App.xaml.cs` (wire coordinator), `src/Lightshot.Core/Hotkeys/` (defaults only, after the question on default chords is answered).
+Modify: `src/Lightshot.App/Program.cs`, `App.xaml.cs` (wire coordinator). (Core Hotkeys defaults resolved in phase 3: PrintScreen = area, Ctrl+PrintScreen = fullscreen; phase 4 registers them).
 
-Conditional (only if the capture spike shows a border): `src/Lightshot.App/Identity/SparsePackage.xml`, `scripts/register-sparse.ps1`.
+Sparse package fallback deleted: requires trusted code signing certificate, violating Q4. Fallback is DDA for displays (no border exists), `PrintWindow(PW_RENDERFULLCONTENT)` for window stills, accept WGC border for window recording as documented DEGRADE.
 
 ## Implementation steps
 
-1. Shell thread and dispatcher; hotkey window; register defaults (recommended: PrintScreen = area, Ctrl+PrintScreen = fullscreen; every other action unbound like the source) and report failed registrations via `register -> [CaptureAction]`.
+1. Shell thread and dispatcher; hotkey window; register defaults (PrintScreen = area, Ctrl+PrintScreen = fullscreen, resolved 2026-10-05; every other action unbound like the source) and report failed registrations via `register -> [CaptureAction]`.
 2. Display topology: enumerate monitors with `EnumDisplayMonitors`, `GetDpiForMonitor`, adapter LUID via DXGI; subscribe to `WM_DISPLAYCHANGE` and DPI changes.
 3. Capture sources per spike verdict; BGRA surfaces; cursor drawn with `GetCursorInfo` when `includeCursor`; black-frame detector raises a "protected content" notice; HDR frames tone-mapped.
 4. Window picker: candidate list in z-order, DWM frame bounds minus shadow, filter cloaked, minimised and own windows; per-window clean image for occluded windows via WGC (fallback `PrintWindow`).
@@ -91,7 +91,7 @@ Conditional (only if the capture spike shows a border): `src/Lightshot.App/Ident
 | Redaction defaults to Pixelate on each open | `Lightshot.App.Tests.EditorViewModelTests.RedactionDefaultsToPixelate` (`Unit`) |
 | Window cap 90% x 85% of work area | `Lightshot.App.Tests.EditorViewModelTests.WindowSizeCappedToWorkArea` (`Unit`) |
 | Area capture, draw an arrow, copy and close end to end | `Lightshot.App.UiTests.EditorFlowTests.DrawArrowCopyAndClose` (`Desktop`, FlaUI) |
-| Preview equals export in the editor | `Lightshot.Rendering.Tests.DocumentRenderTests.PreviewPatchEqualsExportPatch` (phase 3), asserted again by `Lightshot.App.UiTests.EditorFlowTests.CanvasPixelsEqualExportedPng` (`Desktop`) |
+| Preview equals export in the editor | `Lightshot.Rendering.Tests.DocumentRenderTests.PreviewPatchEqualsExportPatch` (phase 3), asserted again by `Lightshot.App.Tests.CanvasHostTests.BackingBitmapEqualsExport` (`Render`; compares canvas backing `SKBitmap` at 100% with export bytes) |
 | Esc cancels, bare click captures nothing, adjustable selection confirm/replace | Core `AppCoordinatorTests` plus `EditableSelectionTests` (phase 3); overlay key delivery covered by `Lightshot.Platform.Windows.Tests.OverlayLatencyTests.KeysReachOverlay` (`Desktop`) |
 | Tray menu rebuilds on open with live chords | UNCOVERED by automation: native popup menus are not UIA-accessible reliably; `docs/manual-checklist.md` item |
 | HDR and mixed-DPI visual correctness | UNCOVERED: needs HDR and mixed-DPI monitors; manual checklist item, host dependent |
@@ -106,14 +106,14 @@ Disable the hotkey registration and tray (revert the `AppController` wiring comm
 | Risk | L | I | Mitigation |
 |---|---|---|---|
 | Foreground not granted after the hotkey, so Esc does nothing | M | H | `ForegroundGrant` with Alt-key fallback; spike D proved it |
-| Windows 11 claims PrintScreen | M | M | Detect the setting and show guidance; chord choice is settable; question 5 |
+| Windows 11 claims PrintScreen | M | M | Detect the setting and show guidance; chord choice is settable (default PrintScreen = area, Ctrl+PrintScreen = fullscreen resolved 2026-10-05) |
 | Hybrid GPU makes DDA fail on one monitor | M | H | Per-output adapter device; WGC fallback per spike A |
 | Overlay latency over 150 ms on 3 x 4K | M | M | Surfaces stay on the GPU; pre-warmed hidden windows if needed |
 | Window picker shows invisible or cloaked UWP windows | M | M | Cloaked and `DWMWA_CLOAKED` filter plus class denylist |
 | DRM windows come out black | H | L | Detect and notify |
 | Clipboard contention (another app holds the clipboard) | M | L | Retry with backoff, then error notice |
 | Skia preview slow at 5K | M | M | Cache base and patches; redraw dirty elements only; measure in checklist |
-| Sparse-package fallback needed | L | M | Conditional files listed; keep outside default build |
+| WGC border on unpackaged window capture | L | M | DDA for displays (no border); `PrintWindow` for window stills; accept border for window recording as documented DEGRADE (sparse package deleted) |
 
 ## Dependencies
 

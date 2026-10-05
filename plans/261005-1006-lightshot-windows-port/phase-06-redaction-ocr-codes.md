@@ -1,6 +1,6 @@
 # Phase 6: Auto Redact, OCR Text, QR/barcode
 
-Status: pending | Effort: 9d | Priority: P1 | Depends on: phase 4 (phase 5 for the Advanced pane)
+Status: pending | Effort: 9d | Priority: P1 | Depends on: Phase 4, Phase 5 (runs sequentially after phase 5; parallel only for Ml/ and its tests), Phase 2 (verdict E)
 
 ## Overview
 
@@ -44,9 +44,9 @@ Create under `src/Lightshot.App/`:
 
 Add assets: `assets/models/face_detection_yunet_2023mar.onnx` entry in `assets/models.lock.json` (MIT, SHA-256 pinned, fetched by `fetch-models.ps1`).
 
-Tests: `tests/Lightshot.Platform.Windows.Tests/{OcrPreprocessorTests.cs, OcrFixtureTests.cs, ZXingCodeReaderTests.cs, YuNetDecoderTests.cs, YuNetFaceDetectorTests.cs, PhoneLinkDetectorTests.cs, AutoRedactFixtureTests.cs}`, `tests/Lightshot.Platform.Windows.Tests/Fixtures/` (images generated at test time with `Lightshot.Rendering` plus static QR/face images with licences recorded), `tests/Lightshot.App.Tests/AutoRedactControllerTests.cs`, `tests/Lightshot.App.UiTests/TextCaptureFlowTests.cs`.
+Tests: `tests/Lightshot.Platform.Windows.Tests/{OcrPreprocessorTests.cs, OcrFixtureTests.cs, ZXingCodeReaderTests.cs, YuNetDecoderTests.cs, YuNetFaceDetectorTests.cs, PhoneLinkDetectorTests.cs, AutoRedactFixtureTests.cs}`, `tests/Lightshot.Platform.Windows.Tests/Fixtures/` (images generated at test time with `Lightshot.Rendering` plus static QR/face images with licences recorded; openly licensed fixtures only, never user or children photos, using the WIDER FACE validation subset of >=200 faces from Spike E), `tests/Lightshot.App.Tests/AutoRedactControllerTests.cs`, `tests/Lightshot.App.UiTests/TextCaptureFlowTests.cs`.
 
-Modify: `Lightshot.Core.Tests/AutoRedactTests` is not edited; detector-dependent cases are added in `PhoneLinkDetectorTests`. `AppController.cs` (CaptureUI text status), `TrayMenu.cs` (OCR Text item, disabled while recording), `Hotkeys` (OCR Text has no default chord, like the source).
+Modify: `Lightshot.Core.Tests/AutoRedactTests` is not edited; detector-dependent cases are added in `PhoneLinkDetectorTests`. `AppController.cs` (CaptureUI text status), `TrayMenu.cs` (OCR Text item, disabled while recording). (Hotkeys: no default chord, nothing to change in Core).
 
 ## Implementation steps
 
@@ -69,17 +69,17 @@ Modify: `Lightshot.Core.Tests/AutoRedactTests` is not edited; detector-dependent
 | QR/barcode wins over text; notice wording; never opened | `Lightshot.Core.Tests.AppCoordinatorTests` ported `captureText`/`codeCapture` cases |
 | ZXing decodes QR and 1D codes, several per image | `Lightshot.Platform.Windows.Tests.ZXingCodeReaderTests.DecodesMultipleCodes` (`Unit`) |
 | Tiling and upscale remap boxes correctly | `Lightshot.Platform.Windows.Tests.OcrPreprocessorTests.TilesRemapAndDeduplicate` (`Unit`) |
-| OCR reads rendered fixtures | `Lightshot.Platform.Windows.Tests.OcrFixtureTests.ReadsRenderedCategoriesAtLeast90Percent` (`Media` tier: needs the OCR language pack) |
+| OCR reads rendered fixtures (exact match after whitespace normalisation across >=200 entities, 3 fonts Segoe UI/Consolas/Inter, 11-24px, light/dark) | `Lightshot.Platform.Windows.Tests.OcrFixtureTests.ReadsRenderedCategoriesAtLeast90Percent` (`Media` tier: needs the OCR language pack) |
 | Missing language pack produces guidance, not a crash | `Lightshot.Platform.Windows.Tests.OcrFixtureTests.MissingLanguageReturnsTypedError` (`Unit`, fake engine factory) |
 | Scanner rules: Luhn, IBAN, SSN, key prefixes, labelled values, entropy | `Lightshot.Core.Tests.AutoRedactTests` (21 scanner cases, phase 3) |
 | Phone, link, address detection pinned | `Lightshot.Platform.Windows.Tests.PhoneLinkDetectorTests` (new fixtures, `Unit`) |
 | Weak matches dropped when overlapping strong ones | `Lightshot.Core.Tests.AutoRedactTests` ported overlap cases |
-| YuNet decoding is deterministic and finds faces | `Lightshot.Platform.Windows.Tests.YuNetDecoderTests.DecodesKnownTensorToBoxes` (`Unit`, canned tensor), `YuNetFaceDetectorTests.FindsFacesAtLeast90Percent` (`Media`) |
+| YuNet decoding is deterministic and finds faces (openly licensed fixtures only, never user or children photos; >=200 faces from WIDER FACE subset per Spike E) | `Lightshot.Platform.Windows.Tests.YuNetDecoderTests.DecodesKnownTensorToBoxes` (`Unit`, canned tensor), `YuNetFaceDetectorTests.FindsFacesAtLeast90Percent` (`Media`) |
 | Auto Redact is one undo step and categories default correctly | `Lightshot.App.Tests.AutoRedactControllerTests.AddsAllBoxesAsOneUndoStep` (`Unit`) and ported `AutoRedactTests` plan/undo cases |
 | End to end: OCR Text hotkey copies text and shows the HUD | `Lightshot.App.UiTests.TextCaptureFlowTests.CopiesTextAndShowsNotice` (`Desktop`) |
 | HUD stays out of captures | `Lightshot.Platform.Windows.Tests.OverlayExclusionTests.ExcludedWindowAbsentFromDdaAndWgc` extended with the HUD (`Desktop`) |
 | No network use | `Lightshot.Architecture.Tests.NetworkPolicyTests` (created in phase 9; until then `Lightshot.Architecture.Tests.AssemblyReferenceTests.NoHttpClientInMlNamespace`, `Unit`) |
-| Vision-parity OCR quality | UNCOVERED: no macOS host; ground-truth fixtures substitute (plan.md question 8) |
+| Vision-parity OCR quality | UNCOVERED: no macOS host; ground-truth fixtures substitute (resolved decision 2026-10-05) |
 
 ## Rollback
 
@@ -99,4 +99,4 @@ All features are additive and isolated in `Ml/`. Disable by removing the hotkey 
 
 ## Dependencies
 
-Phase 4 (editor, capture, HUD placement helpers), phase 3 (scanner, `TextCapture`), phase 2 verdict E (thresholds, bundle budget). Phase 5 supplies the Advanced pane. Blocks phase 10.
+Phase 4 (editor, capture, HUD placement helpers), phase 3 (scanner, `TextCapture`), phase 2 verdict E (thresholds, bundle budget). Runs sequentially after phase 5 (parallel work allowed only for `Ml/` folder and its tests while phase 5 runs; phase 5 supplies the Advanced pane). Blocks phase 10.

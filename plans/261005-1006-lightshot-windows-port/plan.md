@@ -3,7 +3,7 @@ title: "Lightshot for Windows: full-parity native port"
 description: "Ten-phase plan to port the macOS Lightshot app (screenshots, recording, Studio) to a native Windows 11 app on C#/.NET 10, WPF, Win32/DComp, D3D11 and SkiaSharp."
 status: pending
 priority: P1
-effort: 128d
+effort: 160-180d
 branch: main
 tags: [windows, dotnet, wpf, port, capture, recording, studio, skia, direct3d]
 blockedBy: []
@@ -15,14 +15,14 @@ created: 2026-10-05
 
 ## Outcome
 
-A Windows 11 (build 22621+) per-user app, installed by Velopack, that matches the macOS Lightshot feature set: screenshots with annotation and redaction, OCR and QR, pin, Quick Access, history, recording with audio, camera, clicks and keystrokes, a video editor, and Studio with on-device captions. It is local-only except for one signed update check. The plan is planning only; no product code is written here.
+A Windows 11 (build 22621+) per-user app, installed by Velopack, that matches the macOS Lightshot feature set: screenshots with annotation and redaction, OCR and QR, pin, Quick Access, history, recording with audio, camera, clicks and keystrokes, a video editor, and Studio with on-device captions. It is local-only except for one ECDSA-verified update check. The plan is planning only; no product code is written here.
 
 ## Reference inputs (all under `/home/canhnguyen/WORKSPACES/AI/boom/plans/reports/`)
 
 | Short name | File | Used for |
 |---|---|---|
 | RULING | `xia-261005-0949-lightshot-windows-port-stack-ruling.md` | Accepted decisions, spikes, risks. Binding. |
-| KIT | `xia-261005-0949-lightshot-windows-port-kit-anatomy.md` | Domain core modules, protocols, 41 test classes (~556 tests), constants. |
+| KIT | `xia-261005-0949-lightshot-windows-port-kit-anatomy.md` | Domain core modules, protocols, 41 test classes (595 tests across 41 classes; authoritative count from cloned manifest), constants. |
 | APP | `xia-261005-0949-lightshot-windows-port-app-anatomy.md` | App shell files, macOS API matrix, settings keys, recording pipeline. |
 | SPECS | `xia-261005-0949-lightshot-windows-port-specs-anatomy.md` | Feature areas, 19 invariants, 24 Windows risks. |
 
@@ -30,26 +30,26 @@ A Windows 11 (build 22621+) per-user app, installed by Velopack, that matches th
 
 | # | File | Usable slice shipped | Effort | Status | Depends on |
 |---|---|---|---|---|---|
-| 1 | [phase-01-scaffold-and-scripts.md](phase-01-scaffold-and-scripts.md) | Buildable, testable repo driven from WSL; empty tray app launches | 2d | pending | none |
-| 2 | [phase-02-spikes-and-go-no-go.md](phase-02-spikes-and-go-no-go.md) | Five measured verdicts and a go/no-go record | 10d | pending | 1 |
-| 3 | [phase-03-core-and-rendering.md](phase-03-core-and-rendering.md) | Tested domain library and deterministic `render()` | 12d | pending | 1, 2 (gate) |
-| 4 | [phase-04-capture-editor-mvp.md](phase-04-capture-editor-mvp.md) | **First usable app**: hotkey, area/window/display capture, editor, copy/save | 18d | pending | 3 |
+| 1 | [phase-01-scaffold-and-scripts.md](phase-01-scaffold-and-scripts.md) | Buildable, testable repo driven from WSL; empty tray app launches | 3d | pending | none |
+| 2 | [phase-02-spikes-and-go-no-go.md](phase-02-spikes-and-go-no-go.md) | Five measured verdicts and a go/no-go record | 13-15d | pending | 1 |
+| 3 | [phase-03-core-and-rendering.md](phase-03-core-and-rendering.md) | Tested domain library and deterministic `render()` | 12d | pending | 1 (only Core/Capture interfaces wait for spike A verdict; split gates: A, D gate 4; B gates 7; C gates 8; E gates 6, 8, 10) |
+| 4 | [phase-04-capture-editor-mvp.md](phase-04-capture-editor-mvp.md) | **First usable app**: hotkey, area/window/display capture, editor, copy/save | 18d | pending | 3, 2 (spikes A, D) |
 | 5 | [phase-05-pin-quickaccess-history-settings.md](phase-05-pin-quickaccess-history-settings.md) | Pin, Quick Access, history, settings, onboarding, light/dark, launch at login | 14d | pending | 4 |
-| 6 | [phase-06-redaction-ocr-codes.md](phase-06-redaction-ocr-codes.md) | Auto Redact, OCR Text, QR/barcode | 9d | pending | 4 (5 for settings panes) |
-| 7 | [phase-07-recording.md](phase-07-recording.md) | Video/GIF recording, audio, camera, input overlays, video editor | 25d | pending | 2, 4, 5 |
-| 8 | [phase-08-studio.md](phase-08-studio.md) | Studio editor, auto zoom, cursor from data, backgrounds, captions, export | 25d | pending | 3, 7 |
-| 9 | [phase-09-update-and-release.md](phase-09-update-and-release.md) | Signed update check, installer, release script | 6d | pending | 4 (5, 7, 8 for the full app) |
-| 10 | [phase-10-translation.md](phase-10-translation.md) | OCR Translate window with local language packs | 7d | pending | 6, 9 |
+| 9 | [phase-09-update-and-release.md](phase-09-update-and-release.md) | ECDSA-verified update check, installer, release script (first public release has updater) | 6d | pending | 1, 4, 5 |
+| 6 | [phase-06-redaction-ocr-codes.md](phase-06-redaction-ocr-codes.md) | Auto Redact, OCR Text, QR/barcode | 9d | pending | 4, 5 (run sequentially after 5; parallel only for Ml/ and its tests), 2 (spike E) |
+| 7 | [phase-07-recording.md](phase-07-recording.md) | Video/GIF recording, audio, camera, input overlays, video editor | 30-40d | pending | 2 (spike B), 4, 5 |
+| 8 | [phase-08-studio.md](phase-08-studio.md) | Studio editor, auto zoom, cursor from data, backgrounds, captions, export | 35-45d | pending | 3, 2 (spikes C, E), 7 |
+| 10 | [phase-10-translation.md](phase-10-translation.md) | OCR Translate window with bundled en<->vi and local language packs | 7d | pending | 2 (spike E), 6, 9 |
 
-Total: 128 working days for one engineer (about 26 weeks). Phases 5 and 6 may run in parallel after phase 4 only under the file-ownership table below.
+Total: 160-180 working days for one engineer (about 32-36 weeks). Phases 5 and 6 run in sequence (parallel work allowed only for phase 6's `Ml/` folder and its tests while phase 5 runs).
 
 ### Order adjustments against the suggested order, and why
 
 1. Phases 1 to 3 are foundations, not end-user slices. Each still ships a gated artefact (working scripts, a go/no-go record, a tested library). The first end-user slice is phase 4. This cannot be earlier because nothing user-visible exists before capture, overlay and editor are wired.
 2. Manual redaction (blackout, blur, pixelate) is part of the editor and `render()`, so it ships in phase 4. Phase 6 adds only Auto Redact, OCR and QR/barcode.
 3. `DesktopCover` (hide desktop icons) is built in phase 5 beside its setting and reused by recording in phase 7. It is not in phase 7 because screenshots use it too (SPECS 1.13).
-4. The sparse-package work is conditional. It runs inside phase 4 (capture border) and phase 9 (install hook) only if the capture spike verdict requires it.
-5. A local, unsigned installer is produced from phase 1 onward by `package.ps1`, so every phase is installable. Phase 9 adds signing, the update path and the release script.
+4. Sparse-package fallback deleted (requires trusted signature, breaking Q4). Fallback is DDA for display capture (no border exists); for window stills PrintWindow(PW_RENDERFULLCONTENT); if WGC still shows a border unpackaged, accept it for window recording only and document a DEGRADE.
+5. A local, unsigned installer is produced from phase 1 onward by `package.ps1`, so every phase is installable. Phase 9 runs straight after phase 5 so the first public release (screenshot tool) includes the ECDSA-verified update path and the release script. Builds are never Authenticode-signed (decision 2026-10-05). Re-run the size gate on every later release.
 
 ## Source manifest and attribution duty
 
@@ -76,8 +76,8 @@ Derived code includes the ported Core, ported tests, algorithms and constants, a
 | C#/.NET 10 LTS, WPF shell, raw Win32/DComp overlays, D3D11/D2D/MF via Vortice and CsWin32 | RULING §2 |
 | `render()` and editor preview on SkiaSharp CPU raster, bundled font, own scalar deterministic blur | RULING §3 |
 | Studio compositor and burn-in on D3D11 + D2D + DirectWrite; one `Render(state, t, target)` for preview and export | RULING §3 |
-| Windows 11 only, min build 22621, tested on 26100 and 26200 | RULING §4 |
-| Unpackaged Velopack; ECDSA-signed manifest plus SHA-256; sparse package if borderless capture fails; no full MSIX | RULING §5 |
+| Windows 11 only, min build 22621, tested on 26200 (26100 UNCOVERED or covered on windows-latest CI runner) | RULING §4 |
+| Unpackaged Velopack; ECDSA-signed manifest plus SHA-256; no sparse package (requires signing); DDA for borderless display capture, PrintWindow/DEGRADE fallback for windows; no full MSIX | RULING §5 |
 | DDA for display and area recording; WGC for windows | RULING §5 |
 | ML: `Windows.Media.Ocr`, ZXing.Net, YuNet ONNX, Whisper.net base q5 bundled, OPUS-MT last | RULING §6 |
 | Hide notifications is detection plus guidance only; hide desktop icons is an `IDesktopWallpaper` cover window | RULING §6 |
@@ -130,22 +130,22 @@ Studio: MF decode -> D3D11 -> StudioCompositor.Render(state, t, target) -> swapc
 | `src/Lightshot.Platform.Windows/{Recording,Audio,Camera,Input,Media}/` | 7 | |
 | `src/Lightshot.Platform.Windows/Studio/` | 8 | |
 | `src/Lightshot.Platform.Windows/Updates/`, `tools/Lightshot.ReleaseTool/` | 9 | |
-| `src/Lightshot.App/Views/Editor/**` | 4; phase 6 adds one file `AutoRedactController.cs` plus one registration line in `EditorWindow.xaml.cs`, merged by the phase-6 owner after phase 4 closes | Phases 5 and 6 never touch each other's Views folders |
+| `src/Lightshot.App/Views/Editor/**` | 4; phase 6 adds one file `AutoRedactController.cs` plus one registration line in `EditorWindow.xaml.cs`, merged by the phase-6 owner after phase 4 closes | Phases 5 and 6 run in sequence; never touch each other's Views folders |
 | `src/Lightshot.App/Views/Settings/**` | 5; phase 7 adds `RecordingPane.*`, phase 8 `StudioPane` is not needed, phase 10 adds `TranslationPane.*` | New files only |
 
 ## Risk summary (full tables in each phase)
 
 | Risk | Likelihood | Impact | Phase | Mitigation |
 |---|---|---|---|---|
-| Unpackaged borderless WGC or DDA fails on the hybrid-GPU laptop | Medium | High | 2, 4 | Capture spike; adapter-matched D3D device; sparse-package fallback |
+| Unpackaged borderless WGC or DDA fails on the hybrid-GPU laptop | Medium | High | 2, 4 | Capture spike; adapter-matched D3D device; DDA for displays, PrintWindow for stills, accept WGC window border as DEGRADE |
 | Real-time recording misses A/V sync or drops frames | Medium | High | 2, 7 | Recording spike with numeric gates; FFmpeg muxing-only fallback |
 | Studio compositor in WPF cannot hold 60 fps or pixel-equals-export | Medium | High | 2, 8 | Compositor spike; `D3DImage` host before changing UI stack |
 | Overlay latency, focus or `WH_KEYBOARD_LL` timeout | Medium | High | 2, 4, 7 | Overlay spike; hook thread only enqueues |
 | OCR, Whisper, YuNet quality under bar | Medium | Medium | 2, 6, 8 | ML spike sets bundle budget; manual larger-model import |
-| Pixel goldens drift across CPUs | Medium | Medium | 3 | Own scalar blur and scramble, exact goldens; Skia 1-2 LSB tolerance; two-machine check |
-| Scope size (128d) | High | Medium | all | Each phase is releasable; Studio and Translation last |
+| Pixel goldens drift across CPUs | Medium | Medium | 3 | Own scalar blur and scramble, exact goldens; Skia 1-2 LSB tolerance; two-machine check or windows-latest CI runner |
+| Scope size (160-180d) | High | Medium | all | Each phase is releasable; Studio and Translation last |
 | Execution policy, session 0 or WSL path problems running scripts | Medium | Medium | 1 | Policy check in `setup.ps1`; NTFS paths only; session probe test |
-| Antivirus flags the low-level hook | Medium | Medium | 7 | Dedicated thread, no network, document; Authenticode if bought |
+| Antivirus flags the low-level hook | Medium | Medium | 7 | Hooks installed only while a recording runs; submit each release to the Microsoft Defender false-positive portal; scan with VirusTotal before publishing; open-source build instructions |
 
 ## Rollback strategy
 
@@ -156,15 +156,17 @@ The repo is greenfield, so each phase is one reviewable commit series that can b
 - All ~450 pure tests pass on plain `net10.0` with zero Windows or package references in Core (`CoreAssemblyTests.HasNoPackageOrWindowsReferences`).
 - Render goldens pass on two different machines.
 - Hotkey-to-overlay under 150 ms; recording meets the recording spike targets on the host laptop; Studio preview pixels equal export pixels on WARP.
-- No network traffic except the signed update check (`NetworkPolicyTests`, plus a firewall-log check in phase 9).
+- No network traffic except the ECDSA-verified update check (`NetworkPolicyTests`, plus a firewall-log check in phase 9; note: `releases/latest/download` redirects to `objects.githubusercontent.com`, so network check must allow both hosts).
 
-## Unresolved questions
+## Resolved decisions (2026-10-05)
 
-1. Store channel wanted in addition to direct download? (RULING recommends direct only; a Store build would add an MSIX build.)
-2. Installer size budget? The Whisper base model alone is about 60 MB; `package.ps1` fails above `-MaxSetupMB` (default 300) until answered.
-3. Which translation language pairs to bundle at launch (one or two)?
-4. Will Authenticode signing be purchased (for example Azure Artifact Signing), or are SmartScreen warnings accepted?
-5. Default hotkeys replacing Cmd+Ctrl+3 and Cmd+Ctrl+4. Recommend PrintScreen variants (PrintScreen = area, Ctrl+PrintScreen = fullscreen), after the overlay spike confirms the OS PrintScreen claim can be taken over.
-6. Font replacing Helvetica. Recommend bundled Inter (OFL).
-7. Port licence. Recommend MIT with the original attribution kept.
-8. OCR recall gate: no macOS host exists to measure the Vision baseline. Recommend measuring recall against ground truth of rendered fixtures instead. Acceptable?
+- direct download, GitHub Releases on `miken90/lightshot`;
+- Whisper base q5 bundled;
+- en<->vi translation;
+- never sign;
+- Windows 11 22621+ only;
+- PrintScreen = area, Ctrl+PrintScreen = fullscreen, with Snipping Tool claim detection;
+- fix the primary-display rect-recording bug;
+- bundled Inter font;
+- MIT licence keeping "(c) 2026 Viet Le";
+- OCR recall measured against rendered-fixture ground truth.

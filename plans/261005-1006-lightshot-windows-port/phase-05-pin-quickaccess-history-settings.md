@@ -44,7 +44,7 @@ Create under `src/Lightshot.App/`:
 | `Views/Settings/SettingsWindow.xaml(.cs)`, `GeneralPane.*`, `ShortcutsPane.*`, `ScreenshotsPane.*`, `AdvancedPane.*`, `AboutPane.*`, `AfterCapturePane.*`, `HotkeyRecorder.xaml(.cs)`, `SettingsViewModel.cs` | Settings |
 | `Views/Onboarding/OnboardingWindow.xaml(.cs)`, `OnboardingViewModel.cs` | First-run checklist (wraps ported `PermissionOnboardingModel`) |
 | `Theming/ThemeService.cs`, `Theming/Themes/Light.xaml`, `Dark.xaml`, `Theming/PaletteBridge.cs` | `ThemeMode` Fluent plus `ThemePalette` tokens |
-| `Resources/Icons/app.ico`, `tray-light.ico`, `tray-dark.ico` | Original icons derived from the upstream icon set (MIT, attributed) |
+| `Resources/Icons/app.ico`, `tray-light.ico`, `tray-dark.ico` | Original icons derived from the upstream icon set (MIT, attributed). Art review gate per Boom rule 8 (`cc-art`, then Kongming frame review, never agy) |
 
 Modify: `AppController.cs` (CaptureUI additions: Quick Access, pin, history), `Tray/TrayMenu.cs` (enable History and Settings), `EditorWindow.xaml.cs` (Pin action), `THIRD-PARTY-NOTICES.md`.
 
@@ -82,8 +82,7 @@ Create tests: `tests/Lightshot.Platform.Windows.Tests/{LaunchAtLoginTests.cs, Js
 | Onboarding completes once; PrintScreen claim detected | `Lightshot.App.Tests.OnboardingViewModelTests.CompletesOnceAndDetectsPrintScreenClaim` (`Unit`) and ported `PermissionOnboardingModelTests` |
 | Launch at login writes and removes the Run value | `Lightshot.Platform.Windows.Tests.LaunchAtLoginTests.WritesAndRemovesRunValue` (`Desktop`; uses a test-scoped Run subkey name) |
 | Desktop cover hides icons in a still and is torn down on cancel and error | `Lightshot.Platform.Windows.Tests.DesktopCoverTests.IconsAbsentFromStillAndCoverRemoved` (`Desktop`) |
-| Settings window flow (change format, close, reopen persists) | `Lightshot.App.UiTests.SettingsFlowTests.FormatChangePersists` (`Desktop`) |
-| Light/dark visual quality, card slide-in animation, tray overflow guidance | UNCOVERED: visual judgement; manual checklist |
+| Light/dark visual quality, card slide-in animation, tray overflow guidance | UNCOVERED: visual judgement; manual checklist. App and tray icons: art review gate per Boom rule 8 (`cc-art`, then Kongming frame review, never agy) |
 
 ## Rollback
 
@@ -103,4 +102,4 @@ Each feature is a separate folder; revert per feature. `settings.json` gains onl
 
 ## Dependencies
 
-Phase 4 (editor, sinks, settings store, overlay, tray). Phase 3 `HistoryStore` and `QuickAccess`. Blocks phase 7 (`DesktopCover`, settings pane framework) and 9 (About pane toggles).
+Phase 4 (editor, sinks, settings store, overlay, tray). Phase 3 `HistoryStore` and `QuickAccess`. Blocks phase 9 (which runs straight after phase 5 to provide updater), phase 6 (sequential; parallel only for `Ml/`), and phase 7 (`DesktopCover`, settings pane framework).

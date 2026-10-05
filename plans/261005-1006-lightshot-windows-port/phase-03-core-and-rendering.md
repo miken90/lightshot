@@ -1,12 +1,12 @@
 # Phase 3: Core domain port and deterministic rendering
 
-Status: pending | Effort: 12d | Priority: P1 | Depends on: phase 1, phase 2 gate
+Status: pending | Effort: 12d | Priority: P1 | Depends on: phase 1 (only Core/Capture interfaces wait for the spike A verdict; split gates: A, D gate 4; B gates 7; C gates 8; E gates 6, 8, 10)
 
 ## Overview
 
 Two work packages with disjoint file ownership, runnable in parallel:
 
-- **Package C**: port `LightshotKit` (63 source files, 41 test classes, ~556 tests) to `Lightshot.Core` as plain `net10.0` with zero packages.
+- **Package C**: port `LightshotKit` (63 source files, 41 test classes, 595 tests across 41 classes; authoritative count from cloned manifest) to `Lightshot.Core` as plain `net10.0` with zero packages.
 - **Package R**: build `Lightshot.Rendering` (SkiaSharp CPU `render()`, `TextLayout`, redaction patch, own blur and scramble, PNG/JPEG codecs, thumbnails, bundled Inter) and re-baseline the pixel tests.
 
 The slice shipped is a tested library pair: later phases code against stable interfaces and a pure core. Clone the upstream SHA into a scratch directory first and read `HotkeyBindings.defaults`, `RecordingDefaults.standard`, `QuickAccessSettings`, ADR 0001 and the real `LightshotKit/Sources`; the analysis reports describe but do not contain them (KIT §6, APP "Risks").
@@ -52,7 +52,7 @@ The slice shipped is a tested library pair: later phases code against stable int
 
 ### Tests: create
 
-- `tests/Lightshot.Core.Tests/**` mirroring Core folders, `FakeServices/` (fakes for every service interface), `TierTraitTests.cs`, `NoticeFileTests.cs` already from phase 1.
+- `tests/Lightshot.Core.Tests/**` mirroring Core folders, `FakeServices/` (fakes for every service interface); Note: `TierTraitTests.cs` and `NoticeFileTests.cs` live in `Lightshot.Architecture.Tests` from phase 1.
 - `tests/Lightshot.Rendering.Tests/**`: `DocumentRenderTests`, `ExportTests`, `TextLayoutTests`, `GaussianBlurTests`, `ScrambleTests`, `ThumbnailTests`, `FrozenScreenCodecTests`, `CoordinatorRenderTests`, `Goldens/*.png`, `Goldens/hashes.json`, `PixelAssert.cs`.
 - `docs/porting/test-manifest.json` and `scripts/check-test-parity.ps1`.
 
@@ -70,7 +70,7 @@ The slice shipped is a tested library pair: later phases code against stable int
 | FrozenScreenTests (13) | Core.Tests, Unit for crop maths on synthetic surfaces; Rendering.Tests, Render for PNG round trips | Adapted to `PixelSurface` |
 | HistoryStoreTests (14) | Core.Tests, Unit (retention, trim, ordering, back-compat decode) with a fake thumbnailer; Rendering.Tests, Render (thumbnails, GIF metadata) | |
 
-`docs/porting/test-manifest.json` lists each source class, its count and its target; `check-test-parity.ps1` fails if a target class has fewer tests than the manifest. Method names are taken from the cloned source at port time; new tests are named below.
+`docs/porting/test-manifest.json` lists each source class, its count and its target; `check-test-parity.ps1` fails if a target class has fewer tests than the manifest. `check-test-parity.ps1` must handle split targets: AppCoordinator 80 Unit + 10 Render, Recording 70 + 6, AutoRedact 30 (21 scanner here, detector cases in phase 6 at `PhoneLinkDetectorTests`). Method names are taken from the cloned source at port time; new tests are named below.
 
 ## Implementation steps
 
@@ -78,9 +78,9 @@ The slice shipped is a tested library pair: later phases code against stable int
 
 1. Clone upstream at the SHA into a scratch directory. Fill `docs/porting/test-manifest.json` from the clone. Read the real defaults and ADR 0001; record them in `docs/porting/defaults.md` (WHY and WHERE only).
 2. Port Geometry and Annotation, then their tests. Use `System.Text.Json` for `Codable` types with explicit converters for element unions.
-3. Port Capture models, `FrozenScreen` on `PixelSurface`, `CaptureRegion` as physical pixels, coordinators, settings seam, hotkeys (VK), permissions, history, appearance, quick access. Quick Access layout: the source stacks from a bottom-up visible frame; port with an explicit `ScreenAnchor` (top-left origin plus work area) and test both corners.
+3. Port Capture models, `FrozenScreen` on `PixelSurface`, `CaptureRegion` as physical pixels, coordinators, settings seam, hotkeys (VK; set defaults PrintScreen = area, Ctrl+PrintScreen = fullscreen, other actions unbound like the source in `HotkeyBinding.cs`, tested by `HotkeyBindingTests.DefaultsArePrintScreenVariants`), permissions, history, appearance, quick access. Quick Access layout: the source stacks from a bottom-up visible frame; port with an explicit `ScreenAnchor` (top-left origin plus work area) and test both corners.
 4. Port the scanner. Phone, link and address detection go through `IWeakEntityDetector`; the Core test fake returns pinned fixtures.
-5. Port Recording and Studio models, `AudioMixer`, `CursorPath` (120 Hz critically damped spring, `omega = 40 - 35*smoothing`, 4 sub-steps), `ZoomCamera`, `CaptionBuilder`, `StudioEdits` (version 2, with v1 migration), `VideoBitRate`.
+5. Port Recording and Studio models, `AudioMixer`, `CursorPath` (120 Hz critically damped spring, `omega = 40 - 35*smoothing`, 4 sub-steps), `ZoomCamera`, `CaptionBuilder`, `StudioEdits` (version 2, with v1 migration), `VideoBitRate`. Decide reachability of burn-in (`studio: true` vs non-Studio) from the cloned source and record it in `docs/porting/defaults.md` (why and where only), so phase 7 can either list `BurnInCompositorTests` or drop R6 and its criterion.
 6. Add `GifWriter`, `GifQuantizer`, `FrameCadencePlanner` with new tests.
 7. Run `check-core.ps1` after each folder; it must stay green.
 
@@ -92,7 +92,7 @@ The slice shipped is a tested library pair: later phases code against stable int
 4. `Scramble`: SplitMix64 exactly as in KIT §4; area-average downscale (integer), neighbour offset `rng % 3 - 1` in x then y with two draws per cell in x-then-y order, nearest upscale.
 5. `RedactionBackdrop.Patch` and `DocumentRenderer`: highlight alpha capped at 0.35, blackout opaque, blur and pixelate snapshot the surface so far and copy the patch with replace blending, focus dim at alpha 0.55 with rounded clears `min(12, w/4, h/4)`, step marker disc plus number at `radius * 1.2`, round caps and joins.
 6. `SkiaImageCodec`: PNG and JPEG encode (quality clamped 0..1), decode, and original bytes returned if decode fails (matches the source).
-7. Create goldens with `test.ps1 -Tier Render -UpdateGoldens`, review every PNG, then lock. Run the Render tier on a second machine or a different CPU feature set (`DOTNET_EnableAVX2=0`) to prove the own-code goldens are identical.
+7. Create goldens with `test.ps1 -Tier Render -UpdateGoldens`, review every PNG, then lock. Run the Render tier on a second machine or via a GitHub Actions `windows-latest` runner (build 26100) to prove the own-code goldens are identical.
 
 ## Acceptance criteria
 
@@ -119,7 +119,7 @@ The slice shipped is a tested library pair: later phases code against stable int
 | Copy-and-close writes no file (sink records a copy, zero writes) | `Lightshot.Core.Tests.AppCoordinatorTests` ported guard |
 | Core free of Windows and package references | `Lightshot.Architecture.Tests.CoreAssemblyTests.HasNoPackageOrWindowsReferences` |
 | Ported test count equals manifest | `scripts/check-test-parity.ps1` (script check; UNCOVERED by xUnit because it counts tests) |
-| Render goldens pass on a second CPU | UNCOVERED by automation: second-machine run is a manual release check; mitigated by `DOTNET_EnableAVX2=0` run in `test.ps1 -Tier Render` |
+| Render goldens pass on a second CPU | UNCOVERED by local automation: second-machine run is a manual release check or covered by a GitHub Actions `windows-latest` runner (build 26100) |
 
 ## Rollback
 
@@ -132,7 +132,7 @@ Core and Rendering have no consumers yet. Revert the commit series; nothing pers
 | Swift-to-C# semantic drift (value semantics, integer division, rounding `floor` vs `round`) | M | H | Verbatim test port first; property-style checks on geometry; read rounding rules from KIT §7 |
 | Constants in points vs pixels misread | M | M | Unit stated per constant in a comment; review checklist |
 | `Regex` behaviour differs from `NSRegularExpression` | M | M | Port the 21 scanner tests verbatim; add timeouts; `CultureInvariant` |
-| Skia SIMD changes antialiasing across CPUs | M | M | 2 LSB tolerance; run with `DOTNET_EnableAVX2=0`; own pixel code exact |
+| Skia SIMD changes antialiasing across CPUs | M | M | 2 LSB tolerance; own pixel code exact; second-machine / `windows-latest` CI runner check |
 | Box-blur approximation looks different from Core Image | M | L | Visual review in phase 4; sigma range 3..30 kept; swap file if needed |
 | `FrozenScreen` raw-surface change invalidates ported tests | M | M | Adapt deliberately, document in `docs/porting/defaults.md` |
 | ADR 0001 / defaults not in analysis packs | H | M | Step 1 reads the clone before porting |
@@ -140,4 +140,4 @@ Core and Rendering have no consumers yet. Revert the commit series; nothing pers
 
 ## Dependencies
 
-Phase 1 (projects, tiers, scripts). Phase 2 gate (verdicts may change capture interfaces). Blocks phases 4 to 10; every later phase consumes the interfaces defined here.
+Phase 1 (projects, tiers, scripts). Only Core/Capture interfaces wait for the Spike A verdict. Split gate: Spikes A and D gate phase 4; B gates phase 7; C gates phase 8; E gates phases 6, 8, 10.

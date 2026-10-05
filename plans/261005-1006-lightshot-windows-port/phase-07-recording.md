@@ -1,6 +1,6 @@
 # Phase 7: Recording (video, GIF, audio, camera, input overlays, recovery, video editor)
 
-Status: pending | Effort: 25d | Priority: P1 | Depends on: phases 2, 4, 5
+Status: pending | Effort: 30–40d | Priority: P1 | Depends on: phases 2, 4, 5
 
 ## Overview
 
@@ -65,9 +65,9 @@ Create under `src/Lightshot.App/`:
 | `Views/Settings/RecordingPane.xaml(.cs)`, `ClickHighlightPreview.xaml` | Screen Recording settings pane |
 | `Views/Notices/NotificationGuidanceBanner.xaml(.cs)` | Hide-notifications guidance |
 
-Create tests under `tests/Lightshot.Platform.Windows.Tests/`: `QpcClockTests`, `PauseClockTests`, `CadenceDriverTests`, `KeyTranslatorTests`, `HookQueueTests`, `EncoderSelectorTests`, `ScratchStoreTests`, `RecordingRecoveryTests`, `MfFragmentedWriterTests`, `AudioSyncTests`, `ProcessLoopbackTests`, `MfGifEncoderTests`, `MfVideoTrimmerTests`, `RecordingOwnChromeTests`, `NotificationStateProbeTests`, `SecureInputProbeTests`; `tests/Lightshot.App.Tests/{RecordingToolbarViewModelTests, VideoEditorViewModelTests, PostRecordingOverlayViewModelTests}`; `tests/Lightshot.App.UiTests/RecordingFlowTests`.
+Create tests under `tests/Lightshot.Platform.Windows.Tests/`: `RecordingDisplayResolverTests`, `QpcClockTests`, `PauseClockTests`, `CadenceDriverTests`, `KeyTranslatorTests`, `HookQueueTests`, `EncoderSelectorTests`, `ScratchStoreTests`, `RecordingRecoveryTests`, `MfFragmentedWriterTests`, `AudioSyncTests`, `ProcessLoopbackTests`, `MfGifEncoderTests`, `MfVideoTrimmerTests`, `RecordingOwnChromeTests`, `NotificationStateProbeTests`, `SecureInputProbeTests`, `BurnInCompositorTests` (if reachable per phase 3 decision); `tests/Lightshot.App.Tests/{RecordingToolbarViewModelTests, VideoEditorViewModelTests, PostRecordingOverlayViewModelTests}`; `tests/Lightshot.App.UiTests/RecordingFlowTests`.
 
-Modify: `AppController.cs` (recording `CaptureUI` members), `Tray/TrayMenu.cs` (Record Screen, recording timer row, Stop), `Hotkeys` (record, pause/resume, restart: no default chord), `SettingsViewModel.cs`.
+Modify: `AppController.cs` (recording `CaptureUI` members), `Tray/TrayMenu.cs` (Record Screen, recording timer row, Stop), `SettingsViewModel.cs`. (Hotkeys: record, pause/resume, restart have no default chords, nothing to change in Core).
 
 ## Implementation steps
 
@@ -79,7 +79,7 @@ Modify: `AppController.cs` (recording `CaptureUI` members), `Tray/TrayMenu.cs` (
 6. R4 camera: MF source reader on the selected device; frames feed the bubble and, for Studio takes, a 30 fps camera movie sampled by a timer so static scenes do not truncate it; open failure costs only the bubble and shows a Privacy-settings link.
 7. R5 input: hook thread with its own message loop; callbacks write to a bounded lock-free queue and return; a consumer thread builds events with source-second stamps; mouse position seeded at start; keys require the toggle only (no permission on Windows); `SecureInputProbe` subscribes to UIA focus events.
 8. R1 chrome: recording selection with 8 handles, 1 px and 10 px nudge, aspect lock with the ratios in Core `EditableSelection`, typed size, window pick records its area; default rect is a centred 720p area; `RecordingFrameWindow` draws the 3 px red border pulsing 1..0.3 and dims outside (raw HWND + DComp, click-through, excluded from capture); `CountdownWindow` is click-through so the user can interact with the target app.
-9. R6 burn-in: only when the resolved options say a non-Studio take. First confirm from `RecordingOptionsTests` whether that path is reachable (`RecordingOptions.resolve` always sets `studio: true`, KIT §7); if unreachable from any setting, implement burn-in for the GIF path only or defer it and record the decision in `docs/porting/defaults.md`. Draw order: camera bubble, click highlights, keystroke pills over a blurred backdrop, with D2D/DirectWrite into the BGRA render target before the video processor.
+9. R6 burn-in: reachability decided in phase 3 step 5 from cloned source and recorded in `docs/porting/defaults.md`. If reachable, implement R6 (draw order: camera bubble, click highlights, keystroke pills over blurred backdrop with D2D/DirectWrite into BGRA render target before video processor) and include `BurnInCompositor.cs` and `BurnInCompositorTests.cs`; if unreachable from any setting, drop R6 (or implement for GIF path only per `docs/porting/defaults.md`).
 10. R7 recovery and GIF: `RecordingRecovery` at launch per the rules above; `MfGifEncoder` reads the finished MP4 (or Studio render in phase 8) frame by frame via source reader and video processor, reuses a RGBA canvas, posterises, optimises transparency, quantises with Core `GifQuantizer`, writes via Core `GifWriter` to `.partial`.
 11. R8 post-recording overlay and video editor as listed; HEVC visibility rule applied to codec pickers.
 12. R9 settings pane: every `RecordingDefaults` field (codec, fps, max resolution, scale, GIF fps/width/quality/optimise, audio options and volumes, mono, separate tracks, cursor, click highlight style/colour/size/animate, keystroke mode/position/size/appearance/blur, camera shape/size/mirror/anchor, controls position, show controls, show time, dim screen, confirm discard, hide notifications, hide desktop icons, countdown, sounds). Recording timer shows in the tray tooltip and the menu row (a tray icon cannot show text), with a red-dot icon swap.
@@ -94,9 +94,9 @@ Modify: `AppController.cs` (recording `CaptureUI` members), `Tray/TrayMenu.cs` (
 | Constant-fps cadence from idle source | `Lightshot.Core.Tests.FrameCadencePlannerTests.RepeatsLastFrameWhenSourceIdle` (phase 3) |
 | Pause offset removes the gap on resume | `Lightshot.Platform.Windows.Tests.PauseClockTests.ShiftsSamplesAfterResume` (`Unit`) |
 | QPC conversion to source seconds | `Lightshot.Platform.Windows.Tests.QpcClockTests.ConvertsToSourceSeconds` (`Unit`) |
-| Rect on a non-primary display records that display | `Lightshot.Platform.Windows.Tests.RecordingFlowTests.RecordsRectOnSecondaryDisplay` (`Media`; UNCOVERED on a single-monitor host, see risks) and `Lightshot.Core.Tests.RecordedAreaTests` (3) |
+| Rect on a non-primary display records that display | `Lightshot.Platform.Windows.Tests.RecordingDisplayResolverTests.PicksLargestOverlapNotPrimary` (`Unit`, synthetic two-display topology with secondary at negative origin); ported `Lightshot.Core.Tests.RecordedAreaTests` (3); live multi-monitor UNCOVERED on single-monitor host |
 | File plays; fragmented MP4 written | `Lightshot.Platform.Windows.Tests.MfFragmentedWriterTests.WritesPlayableFragmentedMp4` (`Media`) |
-| A/V drift under 40 ms, dropped frames under 1%, CPU under 15% over 60 s at 1440p60 | `Lightshot.Platform.Windows.Tests.AudioSyncTests.DriftUnder40MsOver60Seconds` (`Media`, tolerates host variance via a configured budget file) |
+| A/V drift under 40 ms, dropped frames under 1%, CPU under 15% over 60 s at 1440p60 | `Lightshot.Platform.Windows.Tests.AudioSyncTests.DriftUnder40MsOver60Seconds` (`Media`, hard-coded thresholds 40 ms, 1%, 15% in test; no configured budget file) |
 | Own audio excluded from loopback | `Lightshot.Platform.Windows.Tests.ProcessLoopbackTests.ExcludesOwnProcessAudio` (`Media`) |
 | Killed take is recovered and remuxed | `Lightshot.Platform.Windows.Tests.RecordingRecoveryTests.RemuxesKilledTake` (`Media`), `RecordingRecoveryTests.DeletesPartialGifAndTooShortTakes` (`Unit`, temp dir) |
 | Hooks never block: callback only enqueues | `Lightshot.Platform.Windows.Tests.HookQueueTests.CallbackNeverBlocks` (`Unit`, fake hook feeder) |
@@ -112,7 +112,7 @@ Modify: `AppController.cs` (recording `CaptureUI` members), `Tray/TrayMenu.cs` (
 | Post-recording auto-save at 20 s and delete to Recycle Bin | `Lightshot.App.Tests.PostRecordingOverlayViewModelTests.AutoSavesAfter20Seconds` (`Unit`, fake clock) |
 | Start, pause, stop end to end | `Lightshot.App.UiTests.RecordingFlowTests.StartPauseStopProducesPlayableFile` (`Desktop`) |
 | Recording survives encoder fallback when hardware MFT is absent | `Lightshot.Platform.Windows.Tests.EncoderSelectorTests.FallsBackToSoftwareH264` (`Unit`, fake MFT list) |
-| Burn-in pixels (bubble, rings, pills) | `Lightshot.Platform.Windows.Tests.BurnInCompositorTests.DrawsRingsPillsAndBubble` (`Gpu`, WARP) if the path is reachable |
+| Burn-in pixels (bubble, rings, pills) | `Lightshot.Platform.Windows.Tests.BurnInCompositorTests.DrawsRingsPillsAndBubble` (`Gpu`, WARP; conditioned on phase 3 reachability decision in `docs/porting/defaults.md`, else dropped) |
 | Keystroke capture in elevated windows | UNCOVERED: needs an elevated target; documented limitation |
 | Camera on real hardware, Bluetooth mic loss, sleep/lock during a take | UNCOVERED: hardware and OS state; manual checklist |
 | Visual quality of pulse, dim, pills | UNCOVERED: visual; manual checklist |
@@ -130,11 +130,11 @@ The service sits behind `IRecordingService`; revert the phase to restore the scr
 | NAudio lacks process loopback | M | M | Direct COM implementation prepared in the spike |
 | DDA access lost on UAC prompt or lock screen | H | M | Recreate duplication; black segment is acceptable and noted |
 | HEVC decode missing on user machines | M | M | Detect; default H.264; hide HEVC |
-| Low-level hook flagged by antivirus or delayed | M | M | Enqueue only; no network; document; Authenticode if purchased |
+| Low-level hook flagged by antivirus or delayed | M | M | Enqueue only; no network; document; hooks are installed only while a recording runs; submit each release to the Microsoft Defender false-positive portal; scan with VirusTotal before publishing; open-source build instructions |
 | Hardware encoder variance across vendors | M | M | Software fallback; `SizeEstimator` constants re-tuned from measured output |
 | Multi-monitor path untested on single-monitor host | H | M | Unit tests on `DisplayMath`; mark Media test UNCOVERED until a second display exists |
 | Notification state API not reflecting Focus on 26200 | M | L | Step 1 empirical check; banner fallback |
-| Scope size (25d) | H | M | Packages R1..R9 each shippable behind the Record Screen menu item |
+| Scope size (30–40d) | H | M | Packages R1..R9 each shippable behind the Record Screen menu item |
 
 ## Dependencies
 
