@@ -22,6 +22,7 @@ public class ToolIconsTests
     private const string IconsUri = "pack://application:,,,/Lightshot.App;component/Resources/Icons/ToolIcons.xaml";
     private const string PreviewDirVariable = "LIGHTSHOT_ICON_PREVIEW_DIR";
     private static readonly int[] TraySizes = [16, 20, 24, 32, 40, 48];
+    private static readonly int[] AppIconSizes = [16, 20, 24, 32, 40, 48, 64, 256];
     private static readonly byte[] PngSignature = [0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
 
     // Alpha below this is antialiasing haze, not ink.
@@ -255,6 +256,54 @@ public class ToolIconsTests
         Assert.DoesNotMatch("(Brush|Fill|Stroke)=\"(?!\\{DynamicResource Icon\\.Brush\\}|Transparent\")", xaml);
     }
 
+    // Directory entries of an .ico: pixel width (0 means 256) and whether the payload is PNG data.
+    private static List<(int Width, bool IsPng)> IconEntries(byte[] data)
+    {
+        Assert.Equal(0, BitConverter.ToUInt16(data, 0));
+        Assert.Equal(1, BitConverter.ToUInt16(data, 2));
+        var count = BitConverter.ToUInt16(data, 4);
+
+        var entries = new List<(int, bool)>();
+        for (var i = 0; i < count; i++)
+        {
+            var entry = 6 + (i * 16);
+            var width = data[entry] == 0 ? 256 : data[entry];
+            var height = data[entry + 1] == 0 ? 256 : data[entry + 1];
+            Assert.Equal(width, height);
+
+            var offset = BitConverter.ToInt32(data, entry + 12);
+            entries.Add((width, data.AsSpan(offset, PngSignature.Length).SequenceEqual(PngSignature)));
+        }
+
+        return entries;
+    }
+
+    // Decodes every frame of an .ico with the real WPF decoder, as Pbgra32 pixels keyed by pixel width.
+    private static Dictionary<int, (int Width, byte[] Pixels)> IconFrames(string path)
+    {
+        var decoder = new IconBitmapDecoder(
+            new MemoryStream(File.ReadAllBytes(path)),
+            BitmapCreateOptions.PreservePixelFormat,
+            BitmapCacheOption.OnLoad);
+        var frames = new Dictionary<int, (int, byte[])>();
+        foreach (var frame in decoder.Frames)
+        {
+            var converted = new FormatConvertedBitmap(frame, PixelFormats.Pbgra32, null, 0);
+            var pixels = new byte[converted.PixelWidth * converted.PixelHeight * 4];
+            converted.CopyPixels(pixels, converted.PixelWidth * 4, 0);
+            frames[converted.PixelWidth] = (converted.PixelWidth, pixels);
+        }
+
+        return frames;
+    }
+
+    private static BitmapSource FrameImage(int width, byte[] pixels)
+    {
+        var bitmap = BitmapSource.Create(width, width, 96, 96, PixelFormats.Pbgra32, null, pixels, width * 4);
+        bitmap.Freeze();
+        return bitmap;
+    }
+
     [Theory]
     [Render]
     [InlineData("light")]
@@ -264,25 +313,57 @@ public class ToolIconsTests
         var dir = AppFile("Resources", "Icons", "Tray");
         Assert.True(File.Exists(Path.Combine(dir, $"tray-{variant}.svg")), "SVG source is missing next to the .ico.");
 
-        var data = File.ReadAllBytes(Path.Combine(dir, $"tray-{variant}.ico"));
-        Assert.Equal(0, BitConverter.ToUInt16(data, 0));
-        Assert.Equal(1, BitConverter.ToUInt16(data, 2));
-        var count = BitConverter.ToUInt16(data, 4);
-
-        var sizes = new List<int>();
-        for (var i = 0; i < count; i++)
+        var entries = IconEntries(File.ReadAllBytes(Path.Combine(dir, $"tray-{variant}.ico")));
+        foreach (var (width, isPng) in entries)
         {
-            var entry = 6 + (i * 16);
-            var width = data[entry] == 0 ? 256 : data[entry];
-            var height = data[entry + 1] == 0 ? 256 : data[entry + 1];
-            Assert.Equal(width, height);
-            sizes.Add(width);
-
-            var offset = BitConverter.ToInt32(data, entry + 12);
-            Assert.True(data.AsSpan(offset, PngSignature.Length).SequenceEqual(PngSignature), $"{width}px entry is not PNG data.");
+            Assert.True(isPng, $"{width}px entry is not PNG data.");
         }
 
-        Assert.Equal(TraySizes, sizes.OrderBy(s => s).ToArray());
+        Assert.Equal(TraySizes, entries.Select(e => e.Width).OrderBy(w => w).ToArray());
+    }
+
+    [Fact]
+    [Render]
+    public void AppIconHoldsEightSizes()
+    {
+        var dir = AppFile("Resources", "Icons");
+        Assert.True(File.Exists(Path.Combine(dir, "app.svg")), "SVG source is missing next to app.ico.");
+
+        var entries = IconEntries(File.ReadAllBytes(Path.Combine(dir, "app.ico")));
+        Assert.Equal(AppIconSizes, entries.Select(e => e.Width).OrderBy(w => w).ToArray());
+        Assert.True(entries.Single(e => e.Width == 256).IsPng, "The 256px frame must be PNG-compressed.");
+    }
+
+    [Fact]
+    [Render]
+    public void AppIconFramesAreInkedAndDifferFromTheTrayGlyph()
+    {
+        RunInSta(() =>
+        {
+            var dir = AppFile("Resources", "Icons");
+            var app = IconFrames(Path.Combine(dir, "app.ico"));
+            var trays = new[] { "light", "dark" }.ToDictionary(v => v, v => IconFrames(Path.Combine(dir, "Tray", $"tray-{v}.ico")));
+            Assert.Equal(AppIconSizes, app.Keys.OrderBy(k => k).ToArray());
+
+            foreach (var (size, frame) in app)
+            {
+                var bounds = InkBounds(frame.Pixels, size);
+                Assert.True(bounds.Count >= size, $"app.ico {size}px frame has only {bounds.Count} ink pixels.");
+
+                // A full-colour tile covers most of the frame; a stray tray copy would leave it mostly empty.
+                Assert.True(bounds.Count >= size * size / 2, $"app.ico {size}px frame is mostly transparent.");
+
+                foreach (var (variant, tray) in trays)
+                {
+                    if (tray.TryGetValue(size, out var trayFrame))
+                    {
+                        Assert.False(
+                            frame.Pixels.AsSpan().SequenceEqual(trayFrame.Pixels),
+                            $"app.ico {size}px frame is identical to tray-{variant}.");
+                    }
+                }
+            }
+        });
     }
 
     // Art-review aid: with LIGHTSHOT_ICON_PREVIEW_DIR set, writes contact sheets rendered from the real XAML.
@@ -325,6 +406,69 @@ public class ToolIconsTests
                     var encoder = new PngBitmapEncoder();
                     encoder.Frames.Add(BitmapFrame.Create(bitmap));
                     using var stream = File.Create(Path.Combine(outDir, $"tool-icons-{name}-{size}px.png"));
+                    encoder.Save(stream);
+                }
+            }
+        });
+    }
+
+    // Art-review aid: with LIGHTSHOT_ICON_PREVIEW_DIR set, writes app.ico sheets decoded with the real WPF
+    // decoder, each beside the tray glyph that suits the background.
+    [Fact]
+    [Render]
+    public void AppIconPreviewSheetsRenderWhenRequested()
+    {
+        var outDir = Environment.GetEnvironmentVariable(PreviewDirVariable);
+        if (string.IsNullOrWhiteSpace(outDir))
+        {
+            return;
+        }
+
+        RunInSta(() =>
+        {
+            Directory.CreateDirectory(outDir);
+            var dir = AppFile("Resources", "Icons");
+            var app = IconFrames(Path.Combine(dir, "app.ico"));
+            var themes = new[]
+            {
+                ("light", Color.FromRgb(0xF3, 0xF3, 0xF3)),
+                ("dark", Color.FromRgb(0x20, 0x20, 0x20)),
+            };
+
+            foreach (var (name, color) in themes)
+            {
+                var tray = IconFrames(Path.Combine(dir, "Tray", $"tray-{name}.ico"));
+                foreach (var (size, zoom) in new[] { (16, 1), (24, 1), (32, 1), (48, 1), (256, 1), (16, 8), (24, 8) })
+                {
+                    // The tray has no frame above 48 px, so the 256 sheet sets its 48 px frame beside the icon.
+                    var traySize = Math.Min(size, 48);
+                    var pad = Math.Max(size / 2, 8) * zoom;
+                    var appPx = size * zoom;
+                    var trayPx = traySize * zoom;
+
+                    var row = new StackPanel { Orientation = Orientation.Horizontal, Background = new SolidColorBrush(color) };
+                    foreach (var (pixelWidth, pixels, px) in new[] { (size, app[size].Pixels, appPx), (traySize, tray[traySize].Pixels, trayPx) })
+                    {
+                        var image = new Image
+                        {
+                            Source = FrameImage(pixelWidth, pixels),
+                            Width = px,
+                            Height = px,
+                            Stretch = Stretch.Fill,
+                            Margin = new Thickness(pad),
+                        };
+                        RenderOptions.SetBitmapScalingMode(image, BitmapScalingMode.NearestNeighbor);
+                        row.Children.Add(image);
+                    }
+
+                    var width = appPx + trayPx + (4 * pad);
+                    var height = Math.Max(appPx, trayPx) + (2 * pad);
+                    var bitmap = Rasterize(row, width, height);
+
+                    var encoder = new PngBitmapEncoder();
+                    encoder.Frames.Add(BitmapFrame.Create(bitmap));
+                    var suffix = zoom > 1 ? $"-x{zoom}" : string.Empty;
+                    using var stream = File.Create(Path.Combine(outDir, $"app-icon-{name}-{size}px{suffix}.png"));
                     encoder.Save(stream);
                 }
             }
