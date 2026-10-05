@@ -1,0 +1,11 @@
+{
+  "gaussian-blur-exact": "0663ce9411edb5d3d4b57992f585d5573ccb33e2878e14f6dd70f5dc19082f91",
+  "FilledEllipsePaintsCenterButNotBoundingBoxCorner": "95d2640a819b4cee0fb74f3dc7474eaadfceb36210a3769a45437f30a8b27d72",
+  "BlackoutErasesTheSentinelBeneathIt": "972de37bd03af28291c1ecef5c007816d6b58edcf028e12a70aa4fb57eda2338",
+  "StandardArrowIsThinAtTheTailAndWideAtTheHead": "6fb8e09521b7bdd5cc84f6bea30d561cf4f5b0597ece760be46d4ab7c8785d78",
+  "HighlighterWashesTheRegionButLetsContentShowThrough": "9d5f0f0e2948ca2bc4f29d7c0be610e719ec6fda8c802388d5581129d27ca4c9",
+  "StrokedLineMarksThePixelsAlongIt": "16a8aab2d6783537a49d1776dfd0f31f0dac7f2d55814cf198899bb0a2c35057",
+  "EverythingOutsideTheFocusAreasIsDimmedAndTheAreasStayClear": "e05e7541d0e094e81eb1fc92e9639c12b5b65c20e7f4d562702b358a06fa7ff8",
+  "CurvedArrowIsDrawnThroughItsBendNotAlongItsChord": "4f8e4b90b07f3504d83858f4fbf2557ec7a76ccdff4eb19df410985652b910dd",
+  "FilledRectanglePaintsItsInterior": "171c98396ac8a9b86e42d9fb42e2b2db8718b8839e22890f8d88ffcd789ba034"
+}

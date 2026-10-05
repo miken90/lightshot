@@ -13,4 +13,8 @@
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\Lightshot.Core.Tests\FakeServices\*.cs" Link="FakeServices\%(FileName)%(Extension)" />
+  </ItemGroup>
 </Project>
