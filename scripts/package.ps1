@@ -52,6 +52,11 @@ try {
     # 2. Package with Velopack unless -SkipVpk is specified
     if (-not $SkipVpk) {
         Write-Log "Packaging release with Velopack (vpk)..."
+        # vpk refuses to pack a version already present in the output folder, so a rerun
+        # (release dry run, repeated package) starts from an empty generated directory.
+        if (Test-Path $releaseDir) {
+            Remove-Item -Path $releaseDir -Recurse -Force
+        }
         if (-not (Test-Path $releaseDir)) {
             New-Item -Path $releaseDir -ItemType Directory -Force | Out-Null
         }
