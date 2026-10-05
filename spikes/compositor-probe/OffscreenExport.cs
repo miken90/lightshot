@@ -58,11 +58,16 @@ public sealed class OffscreenExport : IDisposable
         }
     }
 
-    public CompareResult Compare(CompareFrame preview)
+    /// <summary>Renders the captured frame on this WARP device (the preview path or the export path, they are the same call).</summary>
+    public byte[] Render(CompareFrame f, RenderState? stateOverride = null) =>
+        Render(stateOverride ?? f.State, f.T, f.SourcePixels, f.SourceW, f.SourceH, f.Width, f.Height);
+
+    /// <summary>Max channel delta of this device's render of the frame against reference pixels.</summary>
+    public CompareResult Compare(CompareFrame preview) => Diff(preview, preview.PreviewPixels, Render(preview));
+
+    public static CompareResult Diff(CompareFrame preview, byte[] a, byte[] exported)
     {
-        var exported = Render(preview.State, preview.T, preview.SourcePixels, preview.SourceW, preview.SourceH, preview.Width, preview.Height);
         int max = 0; long over = 0; string worst = "";
-        var a = preview.PreviewPixels;
         for (int i = 0; i < a.Length; i++)
         {
             int d = Math.Abs(a[i] - exported[i]);

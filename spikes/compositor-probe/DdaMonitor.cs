@@ -11,6 +11,8 @@ namespace CompositorProbe;
 /// delivers it reads (a) the overlay marker region and (b) the top/bottom present-sequence strips of the client
 /// area, so overlay presence and tearing are judged from what the compositor really displayed.
 /// </summary>
+public readonly record struct DdaObservation(int Code, bool Readable, long LastPresentQpc, uint Accumulated, long ArrivalQpc);
+
 public sealed class DdaMonitor : IDisposable
 {
     private readonly ID3D11Device _device;
@@ -32,7 +34,10 @@ public sealed class DdaMonitor : IDisposable
     public Func<RECT>? OverlayRect;           // null or empty width -> overlay check disabled
     public Func<bool>? OverlayVisible;
     public IntPtr StripWindow;                 // non-zero -> strip tear check enabled on that window's client area
+    public IntPtr ObserveWindow;               // non-zero -> record the top strip code of that window's client area for every desktop frame
     public volatile bool Enabled = true;
+    private readonly List<DdaObservation> _obs = new();
+    public DdaObservation[] Observations() { lock (_obs) return _obs.ToArray(); }
 
     // Counters (written by the DDA thread, read after Stop).
     public long Frames, UpdatedFrames, Timeouts, Errors;
@@ -102,6 +107,7 @@ public sealed class DdaMonitor : IDisposable
                 double atSec = (Stopwatch.GetTimestamp() - _t0) / (double)Stopwatch.Frequency;
                 CheckOverlay(tex, atSec);
                 CheckStrips(tex, stageC);
+                Observe(tex, info);
             }
             catch (Exception ex) { Errors++; LastError = ex.GetType().Name + ": " + ex.Message; }
             finally { res?.Dispose(); _dup.ReleaseFrame(); }
@@ -194,6 +200,18 @@ public sealed class DdaMonitor : IDisposable
             return n;
         }
         finally { _context.Unmap(_stageR!, 0); }
+    }
+
+    private void Observe(ID3D11Texture2D desktop, in OutduplFrameInfo info)
+    {
+        if (ObserveWindow == IntPtr.Zero) return;
+        var rc = Native.ClientScreenRect(ObserveWindow);
+        int w = FrameStamp.StripCells * FrameStamp.StripCellW;
+        var dd = desktop.Description;
+        int x = rc.Left - _desktop.Left, y = rc.Top - _desktop.Top;
+        int code = 0; bool ok = false;
+        if (x >= 0 && y >= 0 && x + w <= dd.Width && y + FrameStamp.StripH <= dd.Height && rc.Width >= w) code = ReadStrip(desktop, _stageB!, x, y, out ok);
+        lock (_obs) _obs.Add(new DdaObservation(code, ok, info.LastPresentTime, info.AccumulatedFrames, Stopwatch.GetTimestamp()));
     }
 
     private void CheckStrips(ID3D11Texture2D desktop, ID3D11Texture2D stageC)

@@ -9,7 +9,8 @@ using PixelFormat = Vortice.DCommon.PixelFormat;
 
 namespace CompositorProbe;
 
-public readonly record struct RenderState(bool Zoom, int StripCode)
+// NoBlur/NoShadow exist only to isolate which effect differs between adapters; the product path leaves both false.
+public readonly record struct RenderState(bool Zoom, int StripCode, bool NoBlur = false, bool NoShadow = false)
 {
     public static RenderState Default => new(true, -1);
 }
@@ -143,7 +144,7 @@ public sealed class ProbeCompositor : IDisposable
         float cover = Math.Max(W / (float)srcW, H / (float)srcH);
         _ctx.Transform = Matrix3x2.CreateScale(cover) * Matrix3x2.CreateTranslation((W - srcW * cover) / 2f, (H - srcH * cover) / 2f);
         _blur.SetInput(0, src, true);
-        _ctx.DrawImage(_blur, InterpolationMode.Linear, CompositeMode.SourceOver);
+        if (!state.NoBlur) _ctx.DrawImage(_blur, InterpolationMode.Linear, CompositeMode.SourceOver);
         _ctx.Transform = Matrix3x2.Identity;
         _ctx.FillRectangle(new Rect(0, 0, W, H), _dim!);
 
@@ -152,7 +153,7 @@ public sealed class ProbeCompositor : IDisposable
 
         // Shadow of the rounded video rectangle, offset downwards (command list recorded before the main draw).
         _shadow.SetInput(0, cl, true);
-        _ctx.DrawImage(_shadow, new Vector2(0, 30f / scale), InterpolationMode.Linear, CompositeMode.SourceOver);
+        if (!state.NoShadow) _ctx.DrawImage(_shadow, new Vector2(0, 30f / scale), InterpolationMode.Linear, CompositeMode.SourceOver);
 
         // Rounded-corner video: the frame as a bitmap brush clipped to the rounded rectangle.
         using (var brush = _ctx.CreateBitmapBrush(src, new BitmapBrushProperties1(ExtendMode.Clamp, ExtendMode.Clamp, InterpolationMode.Linear)))
