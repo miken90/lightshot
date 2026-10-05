@@ -11,14 +11,14 @@ namespace CompositorProbe;
 /// monitor. WM_SIZE resizes the swapchain synchronously on the UI thread (under RenderLock) and asks the player to
 /// repaint before the message returns, so DWM never shows a stretched or empty buffer for longer than the resize.
 /// </summary>
-public sealed class D3dHost : HwndHost
+public sealed class D3dHost : HwndHost, IPresentHost
 {
     private const string ClassName = "CompositorProbeHost";
     private static Native.WndProc? s_proc;
     private static bool s_registered;
     private IntPtr _hwnd;
 
-    public readonly object RenderLock = new();
+    public object RenderLock { get; } = new();
     public ID3D11Device Device { get; private set; } = null!;
     public ID3D11DeviceContext Context { get; private set; } = null!;
     public IDXGISwapChain2 SwapChain { get; private set; } = null!;
@@ -34,6 +34,27 @@ public sealed class D3dHost : HwndHost
     public int ResizeFailures { get; private set; }
     public string? LastResizeError { get; private set; }
     public IntPtr Hwnd => _hwnd;
+    public string Kind => "HwndHost";
+    public IntPtr ClientHwnd => _hwnd;
+    public long LastPresentCount => SwapChain.LastPresentCount;
+
+    public bool WaitForFrame(int ms) => Native.WaitForSingleObject(FrameLatencyHandle, (uint)ms) == 0;
+    public ID3D11Texture2D AcquireTarget() => SwapChain.GetBuffer<ID3D11Texture2D>(0);
+
+    public long Present(int syncInterval)
+    {
+        var hr = SwapChain.Present((uint)syncInterval, PresentFlags.None);
+        if (hr.Failure) throw new InvalidOperationException("Present failed " + hr);
+        return SwapChain.LastPresentCount;
+    }
+
+    public bool TryGetStatistics(out FrameStats stats, out string error)
+    {
+        var hr = SwapChain.GetFrameStatistics(out FrameStatistics fs);
+        stats = new FrameStats(fs.PresentCount, fs.PresentRefreshCount, fs.SyncRefreshCount, fs.SyncQPCTime);
+        error = hr.Failure ? "0x" + ((uint)hr.Code).ToString("X8") : "";
+        return hr.Success;
+    }
 
     /// <summary>Called under RenderLock right after the buffers were resized.</summary>
     public Action? Resized { get; set; }
@@ -63,18 +84,8 @@ public sealed class D3dHost : HwndHost
     private void CreateDeviceAndSwapChain(IntPtr parent)
     {
         Monitor = Native.MonitorFromWindow(parent, Native.MONITOR_DEFAULTTONEAREST);
-        using var factory = DXGI.CreateDXGIFactory1<IDXGIFactory2>();
-        IDXGIAdapter1? chosen = null;
-        for (uint a = 0; factory.EnumAdapters1(a, out IDXGIAdapter1? ad).Success; a++)
-        {
-            for (uint o = 0; ad!.EnumOutputs(o, out IDXGIOutput? output).Success; o++)
-            {
-                using (output) if (output!.Description.Monitor == Monitor) { chosen ??= ad; OutputName = output.Description.DeviceName; }
-            }
-            if (chosen != ad) ad.Dispose();
-        }
-        if (chosen == null) { factory.EnumAdapters1(0, out chosen).CheckError(); }
-        Adapter = chosen!;
+        Adapter = AdapterPicker.Pick(Monitor, out string output);
+        OutputName = output;
         AdapterName = Adapter.Description1.Description;
 
         D3D11.D3D11CreateDevice(Adapter, DriverType.Unknown, DeviceCreationFlags.BgraSupport | DeviceCreationFlags.VideoSupport,
@@ -82,6 +93,7 @@ public sealed class D3dHost : HwndHost
         Device = dev!; Context = ctx!;
         using (var mt = Device.QueryInterfaceOrNull<ID3D11Multithread>()) mt?.SetMultithreadProtected(true);
 
+        using var factory = DXGI.CreateDXGIFactory1<IDXGIFactory2>();
         Native.GetClientRect(_hwnd, out var rc);
         var desc = new SwapChainDescription1
         {
