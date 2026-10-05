@@ -136,9 +136,9 @@
             <DrawingGroup>
                 <StaticResource ResourceKey="ToolIcon.Bounds"/>
                 <GeometryDrawing Pen="{StaticResource ToolIcon.Pen}"
-                                 Geometry="M3.75,6.75 H20.25 M3.75,17.25 H12.75"/>
+                                 Geometry="M3.75,5.25 H20.25 M3.75,17.25 H12.75"/>
                 <GeometryDrawing Brush="{DynamicResource Icon.Brush}" Pen="{StaticResource ToolIcon.Pen}"
-                                 Geometry="M3.75,11.25 H20.25 V12.75 H3.75 Z"/>
+                                 Geometry="M3.75,9.75 H20.25 V12.75 H3.75 Z"/>
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
