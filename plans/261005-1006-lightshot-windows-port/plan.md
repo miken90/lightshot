@@ -41,7 +41,7 @@ A Windows 11 (build 22621+) per-user app, installed by Velopack, that matches th
 | 8 | [phase-08-studio.md](phase-08-studio.md) | Studio editor, auto zoom, cursor from data, backgrounds, captions, export | 35-45d | pending | 3, 2 (spikes C, E), 7 |
 | 10 | [phase-10-translation.md](phase-10-translation.md) | OCR Translate window with bundled en<->vi and local language packs | 7d | pending | 2 (spike E), 6, 9 |
 
-*Note on Phase 2: Spike A ([reports/spike-capture.md](reports/spike-capture.md)) and Spike D ([reports/spike-overlay.md](reports/spike-overlay.md)) reports exist; phase status remains pending.*
+*Note on Phase 2: Spike A ([reports/spike-capture.md](reports/spike-capture.md)), Spike D ([reports/spike-overlay.md](reports/spike-overlay.md)), and Spike B ([reports/spike-recording.md](reports/spike-recording.md)) reports exist; phase status remains pending.*
 
 Total: 160-180 working days for one engineer (about 32-36 weeks). Phases 5 and 6 run in sequence (parallel work allowed only for phase 6's `Ml/` folder and its tests while phase 5 runs).
 
