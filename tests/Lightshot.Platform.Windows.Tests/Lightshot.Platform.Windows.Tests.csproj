@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\Lightshot.Platform.Windows\Lightshot.Platform.Windows.csproj" />
+    <ProjectReference Include="..\..\src\Lightshot.Rendering\Lightshot.Rendering.csproj" />
     <ProjectReference Include="..\Lightshot.TestSupport\Lightshot.TestSupport.csproj" />
   </ItemGroup>
 
