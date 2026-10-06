@@ -27,6 +27,7 @@ public sealed class ThemeService : IDisposable
     private AppearancePreference _preference = AppearancePreference.System;
     private Appearance _currentAppearance = Appearance.Light;
     private ResourceDictionary? _currentThemeDict;
+    private ResourceDictionary? _controlsDict;
     private bool _disposed;
 
     public AppearancePreference CurrentPreference => _preference;
@@ -127,6 +128,16 @@ public sealed class ThemeService : IDisposable
                 AppearancePreference.Dark => ThemeMode.Dark,
                 _ => ThemeMode.System
             };
+
+            // merged after ThemeMode so BasedOn finds the Fluent styles
+            if (_controlsDict == null)
+            {
+                _controlsDict = new ResourceDictionary
+                {
+                    Source = new Uri("pack://application:,,,/Lightshot.App;component/Theming/Styles/Controls.xaml", UriKind.Absolute)
+                };
+                Application.Current.Resources.MergedDictionaries.Add(_controlsDict);
+            }
         }
         catch
         {
