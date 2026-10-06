@@ -1,0 +1,55 @@
+<UserControl x:Class="Lightshot.App.Views.VideoEditor.TrimBar"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="60" d:DesignWidth="600"
+             SizeChanged="OnSizeChanged">
+    <Grid Margin="12,4">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="32"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Top Time Readouts -->
+        <DockPanel Grid.Row="0" Margin="0,0,0,4">
+            <TextBlock x:Name="StartLabel" Text="00:00" Foreground="{DynamicResource Theme.TextSecondary}" FontSize="11" DockPanel.Dock="Left"/>
+            <TextBlock x:Name="DurationLabel" Text="00:00" Foreground="{DynamicResource Theme.TextPrimary}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+            <TextBlock x:Name="EndLabel" Text="00:00" Foreground="{DynamicResource Theme.TextSecondary}" FontSize="11" DockPanel.Dock="Right"/>
+        </DockPanel>
+
+        <!-- Track & Thumbs Area -->
+        <Canvas x:Name="TrackCanvas" Grid.Row="1" Background="#2A2A2A" ClipToBounds="True">
+            <!-- Selected Range Highlight -->
+            <Rectangle x:Name="SelectedRangeRect" Fill="#007AFF" Height="32" Opacity="0.4"/>
+
+            <!-- Playhead line -->
+            <Line x:Name="PlayheadLine" Y1="0" Y2="32" Stroke="White" StrokeThickness="2"/>
+
+            <!-- Start Thumb -->
+            <Border x:Name="StartThumb" Width="14" Height="32" 
+                    Background="#007AFF" CornerRadius="4,0,0,4" Cursor="SizeWE"
+                    MouseLeftButtonDown="OnStartThumbMouseDown"
+                    MouseLeftButtonUp="OnThumbMouseUp"
+                    MouseMove="OnStartThumbMouseMove">
+                <TextBlock Text="&#x25C0;" Foreground="White" FontSize="8" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Border>
+
+            <!-- End Thumb -->
+            <Border x:Name="EndThumb" Width="14" Height="32" 
+                    Background="#007AFF" CornerRadius="0,4,4,0" Cursor="SizeWE"
+                    MouseLeftButtonDown="OnEndThumbMouseDown"
+                    MouseLeftButtonUp="OnThumbMouseUp"
+                    MouseMove="OnEndThumbMouseMove">
+                <TextBlock Text="&#x25B6;" Foreground="White" FontSize="8" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </Border>
+        </Canvas>
+
+        <!-- Snapped keyframe indicator (if applicable) -->
+        <TextBlock x:Name="SnappedKeyframeText" Grid.Row="2" Margin="0,4,0,0" 
+                   FontSize="10" Foreground="{DynamicResource Theme.TextTertiary}" 
+                   HorizontalAlignment="Left"/>
+    </Grid>
+</UserControl>
