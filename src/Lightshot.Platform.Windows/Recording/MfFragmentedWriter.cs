@@ -115,50 +115,61 @@ public sealed class MfFragmentedWriter : IDisposable
         return streamIndex;
     }
 
+    private readonly object _lock = new();
+
     public void WriteVideoFrame(ID3D11Texture2D nv12Texture, long sampleTimeHns, long durationHns)
     {
-        if (_finalized || !_writingStarted) return;
-        if (sampleTimeHns < 0) sampleTimeHns = 0;
+        lock (_lock)
+        {
+            if (_finalized || !_writingStarted) return;
+            if (sampleTimeHns < 0) sampleTimeHns = 0;
 
-        using var buffer = MediaFactory.MFCreateDXGISurfaceBuffer(typeof(ID3D11Texture2D).GUID, nv12Texture, 0, false);
-        buffer.CurrentLength = _nv12ByteSize;
+            using var buffer = MediaFactory.MFCreateDXGISurfaceBuffer(typeof(ID3D11Texture2D).GUID, nv12Texture, 0, false);
+            buffer.CurrentLength = _nv12ByteSize;
 
-        using var sample = MediaFactory.MFCreateSample();
-        sample.AddBuffer(buffer);
-        sample.SampleTime = sampleTimeHns;
-        sample.SampleDuration = durationHns;
+            using var sample = MediaFactory.MFCreateSample();
+            sample.AddBuffer(buffer);
+            sample.SampleTime = sampleTimeHns;
+            sample.SampleDuration = durationHns;
 
-        _writer.WriteSample(_videoStreamIndex, sample);
+            _writer.WriteSample(_videoStreamIndex, sample);
+        }
     }
 
     public void WriteAudioSample(int streamIndex, byte[] pcmData, long sampleTimeHns, long durationHns)
     {
-        if (_finalized || !_writingStarted || pcmData.Length == 0) return;
-        if (sampleTimeHns < 0) sampleTimeHns = 0;
+        lock (_lock)
+        {
+            if (_finalized || !_writingStarted || pcmData.Length == 0) return;
+            if (sampleTimeHns < 0) sampleTimeHns = 0;
 
-        using var buffer = MediaFactory.MFCreateMemoryBuffer(pcmData.Length);
-        buffer.Lock(out IntPtr pData, out _, out _);
-        Marshal.Copy(pcmData, 0, pData, pcmData.Length);
-        buffer.Unlock();
-        buffer.CurrentLength = pcmData.Length;
+            using var buffer = MediaFactory.MFCreateMemoryBuffer(pcmData.Length);
+            buffer.Lock(out IntPtr pData, out _, out _);
+            Marshal.Copy(pcmData, 0, pData, pcmData.Length);
+            buffer.Unlock();
+            buffer.CurrentLength = pcmData.Length;
 
-        using var sample = MediaFactory.MFCreateSample();
-        sample.AddBuffer(buffer);
-        sample.SampleTime = sampleTimeHns;
-        sample.SampleDuration = durationHns;
+            using var sample = MediaFactory.MFCreateSample();
+            sample.AddBuffer(buffer);
+            sample.SampleTime = sampleTimeHns;
+            sample.SampleDuration = durationHns;
 
-        _writer.WriteSample(streamIndex, sample);
+            _writer.WriteSample(streamIndex, sample);
+        }
     }
 
     public void FinalizeWriting(bool stripMfra = true)
     {
-        if (_finalized) return;
-        _finalized = true;
-        _writer.Finalize();
-        _writer.Dispose();
-        if (stripMfra)
+        lock (_lock)
         {
-            StripRandomAccessIndex(_outputPath);
+            if (_finalized) return;
+            _finalized = true;
+            _writer.Finalize();
+            _writer.Dispose();
+            if (stripMfra)
+            {
+                StripRandomAccessIndex(_outputPath);
+            }
         }
     }
 
@@ -208,10 +219,13 @@ public sealed class MfFragmentedWriter : IDisposable
         if (_disposed) return;
         _disposed = true;
 
-        if (!_finalized)
+        lock (_lock)
         {
-            try { _writer.Finalize(); } catch { }
-            try { _writer.Dispose(); } catch { }
+            if (!_finalized)
+            {
+                try { _writer.Finalize(); } catch { }
+                try { _writer.Dispose(); } catch { }
+            }
         }
 
         _dxgiManager.Dispose();
