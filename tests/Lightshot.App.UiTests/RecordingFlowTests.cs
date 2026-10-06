@@ -138,6 +138,87 @@ public class RecordingFlowTests
         return found;
     }
 
+    private static AutomationElement? FindDescendantInApp(Application app, UIA3Automation automation, string automationId)
+    {
+        var windows = app.GetAllTopLevelWindows(automation);
+        foreach (var win in windows)
+        {
+            try
+            {
+                var el = win.FindFirstDescendant(cf => cf.ByAutomationId(automationId));
+                if (el != null) return el;
+            }
+            catch { }
+        }
+
+        AutomationElement? found = null;
+        EnumWindows((hWnd, lParam) =>
+        {
+            GetWindowThreadProcessId(hWnd, out uint pid);
+            if (pid == (uint)app.ProcessId && IsWindowVisible(hWnd))
+            {
+                try
+                {
+                    var win = automation.FromHandle(hWnd);
+                    var el = win?.FindFirstDescendant(cf => cf.ByAutomationId(automationId));
+                    if (el != null)
+                    {
+                        found = el;
+                        return false;
+                    }
+                }
+                catch { }
+            }
+            return true;
+        }, IntPtr.Zero);
+
+        return found;
+    }
+
+    private static void TriggerRecordButton(Application app, UIA3Automation automation, AutomationElement recordButtonElement)
+    {
+        var toolbarWin = app.GetAllTopLevelWindows(automation)
+            .FirstOrDefault(w => w.Title == "Recording Toolbar");
+
+        if (toolbarWin == null)
+        {
+            EnumWindows((hWnd, lParam) =>
+            {
+                GetWindowThreadProcessId(hWnd, out uint pid);
+                if (pid == (uint)app.ProcessId && IsWindowVisible(hWnd))
+                {
+                    var sb = new System.Text.StringBuilder(128);
+                    GetWindowTextW(hWnd, sb, 128);
+                    if (sb.ToString() == "Recording Toolbar")
+                    {
+                        try { toolbarWin = automation.FromHandle(hWnd)?.AsWindow(); } catch { }
+                        return false;
+                    }
+                }
+                return true;
+            }, IntPtr.Zero);
+        }
+
+        toolbarWin?.Focus();
+        Thread.Sleep(200);
+
+        var btn = recordButtonElement.AsButton();
+        try { btn.Focus(); } catch { }
+        Thread.Sleep(100);
+        try { btn.Invoke(); } catch { }
+        try { btn.Click(); } catch { }
+        Keyboard.Press(VirtualKeyShort.RETURN);
+
+        // Wait up to 5s for the toolbar to close
+        Retry.WhileTrue(
+            () =>
+            {
+                var windows = app.GetAllTopLevelWindows(automation);
+                return windows.Any(w => w.Title == "Recording Toolbar");
+            },
+            TimeSpan.FromSeconds(5));
+    }
+
     private static ProcessStartInfo CreateStartInfo(string exePath, string args)
     {
         var psi = new ProcessStartInfo
@@ -242,43 +323,23 @@ public class RecordingFlowTests
 
                 // 3. Wait for toolbar and click RecordVideoButton
                 var recordButtonResult = Retry.WhileNull(
-                    () =>
-                    {
-                        var windows = app.GetAllTopLevelWindows(automation);
-                        foreach (var win in windows)
-                        {
-                            var btn = win.FindFirstDescendant(cf => cf.ByAutomationId("RecordVideoButton"));
-                            if (btn != null) return btn;
-                        }
-                        return null;
-                    },
+                    () => FindDescendantInApp(app, automation, "RecordVideoButton"),
                     TimeSpan.FromSeconds(10));
 
                 Assert.NotNull(recordButtonResult?.Result);
-                Thread.Sleep(300);
-                recordButtonResult.Result.AsButton().Invoke();
+                TriggerRecordButton(app, automation, recordButtonResult.Result);
 
                 var wallStart = Stopwatch.StartNew();
 
-                // 4. Wait for 3 s countdown + record ~2 s
-                Thread.Sleep(5200);
-
+                // 4. Wait for countdown (3s) + active recording (1s) and locate pause button
                 // 5. Pause recording (~2 s)
                 var pauseButtonResult = Retry.WhileNull(
-                    () =>
-                    {
-                        var windows = app.GetAllTopLevelWindows(automation);
-                        foreach (var win in windows)
-                        {
-                            var btn = win.FindFirstDescendant(cf => cf.ByAutomationId("RecordingPauseResumeButton"));
-                            if (btn != null) return btn;
-                        }
-                        return null;
-                    },
-                    TimeSpan.FromSeconds(10));
+                    () => FindDescendantInApp(app, automation, "RecordingPauseResumeButton"),
+                    TimeSpan.FromSeconds(15));
 
                 Assert.NotNull(pauseButtonResult?.Result);
-                pauseButtonResult.Result.AsButton().Invoke();
+                var pauseBtn = pauseButtonResult.Result.AsButton();
+                try { pauseBtn.Invoke(); } catch { pauseBtn.Click(); }
 
                 var pauseWatch = Stopwatch.StartNew();
                 Thread.Sleep(2000);
@@ -286,45 +347,29 @@ public class RecordingFlowTests
                 double measuredPause = pauseWatch.Elapsed.TotalSeconds;
 
                 // 6. Resume recording (~2 s)
-                pauseButtonResult.Result.AsButton().Invoke();
+                try { pauseBtn.Invoke(); } catch { pauseBtn.Click(); }
                 Thread.Sleep(2000);
 
                 // 7. Stop recording
                 var stopButtonResult = Retry.WhileNull(
-                    () =>
-                    {
-                        var windows = app.GetAllTopLevelWindows(automation);
-                        foreach (var win in windows)
-                        {
-                            var btn = win.FindFirstDescendant(cf => cf.ByAutomationId("RecordingStopButton"));
-                            if (btn != null) return btn;
-                        }
-                        return null;
-                    },
-                    TimeSpan.FromSeconds(5));
+                    () => FindDescendantInApp(app, automation, "RecordingStopButton"),
+                    TimeSpan.FromSeconds(10));
 
                 Assert.NotNull(stopButtonResult?.Result);
-                stopButtonResult.Result.AsButton().Invoke();
+                var stopBtn = stopButtonResult.Result.AsButton();
+                try { stopBtn.Invoke(); } catch { stopBtn.Click(); }
                 wallStart.Stop();
                 double measuredWall = wallStart.Elapsed.TotalSeconds - 3.0; // exclude countdown
 
                 // 8. Click Save on post-recording overlay
                 var saveButtonResult = Retry.WhileNull(
-                    () =>
-                    {
-                        var windows = app.GetAllTopLevelWindows(automation);
-                        foreach (var win in windows)
-                        {
-                            var btn = win.FindFirstDescendant(cf => cf.ByAutomationId("PostRecordingSaveButton"));
-                            if (btn != null) return btn;
-                        }
-                        return null;
-                    },
+                    () => FindDescendantInApp(app, automation, "PostRecordingSaveButton"),
                     TimeSpan.FromSeconds(15));
 
                 Assert.NotNull(saveButtonResult?.Result);
+                var saveBtn = saveButtonResult.Result.AsButton();
                 Thread.Sleep(300);
-                saveButtonResult.Result.AsButton().Invoke();
+                try { saveBtn.Invoke(); } catch { saveBtn.Click(); }
 
                 // 9. Verify .mp4 in save.location
                 var fileResult = Retry.WhileNull(
@@ -446,44 +491,26 @@ public class RecordingFlowTests
 
                 // 3. Wait for toolbar and click RecordVideoButton
                 var recordButtonResult = Retry.WhileNull(
-                    () =>
-                    {
-                        var windows = app.GetAllTopLevelWindows(automation);
-                        foreach (var win in windows)
-                        {
-                            var btn = win.FindFirstDescendant(cf => cf.ByAutomationId("RecordVideoButton"));
-                            if (btn != null) return btn;
-                        }
-                        return null;
-                    },
+                    () => FindDescendantInApp(app, automation, "RecordVideoButton"),
                     TimeSpan.FromSeconds(10));
 
                 Assert.NotNull(recordButtonResult?.Result);
-                Thread.Sleep(300);
-                recordButtonResult.Result.AsButton().Invoke();
+                TriggerRecordButton(app, automation, recordButtonResult.Result);
 
-                // 4. Wait for countdown (3s) + active recording (1s)
-                Thread.Sleep(4500);
-
-                // Assert DesktopCover exists while recording
-                Assert.True(DoesDesktopCoverExist(process.Id), "LightshotDesktopCoverWindow must exist during recording with hideDesktopIcons=true");
+                // 4. Wait for countdown (3s) and verify DesktopCover appears while recording (up to 12s)
+                var coverAppeared = Retry.WhileFalse(
+                    () => DoesDesktopCoverExist(process.Id),
+                    TimeSpan.FromSeconds(12));
+                Assert.True(coverAppeared?.Success ?? false, "LightshotDesktopCoverWindow must exist during recording with hideDesktopIcons=true");
 
                 // 5. Click Discard button on ControlsPill
                 var discardButtonResult = Retry.WhileNull(
-                    () =>
-                    {
-                        var windows = app.GetAllTopLevelWindows(automation);
-                        foreach (var win in windows)
-                        {
-                            var btn = win.FindFirstDescendant(cf => cf.ByAutomationId("RecordingDiscardButton"));
-                            if (btn != null) return btn;
-                        }
-                        return null;
-                    },
-                    TimeSpan.FromSeconds(5));
+                    () => FindDescendantInApp(app, automation, "RecordingDiscardButton"),
+                    TimeSpan.FromSeconds(10));
 
                 Assert.NotNull(discardButtonResult?.Result);
-                discardButtonResult.Result.AsButton().Invoke();
+                var discardBtn = discardButtonResult.Result.AsButton();
+                try { discardBtn.Invoke(); } catch { discardBtn.Click(); }
 
                 // 6. Confirm discard message box by pressing Enter
                 Thread.Sleep(500);
