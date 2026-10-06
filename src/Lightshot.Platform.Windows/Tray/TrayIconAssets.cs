@@ -271,15 +271,21 @@ public static class TrayIconAssets
             }
         }
 
+        return CreateIconFromPixels(colorPixels, width, height);
+    }
+
+    private static IntPtr CreateIconFromPixels(uint[] argb, int w, int h)
+    {
+        byte[] maskBytes = new byte[((w + 15) / 16) * 2 * h];
         IntPtr hbmColor = IntPtr.Zero;
         IntPtr hbmMask = IntPtr.Zero;
-        GCHandle colorHandle = GCHandle.Alloc(colorPixels, GCHandleType.Pinned);
+        GCHandle colorHandle = GCHandle.Alloc(argb, GCHandleType.Pinned);
         GCHandle maskHandle = GCHandle.Alloc(maskBytes, GCHandleType.Pinned);
 
         try
         {
-            hbmColor = CreateBitmap(width, height, 1, 32, colorHandle.AddrOfPinnedObject());
-            hbmMask = CreateBitmap(width, height, 1, 1, maskHandle.AddrOfPinnedObject());
+            hbmColor = CreateBitmap(w, h, 1, 32, colorHandle.AddrOfPinnedObject());
+            hbmMask = CreateBitmap(w, h, 1, 1, maskHandle.AddrOfPinnedObject());
 
             var iconInfo = new ICONINFO
             {
@@ -300,4 +306,33 @@ public static class TrayIconAssets
             if (hbmMask != IntPtr.Zero) DeleteObject(hbmMask);
         }
     }
+
+    public static uint[] RecordingIconPixels(int size = 16)
+    {
+        uint[] pixels = new uint[size * size];
+        double radius = size * 0.375;
+        double radiusSq = radius * radius;
+        double center = (size - 1) / 2.0;
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                double dx = x - center;
+                double dy = y - center;
+                if (dx * dx + dy * dy <= radiusSq)
+                {
+                    pixels[y * size + x] = 0xFFFF3B30;
+                }
+                else
+                {
+                    pixels[y * size + x] = 0x00000000;
+                }
+            }
+        }
+
+        return pixels;
+    }
+
+    public static IntPtr CreateRecordingTrayIcon() => CreateIconFromPixels(RecordingIconPixels(), 16, 16);
 }

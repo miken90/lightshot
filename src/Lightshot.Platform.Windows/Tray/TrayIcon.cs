@@ -78,6 +78,7 @@ public sealed class TrayIcon : IDisposable
 
     public HotkeyBindings? Bindings { get; set; }
     public IReadOnlyList<DisplayMenuItem>? Displays { get; set; }
+    public Func<RecordingMenuState?>? RecordingState { get; set; }
 
     public Action<CaptureAction>? OnCaptureAction { get; set; }
     public Action<uint>? OnFullscreenDisplayCapture { get; set; }
@@ -85,6 +86,8 @@ public sealed class TrayIcon : IDisposable
     public Action? OnHistory { get; set; }
     public Action? OnSettings { get; set; }
     public Action? OnQuit { get; set; }
+
+    private bool _isRecording;
 
     public TrayIcon(string tooltip = "Lightshot")
     {
@@ -183,11 +186,21 @@ public sealed class TrayIcon : IDisposable
     {
         if (_disposed) return;
         _currentSystemUsesLightTheme = systemUsesLightTheme;
-        IntPtr newIcon = TrayIconAssets.LoadTrayIcon(systemUsesLightTheme);
-        if (newIcon != IntPtr.Zero)
+        if (!_isRecording)
         {
-            UpdateIcon(newIcon);
+            IntPtr newIcon = TrayIconAssets.LoadTrayIcon(systemUsesLightTheme);
+            if (newIcon != IntPtr.Zero)
+            {
+                UpdateIcon(newIcon);
+            }
         }
+    }
+
+    public void SetRecording(bool recording)
+    {
+        if (_isRecording == recording) return;
+        _isRecording = recording;
+        UpdateIcon(recording ? TrayIconAssets.CreateRecordingTrayIcon() : TrayIconAssets.LoadTrayIcon(_currentSystemUsesLightTheme));
     }
 
     public void UpdateIcon(IntPtr newIcon)
@@ -215,9 +228,13 @@ public sealed class TrayIcon : IDisposable
     private void ShowContextMenu()
     {
         GetCursorPos(out var pt);
-        uint cmd = TrayMenu.Show(_hWnd, pt.x, pt.y, Bindings, Displays);
+        uint cmd = TrayMenu.Show(_hWnd, pt.x, pt.y, Bindings, Displays, RecordingState?.Invoke());
         switch (cmd)
         {
+            case TrayMenu.CMD_RECORD_SCREEN:
+            case TrayMenu.CMD_STOP_RECORDING:
+                OnCaptureAction?.Invoke(CaptureAction.RecordScreen);
+                break;
             case TrayMenu.CMD_AREA:
                 OnCaptureAction?.Invoke(CaptureAction.Area);
                 break;

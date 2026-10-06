@@ -8,6 +8,7 @@ using Lightshot.Platform.Windows.Interop;
 namespace Lightshot.Platform.Windows.Tray;
 
 public record DisplayMenuItem(uint DisplayId, string DisplayName);
+public record RecordingMenuState(bool IsRecording, string ElapsedText);
 
 /// <summary>
 /// Native Win32 popup menu for the system tray icon, rebuilt on every open
@@ -32,6 +33,9 @@ public static class TrayMenu
     public const uint CMD_HISTORY = 1006;
     public const uint CMD_SETTINGS = 1007;
     public const uint CMD_QUIT = 1008;
+    public const uint CMD_RECORD_SCREEN = 1009;
+    public const uint CMD_STOP_RECORDING = 1010;
+    public const uint CMD_RECORDING_TIMER = 1011;
     public const uint CMD_DISPLAY_BASE = 2000;
 
     [DllImport("user32.dll", SetLastError = true)]
@@ -48,7 +52,8 @@ public static class TrayMenu
 
     public static IntPtr CreateMenuHandle(
         HotkeyBindings? bindings = null,
-        IReadOnlyList<DisplayMenuItem>? displays = null)
+        IReadOnlyList<DisplayMenuItem>? displays = null,
+        RecordingMenuState? recording = null)
     {
         IntPtr hMenu = CreatePopupMenu();
         if (hMenu == IntPtr.Zero) return IntPtr.Zero;
@@ -83,6 +88,18 @@ public static class TrayMenu
         string repChord = GetChordSuffix(bindings, CaptureAction.RepeatLast);
         AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_REPEAT_LAST), $"Repeat Last Capture{repChord}");
 
+        // Recording
+        string recChord = GetChordSuffix(bindings, CaptureAction.RecordScreen);
+        if (recording is { IsRecording: true })
+        {
+            AppendMenuW(hMenu, MF_STRING | MF_GRAYED, new UIntPtr(CMD_RECORDING_TIMER), $"Recording {recording.ElapsedText}");
+            AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_STOP_RECORDING), $"Stop Recording{recChord}");
+        }
+        else
+        {
+            AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_RECORD_SCREEN), $"Record Screen{recChord}");
+        }
+
         // 5. Open image
         AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_OPEN_FILE), "Open Image...");
 
@@ -109,9 +126,10 @@ public static class TrayMenu
         int x,
         int y,
         HotkeyBindings? bindings = null,
-        IReadOnlyList<DisplayMenuItem>? displays = null)
+        IReadOnlyList<DisplayMenuItem>? displays = null,
+        RecordingMenuState? recording = null)
     {
-        IntPtr hMenu = CreateMenuHandle(bindings, displays);
+        IntPtr hMenu = CreateMenuHandle(bindings, displays, recording);
         if (hMenu == IntPtr.Zero) return 0;
 
         try
