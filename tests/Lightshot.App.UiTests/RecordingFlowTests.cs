@@ -215,7 +215,7 @@ public class RecordingFlowTests
             try
             {
                 using var automation = new UIA3Automation();
-                using var app = Application.Attach(process);
+                using var app = Application.Attach(process.Id);
 
                 // 1. Wait for overlay window to appear
                 var overlayResult = Retry.WhileNull(
@@ -348,10 +348,14 @@ public class RecordingFlowTests
             finally
             {
                 SignalAppQuit();
-                if (!process.WaitForExit(10000))
+                try
                 {
-                    try { process.Kill(); } catch { }
+                    if (!process.WaitForExit(10000))
+                    {
+                        try { process.Kill(); } catch { }
+                    }
                 }
+                catch { }
             }
         }
         finally
@@ -415,7 +419,7 @@ public class RecordingFlowTests
             try
             {
                 using var automation = new UIA3Automation();
-                using var app = Application.Attach(process);
+                using var app = Application.Attach(process.Id);
 
                 // 1. Wait for overlay window to appear
                 var overlayResult = Retry.WhileNull(
@@ -495,10 +499,14 @@ public class RecordingFlowTests
             finally
             {
                 SignalAppQuit();
-                if (!process.WaitForExit(10000))
+                try
                 {
-                    try { process.Kill(); } catch { }
+                    if (!process.WaitForExit(10000))
+                    {
+                        try { process.Kill(); } catch { }
+                    }
                 }
+                catch { }
             }
         }
         finally
@@ -629,10 +637,14 @@ public class RecordingFlowTests
             finally
             {
                 SignalAppQuit();
-                if (!process.WaitForExit(10000))
+                try
                 {
-                    try { process.Kill(); } catch { }
+                    if (!process.WaitForExit(10000))
+                    {
+                        try { process.Kill(); } catch { }
+                    }
                 }
+                catch { }
             }
         }
         finally
