@@ -64,6 +64,26 @@ public static class RecordingSelectionPainter
     [DllImport("user32.dll")]
     private static extern int FrameRect(IntPtr hDC, ref Win32Window.RECT lprc, IntPtr hbr);
 
+    [DllImport("user32.dll")]
+    private static extern IntPtr WindowFromDC(IntPtr hDC);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct SIZE
+    {
+        public int cx;
+        public int cy;
+    }
+
+    [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+    private static extern bool GetTextExtentPoint32W(IntPtr hdc, string lpString, int c, out SIZE lpSize);
+
+    [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+    private static extern IntPtr CreateFontW(
+        int nHeight, int nWidth, int nEscapement, int nOrientation,
+        int fnWeight, uint fdwItalic, uint fdwUnderline, uint fdwStrikeOut,
+        uint fdwCharSet, uint fdwOutputPrecision, uint fdwClipPrecision,
+        uint fdwQuality, uint fdwPitchAndFamily, string lpszFace);
+
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     private static extern int DrawTextW(IntPtr hDC, string lpchText, int nCount, ref Win32Window.RECT lpRect, uint uFormat);
 
@@ -129,9 +149,17 @@ public static class RecordingSelectionPainter
         bool showsControls,
         CapturedImage? backdrop,
         FrozenWindow? hoveredWindow = null,
-        AspectRatio ratio = AspectRatio.Freeform)
+        AspectRatio ratio = AspectRatio.Freeform,
+        IntPtr hwnd = default)
     {
         if (hdc == IntPtr.Zero || clientWidth <= 0 || clientHeight <= 0) return;
+
+        if (hwnd == IntPtr.Zero)
+        {
+            hwnd = WindowFromDC(hdc);
+        }
+        double scale = hwnd != IntPtr.Zero ? Dpi.GetWindowDpi(hwnd) / 96.0 : 1.0;
+        if (scale <= 0) scale = 1.0;
 
         IntPtr memDc = CreateCompatibleDC(hdc);
         IntPtr memBmp = CreateCompatibleBitmap(hdc, clientWidth, clientHeight);
@@ -240,11 +268,11 @@ public static class RecordingSelectionPainter
                 // 5. Draw 8 resize handles when settled in adjustable mode
                 if (showsControls)
                 {
-                    DrawEightHandles(memDc, sel, hBrushWhite, hPenDark);
+                    DrawEightHandles(memDc, sel, hBrushWhite, hPenDark, scale);
                 }
 
                 // 6. Draw floating dimension badge
-                DrawDimensionBadge(memDc, sel, clientWidth, clientHeight, hBrushBadge, hPenDark, ratio);
+                DrawDimensionBadge(memDc, sel, clientWidth, clientHeight, hBrushBadge, hPenDark, ratio, scale);
             }
             else
             {
@@ -285,13 +313,16 @@ public static class RecordingSelectionPainter
     /// Draws 8 resize handles around the selection rectangle:
     /// TopLeft, Top, TopRight, Right, BottomRight, Bottom, BottomLeft, Left.
     /// </summary>
-    public static void DrawEightHandles(IntPtr hdc, Win32Window.RECT sel, IntPtr hBrush, IntPtr hPen)
+    public static void DrawEightHandles(IntPtr hdc, Win32Window.RECT sel, IntPtr hBrush, IntPtr hPen, double scale = 1.0)
     {
         IntPtr oldBrush = SelectObject(hdc, hBrush);
         IntPtr oldPen = SelectObject(hdc, hPen);
 
         try
         {
+            int handleSize = Math.Max(4, (int)Math.Round(HANDLE_SIZE * scale));
+            int handleHalf = handleSize / 2;
+
             int midX = (sel.Left + sel.Right) / 2;
             int midY = (sel.Top + sel.Bottom) / 2;
 
@@ -309,7 +340,7 @@ public static class RecordingSelectionPainter
 
             foreach (var (hx, hy) in handles)
             {
-                Rectangle(hdc, hx - HANDLE_HALF, hy - HANDLE_HALF, hx + HANDLE_HALF, hy + HANDLE_HALF);
+                Rectangle(hdc, hx - handleHalf, hy - handleHalf, hx + handleHalf, hy + handleHalf);
             }
         }
         finally
@@ -321,7 +352,7 @@ public static class RecordingSelectionPainter
 
     private static void DrawDimensionBadge(
         IntPtr hdc, Win32Window.RECT sel, int clientWidth, int clientHeight,
-        IntPtr hBrush, IntPtr hPen, AspectRatio ratio)
+        IntPtr hBrush, IntPtr hPen, AspectRatio ratio, double scale)
     {
         int width = sel.Right - sel.Left;
         int height = sel.Bottom - sel.Top;
@@ -329,22 +360,37 @@ public static class RecordingSelectionPainter
             ? $"{width} x {height}"
             : $"{width} x {height} ({ratio.Title()})";
 
-        int badgeWidth = Math.Max(100, text.Length * 8 + 16);
-        int badgeHeight = 22;
+        int fontHeight = -(int)Math.Round(12 * scale);
+        IntPtr hFont = CreateFontW(
+            fontHeight, 0, 0, 0, 400 /* Normal */, 0, 0, 0, 1 /* DEFAULT_CHARSET */,
+            0, 0, 5 /* CLEARTYPE_QUALITY */, 0, "Segoe UI");
+        IntPtr oldFont = SelectObject(hdc, hFont);
+
+        int badgeWidth;
+        int badgeHeight = Math.Max(18, (int)Math.Round(22 * scale));
+        if (GetTextExtentPoint32W(hdc, text, text.Length, out SIZE size))
+        {
+            badgeWidth = size.cx + (int)Math.Round(12 * scale * 2);
+        }
+        else
+        {
+            badgeWidth = Math.Max((int)Math.Round(100 * scale), text.Length * (int)Math.Round(8 * scale) + (int)Math.Round(16 * scale));
+        }
 
         int bx = sel.Left + (width - badgeWidth) / 2;
-        int by = sel.Bottom + 6;
+        int by = sel.Bottom + (int)Math.Round(6 * scale);
 
-        if (by + badgeHeight > clientHeight - 4)
+        if (by + badgeHeight > clientHeight - (int)Math.Round(4 * scale))
         {
-            by = sel.Top - badgeHeight - 6;
+            by = sel.Top - badgeHeight - (int)Math.Round(6 * scale);
         }
-        if (by < 4)
+        if (by < (int)Math.Round(4 * scale))
         {
-            by = sel.Top + 6;
+            by = sel.Top + (int)Math.Round(6 * scale);
         }
 
-        bx = Math.Clamp(bx, 4, Math.Max(4, clientWidth - badgeWidth - 4));
+        int minPad = (int)Math.Round(4 * scale);
+        bx = Math.Clamp(bx, minPad, Math.Max(minPad, clientWidth - badgeWidth - minPad));
 
         var badgeRc = new Win32Window.RECT
         {
@@ -360,6 +406,9 @@ public static class RecordingSelectionPainter
         SetBkMode(hdc, TRANSPARENT);
         SetTextColor(hdc, 0xFFFFFF);
         DrawTextW(hdc, text, text.Length, ref badgeRc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+        SelectObject(hdc, oldFont);
+        DeleteObject(hFont);
     }
 
     private static void DrawHoveredWindow(

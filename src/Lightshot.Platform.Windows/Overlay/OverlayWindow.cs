@@ -167,19 +167,19 @@ public sealed class OverlayWindow : IDisposable
                 {
                     SelectionPainter.Paint(
                         hdc, clientW, clientH, MonitorBounds,
-                        CurrentSelection, ShowsControls, Backdrop);
+                        CurrentSelection, ShowsControls, Backdrop, hWnd);
                 }
                 else if (Mode == OverlayMode.Recording)
                 {
                     RecordingSelectionPainter.Paint(
                         hdc, clientW, clientH, MonitorBounds,
-                        CurrentSelection, ShowsControls, Backdrop, HoveredWindow);
+                        CurrentSelection, ShowsControls, Backdrop, HoveredWindow, AspectRatio.Freeform, hWnd);
                 }
                 else
                 {
                     WindowHoverPainter.Paint(
                         hdc, clientW, clientH, MonitorBounds,
-                        HoveredWindow, Backdrop);
+                        HoveredWindow, Backdrop, hWnd);
                 }
 
                 Win32Window.EndPaint(hWnd, ref ps);

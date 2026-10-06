@@ -59,6 +59,26 @@ public static class SelectionPainter
     [DllImport("user32.dll")]
     private static extern int FrameRect(IntPtr hDC, ref Win32Window.RECT lprc, IntPtr hbr);
 
+    [DllImport("user32.dll")]
+    private static extern IntPtr WindowFromDC(IntPtr hDC);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct SIZE
+    {
+        public int cx;
+        public int cy;
+    }
+
+    [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+    private static extern bool GetTextExtentPoint32W(IntPtr hdc, string lpString, int c, out SIZE lpSize);
+
+    [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+    private static extern IntPtr CreateFontW(
+        int nHeight, int nWidth, int nEscapement, int nOrientation,
+        int fnWeight, uint fdwItalic, uint fdwUnderline, uint fdwStrikeOut,
+        uint fdwCharSet, uint fdwOutputPrecision, uint fdwClipPrecision,
+        uint fdwQuality, uint fdwPitchAndFamily, string lpszFace);
+
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     private static extern int DrawTextW(IntPtr hDC, string lpchText, int nCount, ref Win32Window.RECT lpRect, uint uFormat);
 
@@ -119,9 +139,17 @@ public static class SelectionPainter
         Rect screenBounds,
         Rect? globalSelection,
         bool showsControls,
-        CapturedImage? backdrop)
+        CapturedImage? backdrop,
+        IntPtr hwnd = default)
     {
         if (hdc == IntPtr.Zero || clientWidth <= 0 || clientHeight <= 0) return;
+
+        if (hwnd == IntPtr.Zero)
+        {
+            hwnd = WindowFromDC(hdc);
+        }
+        double scale = hwnd != IntPtr.Zero ? Dpi.GetWindowDpi(hwnd) / 96.0 : 1.0;
+        if (scale <= 0) scale = 1.0;
 
         IntPtr memDc = CreateCompatibleDC(hdc);
         IntPtr memBmp = CreateCompatibleBitmap(hdc, clientWidth, clientHeight);
@@ -234,11 +262,11 @@ public static class SelectionPainter
                 // 5. Draw resize handles when settled in adjustable mode
                 if (showsControls)
                 {
-                    DrawHandles(memDc, sel, hBrushWhite, hPenDark);
+                    DrawHandles(memDc, sel, hBrushWhite, hPenDark, scale);
                 }
 
                 // 6. Draw floating dimension badge
-                DrawDimensionBadge(memDc, sel, clientWidth, clientHeight, hBrushBadge, hPenDark);
+                DrawDimensionBadge(memDc, sel, clientWidth, clientHeight, hBrushBadge, hPenDark, scale);
             }
             else
             {
@@ -269,10 +297,13 @@ public static class SelectionPainter
         }
     }
 
-    private static void DrawHandles(IntPtr hdc, Win32Window.RECT sel, IntPtr hBrush, IntPtr hPen)
+    private static void DrawHandles(IntPtr hdc, Win32Window.RECT sel, IntPtr hBrush, IntPtr hPen, double scale)
     {
         IntPtr oldBrush = SelectObject(hdc, hBrush);
         IntPtr oldPen = SelectObject(hdc, hPen);
+
+        int handleSize = Math.Max(4, (int)Math.Round(HANDLE_SIZE * scale));
+        int handleHalf = handleSize / 2;
 
         int midX = sel.Left + sel.Width / 2;
         int midY = sel.Top + sel.Height / 2;
@@ -291,32 +322,46 @@ public static class SelectionPainter
 
         foreach (var pt in points)
         {
-            int x = (int)pt.X - HANDLE_HALF;
-            int y = (int)pt.Y - HANDLE_HALF;
-            Rectangle(hdc, x, y, x + HANDLE_SIZE, y + HANDLE_SIZE);
+            int x = (int)pt.X - handleHalf;
+            int y = (int)pt.Y - handleHalf;
+            Rectangle(hdc, x, y, x + handleSize, y + handleSize);
         }
 
         SelectObject(hdc, oldBrush);
         SelectObject(hdc, oldPen);
     }
 
-    private static void DrawDimensionBadge(IntPtr hdc, Win32Window.RECT sel, int clientWidth, int clientHeight, IntPtr hBrush, IntPtr hPen)
+    private static void DrawDimensionBadge(IntPtr hdc, Win32Window.RECT sel, int clientWidth, int clientHeight, IntPtr hBrush, IntPtr hPen, double scale)
     {
         string text = $"{sel.Width} × {sel.Height} px";
-        int badgeW = 100;
-        int badgeH = 24;
+        int fontHeight = -(int)Math.Round(12 * scale);
+        IntPtr hFont = CreateFontW(
+            fontHeight, 0, 0, 0, 400 /* Normal */, 0, 0, 0, 1 /* DEFAULT_CHARSET */,
+            0, 0, 5 /* CLEARTYPE_QUALITY */, 0, "Segoe UI");
+        IntPtr oldFont = SelectObject(hdc, hFont);
+
+        int badgeW;
+        int badgeH = Math.Max(18, (int)Math.Round(24 * scale));
+        if (GetTextExtentPoint32W(hdc, text, text.Length, out SIZE size))
+        {
+            badgeW = size.cx + (int)Math.Round(12 * scale * 2);
+        }
+        else
+        {
+            badgeW = (int)Math.Round(100 * scale);
+        }
 
         int badgeX = sel.Left;
-        int badgeY = sel.Bottom + 6;
+        int badgeY = sel.Bottom + (int)Math.Round(6 * scale);
 
         // Keep inside window bounds
         if (badgeY + badgeH > clientHeight)
         {
-            badgeY = Math.Max(0, sel.Top - badgeH - 6);
+            badgeY = Math.Max(0, sel.Top - badgeH - (int)Math.Round(6 * scale));
         }
         if (badgeX + badgeW > clientWidth)
         {
-            badgeX = Math.Max(0, clientWidth - badgeW - 6);
+            badgeX = Math.Max(0, clientWidth - badgeW - (int)Math.Round(6 * scale));
         }
 
         IntPtr oldBrush = SelectObject(hdc, hBrush);
@@ -338,6 +383,9 @@ public static class SelectionPainter
             Bottom = badgeY + badgeH
         };
         DrawTextW(hdc, text, text.Length, ref textRc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+        SelectObject(hdc, oldFont);
+        DeleteObject(hFont);
     }
 
     private static void DrawBackdrop(IntPtr hdc, int clientWidth, int clientHeight, CapturedImage backdrop)

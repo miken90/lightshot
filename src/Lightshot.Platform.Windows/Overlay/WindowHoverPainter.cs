@@ -59,6 +59,26 @@ public static class WindowHoverPainter
     [DllImport("user32.dll")]
     private static extern int FrameRect(IntPtr hDC, ref Win32Window.RECT lprc, IntPtr hbr);
 
+    [DllImport("user32.dll")]
+    private static extern IntPtr WindowFromDC(IntPtr hDC);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct SIZE
+    {
+        public int cx;
+        public int cy;
+    }
+
+    [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+    private static extern bool GetTextExtentPoint32W(IntPtr hdc, string lpString, int c, out SIZE lpSize);
+
+    [DllImport("gdi32.dll", CharSet = CharSet.Unicode)]
+    private static extern IntPtr CreateFontW(
+        int nHeight, int nWidth, int nEscapement, int nOrientation,
+        int fnWeight, uint fdwItalic, uint fdwUnderline, uint fdwStrikeOut,
+        uint fdwCharSet, uint fdwOutputPrecision, uint fdwClipPrecision,
+        uint fdwQuality, uint fdwPitchAndFamily, string lpszFace);
+
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     private static extern int DrawTextW(IntPtr hDC, string lpchText, int nCount, ref Win32Window.RECT lpRect, uint uFormat);
 
@@ -112,9 +132,17 @@ public static class WindowHoverPainter
         int clientHeight,
         Rect screenBounds,
         FrozenWindow? hoveredWindow,
-        CapturedImage? backdrop)
+        CapturedImage? backdrop,
+        IntPtr hwnd = default)
     {
         if (hdc == IntPtr.Zero || clientWidth <= 0 || clientHeight <= 0) return;
+
+        if (hwnd == IntPtr.Zero)
+        {
+            hwnd = WindowFromDC(hdc);
+        }
+        double scale = hwnd != IntPtr.Zero ? Dpi.GetWindowDpi(hwnd) / 96.0 : 1.0;
+        if (scale <= 0) scale = 1.0;
 
         IntPtr memDc = CreateCompatibleDC(hdc);
         IntPtr memBmp = CreateCompatibleBitmap(hdc, clientWidth, clientHeight);
@@ -218,10 +246,24 @@ public static class WindowHoverPainter
 
                 // Window size badge
                 string badgeText = $"{win.Width} × {win.Height} px";
-                int badgeW = 110;
-                int badgeH = 24;
-                int badgeX = Math.Max(win.Left, 10);
-                int badgeY = Math.Max(win.Top - badgeH - 6, 10);
+                int fontHeight = -(int)Math.Round(12 * scale);
+                IntPtr hFont = CreateFontW(
+                    fontHeight, 0, 0, 0, 400 /* Normal */, 0, 0, 0, 1 /* DEFAULT_CHARSET */,
+                    0, 0, 5 /* CLEARTYPE_QUALITY */, 0, "Segoe UI");
+                IntPtr oldFont = SelectObject(memDc, hFont);
+
+                int badgeW;
+                int badgeH = Math.Max(18, (int)Math.Round(24 * scale));
+                if (GetTextExtentPoint32W(memDc, badgeText, badgeText.Length, out SIZE size))
+                {
+                    badgeW = size.cx + (int)Math.Round(12 * scale * 2);
+                }
+                else
+                {
+                    badgeW = (int)Math.Round(110 * scale);
+                }
+                int badgeX = Math.Max(win.Left, (int)Math.Round(10 * scale));
+                int badgeY = Math.Max(win.Top - badgeH - (int)Math.Round(6 * scale), (int)Math.Round(10 * scale));
 
                 IntPtr oldBrush = SelectObject(memDc, hBrushBadge);
                 IntPtr oldPen = SelectObject(memDc, hPenDark);
@@ -239,6 +281,9 @@ public static class WindowHoverPainter
                     Bottom = badgeY + badgeH
                 };
                 DrawTextW(memDc, badgeText, badgeText.Length, ref textRc, DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+
+                SelectObject(memDc, oldFont);
+                DeleteObject(hFont);
             }
             else
             {

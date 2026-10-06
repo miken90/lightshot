@@ -280,6 +280,9 @@ public sealed class CountdownWindow : IDisposable
         int clientH = (int)_windowBounds.Height;
         if (clientW <= 0 || clientH <= 0) return;
 
+        double scale = Handle != IntPtr.Zero ? Dpi.GetWindowDpi(Handle) / 96.0 : 1.0;
+        if (scale <= 0) scale = 1.0;
+
         IntPtr memDc = CreateCompatibleDC(hdc);
         IntPtr memBmp = CreateCompatibleBitmap(hdc, clientW, clientH);
         IntPtr oldBmp = SelectObject(memDc, memBmp);
@@ -290,11 +293,11 @@ public sealed class CountdownWindow : IDisposable
 
         // Large bold font for the number (~120pt)
         IntPtr hFontNumber = CreateFontW(
-            -140, 0, 0, 0, 700 /* Bold */, 0, 0, 0, 1 /* DEFAULT_CHARSET */,
+            -(int)Math.Round(140 * scale), 0, 0, 0, 700 /* Bold */, 0, 0, 0, 1 /* DEFAULT_CHARSET */,
             0, 0, 5 /* CLEARTYPE_QUALITY */, 0, "Segoe UI");
         // Smaller font for "Esc to cancel" (~12pt)
         IntPtr hFontSub = CreateFontW(
-            -16, 0, 0, 0, 400 /* Normal */, 0, 0, 0, 1,
+            -(int)Math.Round(16 * scale), 0, 0, 0, 400 /* Normal */, 0, 0, 0, 1,
             0, 0, 5, 0, "Segoe UI");
 
         try
@@ -304,8 +307,8 @@ public sealed class CountdownWindow : IDisposable
             FillRect(memDc, ref clearRc, hBrushBlack);
 
             // Centered dark HUD badge
-            int badgeW = 280;
-            int badgeH = 240;
+            int badgeW = (int)Math.Round(280 * scale);
+            int badgeH = (int)Math.Round(240 * scale);
             int bx = (clientW - badgeW) / 2;
             int by = (clientH - badgeH) / 2;
 
@@ -325,9 +328,9 @@ public sealed class CountdownWindow : IDisposable
             var numRc = new Win32Window.RECT
             {
                 Left = bx,
-                Top = by + 20,
+                Top = by + (int)Math.Round(20 * scale),
                 Right = bx + badgeW,
-                Bottom = by + badgeH - 50
+                Bottom = by + badgeH - (int)Math.Round(50 * scale)
             };
 
             SetBkMode(memDc, TRANSPARENT);
@@ -340,9 +343,9 @@ public sealed class CountdownWindow : IDisposable
             var subRc = new Win32Window.RECT
             {
                 Left = bx,
-                Top = by + badgeH - 45,
+                Top = by + badgeH - (int)Math.Round(45 * scale),
                 Right = bx + badgeW,
-                Bottom = by + badgeH - 15
+                Bottom = by + badgeH - (int)Math.Round(15 * scale)
             };
 
             SelectObject(memDc, hFontSub);
