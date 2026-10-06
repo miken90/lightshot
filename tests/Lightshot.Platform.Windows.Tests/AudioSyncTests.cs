@@ -15,10 +15,12 @@ namespace Lightshot.Platform.Windows.Tests;
 
 public class AudioSyncTests : IDisposable
 {
+    private readonly ITestOutputHelper _output;
     private readonly string _tempDir;
 
-    public AudioSyncTests()
+    public AudioSyncTests(ITestOutputHelper output)
     {
+        _output = output;
         _tempDir = Path.Combine(Path.GetTempPath(), "Lightshot_AudioSync_" + Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(_tempDir);
         try { MediaFactory.MFStartup(); } catch { }
@@ -121,8 +123,8 @@ public class AudioSyncTests : IDisposable
 
             var (frameCount, droppedPercent) = SyncTakeAnalyzer.AnalyzeVideoFrames(finalPath, fps, totalSeconds);
 
-            Console.WriteLine($"[AudioSync] Start offset: {offsetStartMs:F2} ms, End offset: {offsetEndMs:F2} ms, Drift: {driftMs:F2} ms");
-            Console.WriteLine($"[AudioSync] Decoded frames: {frameCount}, Dropped: {droppedPercent:F3}%, CPU: {cpuPercent:F2}%");
+            _output.WriteLine($"[AudioSync] Start offset: {offsetStartMs:F2} ms, End offset: {offsetEndMs:F2} ms, Drift: {driftMs:F2} ms");
+            _output.WriteLine($"[AudioSync] Decoded frames: {frameCount}, Dropped: {droppedPercent:F3}%, CPU: {cpuPercent:F2}%");
 
             Assert.True(driftMs < 40.0, $"A/V drift over 60s must be < 40 ms. Measured: {driftMs:F2} ms (Start offset: {offsetStartMs:F2} ms, End offset: {offsetEndMs:F2} ms)");
             Assert.True(droppedPercent < 1.0, $"Dropped frames must be < 1.0%. Measured: {droppedPercent:F3}% ({frameCount} frames)");
