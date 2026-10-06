@@ -172,7 +172,7 @@ public class UpdateStagerTests
         {
             // Place an older nupkg in staging beforehand
             string oldNupkgPath = Path.Combine(tempStaging, "LightshotApp-9.9.8-full.nupkg");
-            await File.WriteAllBytesAsync(oldNupkgPath, new byte[] { 1, 2, 3 });
+            await File.WriteAllBytesAsync(oldNupkgPath, new byte[] { 1, 2, 3 }, TestContext.Current.CancellationToken);
 
             var handler = new UrlMapHandler();
             string packageUrl = "https://example.com/" + packageFileName;
@@ -198,7 +198,7 @@ public class UpdateStagerTests
             string feedPath = Path.Combine(tempStaging, UpdateStager.FeedFileName);
             Assert.True(File.Exists(feedPath));
 
-            string feedJson = await File.ReadAllTextAsync(feedPath);
+            string feedJson = await File.ReadAllTextAsync(feedPath, TestContext.Current.CancellationToken);
             var feed = Velopack.VelopackAssetFeed.FromJson(feedJson);
             Assert.NotNull(feed);
             var asset = Assert.Single(feed.Assets);
@@ -270,7 +270,7 @@ public class UpdateStagerTests
             // Feed still exists and matches
             string feedPath = Path.Combine(tempStaging, UpdateStager.FeedFileName);
             Assert.True(File.Exists(feedPath));
-            string feedJson = await File.ReadAllTextAsync(feedPath);
+            string feedJson = await File.ReadAllTextAsync(feedPath, TestContext.Current.CancellationToken);
             var feed = Velopack.VelopackAssetFeed.FromJson(feedJson);
             Assert.NotNull(feed);
             Assert.Single(feed.Assets);

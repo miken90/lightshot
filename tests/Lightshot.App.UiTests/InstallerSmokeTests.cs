@@ -113,19 +113,21 @@ public class InstallerSmokeTests : IClassFixture<DryRunReleaseFixture>
         var verifier = new ManifestVerifier(_fixture.PublicKeyBase64, null, runningVersion: "0.0.1");
         var verified = verifier.Verify(json, sigBytes, 0);
         Assert.NotNull(verified);
-        Assert.Equal("0.1.0", verified.Version);
-        Assert.Equal(7, verified.Sequence);
+        Assert.True(verified.IsValid);
+        Assert.NotNull(verified.Manifest);
+        Assert.Equal("0.1.0", verified.Manifest.Version);
+        Assert.Equal(7, verified.Manifest.Sequence);
 
         var nupkgFiles = Directory.GetFiles(_fixture.ReleaseDir, "*-0.1.0-full.nupkg");
         Assert.Single(nupkgFiles);
         string nupkgPath = nupkgFiles[0];
         string nupkgFileName = Path.GetFileName(nupkgPath);
-        Assert.Equal(nupkgFileName, verified.Package);
+        Assert.Equal(nupkgFileName, verified.Manifest.Package);
 
         byte[] nupkgBytes = File.ReadAllBytes(nupkgPath);
         string nupkgSha256 = Convert.ToHexString(SHA256.HashData(nupkgBytes));
-        Assert.Equal(verified.Sha256, nupkgSha256, ignoreCase: true);
-        Assert.Equal((long)nupkgBytes.Length, verified.Size);
+        Assert.Equal(verified.Manifest.Sha256, nupkgSha256, ignoreCase: true);
+        Assert.Equal((long)nupkgBytes.Length, verified.Manifest.Size);
 
         // (2) Every line of SHA256SUMS.txt matches recomputed hash
         string sumsPath = Path.Combine(_fixture.ReleaseDir, "SHA256SUMS.txt");
@@ -191,7 +193,7 @@ public class InstallerSmokeTests : IClassFixture<DryRunReleaseFixture>
         Assert.Single(fullAssets);
         var asset = fullAssets[0];
         Assert.Equal(UpdateStager.VelopackPackageId, asset.PackageId);
-        Assert.Equal(verified.Package, asset.FileName);
+        Assert.Equal(verified.Manifest.Package, asset.FileName);
     }
 
     [Fact]

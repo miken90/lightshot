@@ -83,7 +83,7 @@ public class VelopackApplierTests
             // packagesDir holds a file whose SHA-256 equals the staged one
             string preparedFile = Path.Combine(packagesDir, packageFileName);
             Assert.True(File.Exists(preparedFile));
-            byte[] preparedBytes = await File.ReadAllBytesAsync(preparedFile);
+            byte[] preparedBytes = await File.ReadAllBytesAsync(preparedFile, TestContext.Current.CancellationToken);
             string preparedSha256 = Convert.ToHexString(SHA256.HashData(preparedBytes));
             Assert.Equal(sha256Hex, preparedSha256);
         }
