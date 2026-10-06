@@ -11,6 +11,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FlaUI.Core;
 using FlaUI.Core.AutomationElements;
+using FlaUI.Core.Capturing;
 using FlaUI.Core.Input;
 using FlaUI.Core.Tools;
 using FlaUI.Core.WindowsAPI;
@@ -25,7 +26,17 @@ namespace Lightshot.App.UiTests;
 
 public class RecordingFlowTests
 {
+    private readonly ITestOutputHelper _output;
+
+    public RecordingFlowTests(ITestOutputHelper output)
+    {
+        _output = output;
+    }
+
     private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetForegroundWindow();
 
     [DllImport("user32.dll")]
     private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
@@ -175,6 +186,70 @@ public class RecordingFlowTests
         return found;
     }
 
+    private static IntPtr FindTopLevelWindowByClass(int processId, string className)
+    {
+        IntPtr found = IntPtr.Zero;
+        EnumWindows((hWnd, lParam) =>
+        {
+            GetWindowThreadProcessId(hWnd, out uint pid);
+            if (pid == (uint)processId && IsWindowVisible(hWnd))
+            {
+                var sb = new System.Text.StringBuilder(128);
+                GetClassNameW(hWnd, sb, 128);
+                if (sb.ToString() == className)
+                {
+                    found = hWnd;
+                    return false;
+                }
+            }
+            return true;
+        }, IntPtr.Zero);
+        return found;
+    }
+
+    // Failure context for the trx: which app windows exist, which one has the foreground, and a screenshot.
+    private string DescribeApp(Process process, string tag)
+    {
+        var sb = new System.Text.StringBuilder();
+        bool exited = process.HasExited;
+        sb.Append($"[{tag}] app exited={exited}");
+        if (exited) sb.Append($" exitCode={process.ExitCode}");
+        IntPtr fg = GetForegroundWindow();
+        GetWindowThreadProcessId(fg, out uint fgPid);
+        sb.Append($"; foreground pid={fgPid}");
+        EnumWindows((hWnd, lParam) =>
+        {
+            GetWindowThreadProcessId(hWnd, out uint pid);
+            if (pid == (uint)process.Id && IsWindowVisible(hWnd))
+            {
+                var cls = new System.Text.StringBuilder(128);
+                var title = new System.Text.StringBuilder(128);
+                GetClassNameW(hWnd, cls, 128);
+                GetWindowTextW(hWnd, title, 128);
+                sb.Append($"; window {cls} '{title}'{(hWnd == fg ? " (foreground)" : string.Empty)}");
+            }
+            return true;
+        }, IntPtr.Zero);
+
+        try
+        {
+            string shot = Path.Combine(Path.GetTempPath(), $"Lightshot_UiDiag_{tag}_{DateTime.Now:HHmmss}.png");
+            Capture.Screen().ToFile(shot);
+            sb.Append($"; screenshot {shot}");
+        }
+        catch (Exception ex)
+        {
+            sb.Append($"; screenshot failed: {ex.Message}");
+        }
+
+        string text = sb.ToString();
+        _output.WriteLine(text);
+        return text;
+    }
+
+    private static string ListFiles(string dir) =>
+        Directory.Exists(dir) ? $"[{string.Join(", ", Directory.GetFiles(dir).Select(Path.GetFileName))}]" : "(missing)";
+
     private static void TriggerRecordButton(Application app, UIA3Automation automation, AutomationElement recordButtonElement)
     {
         var toolbarWin = app.GetAllTopLevelWindows(automation)
@@ -203,20 +278,13 @@ public class RecordingFlowTests
         Thread.Sleep(200);
 
         var btn = recordButtonElement.AsButton();
-        try { btn.Focus(); } catch { }
-        Thread.Sleep(100);
-        try { btn.Invoke(); } catch { }
-        try { btn.Click(); } catch { }
-        Keyboard.Press(VirtualKeyShort.RETURN);
+        try { btn.Invoke(); } catch { btn.Click(); }
 
-        // Wait up to 5s for the toolbar to close
-        Retry.WhileTrue(
-            () =>
-            {
-                var windows = app.GetAllTopLevelWindows(automation);
-                return windows.Any(w => w.Title == "Recording Toolbar");
-            },
+        // The toolbar closes once it hands the choice to the coordinator.
+        var closed = Retry.WhileTrue(
+            () => app.GetAllTopLevelWindows(automation).Any(w => w.Title == "Recording Toolbar"),
             TimeSpan.FromSeconds(5));
+        Assert.True(closed?.Success ?? false, "Recording toolbar must close after Record is invoked");
     }
 
     private static ProcessStartInfo CreateStartInfo(string exePath, string args)
@@ -339,6 +407,7 @@ public class RecordingFlowTests
 
                 Assert.NotNull(pauseButtonResult?.Result);
                 var pauseBtn = pauseButtonResult.Result.AsButton();
+                Thread.Sleep(2000);
                 try { pauseBtn.Invoke(); } catch { pauseBtn.Click(); }
 
                 var pauseWatch = Stopwatch.StartNew();
@@ -512,16 +581,29 @@ public class RecordingFlowTests
                 var discardBtn = discardButtonResult.Result.AsButton();
                 try { discardBtn.Invoke(); } catch { discardBtn.Click(); }
 
-                // 6. Confirm discard message box by pressing Enter
-                Thread.Sleep(500);
-                Keyboard.Press(VirtualKeyShort.RETURN);
+                // 6. Confirm the discard message box (ConfirmBeforeDiscard=true) with OK.
+                // A key press goes to the foreground window, and a process that only received UIA calls
+                // may not own the foreground, so press the dialog's own OK button (IDOK = "1").
+                var dialogResult = Retry.WhileNull(
+                    () =>
+                    {
+                        IntPtr hwnd = FindTopLevelWindowByClass(process.Id, "#32770");
+                        return hwnd == IntPtr.Zero ? null : (IntPtr?)hwnd;
+                    },
+                    TimeSpan.FromSeconds(5));
+                if (dialogResult?.Result == null) Assert.Fail("Discard confirmation must appear: " + DescribeApp(process, "discard-dialog"));
+                IntPtr dialogHwnd = dialogResult!.Result!.Value;
+                _output.WriteLine($"Discard dialog foreground={GetForegroundWindow() == dialogHwnd}");
+                var okButton = automation.FromHandle(dialogHwnd).FindFirstDescendant(cf => cf.ByAutomationId("1"));
+                Assert.NotNull(okButton);
+                okButton.AsButton().Invoke();
 
                 // 7. Verify cover window is removed within 5s
                 var coverClosedResult = Retry.WhileTrue(
                     () => DoesDesktopCoverExist(process.Id),
                     TimeSpan.FromSeconds(5));
 
-                Assert.True(coverClosedResult?.Success ?? true, "Desktop cover must be removed within 5s after discard");
+                if (!(coverClosedResult?.Success ?? true)) Assert.Fail("Desktop cover must be removed within 5s after discard: " + DescribeApp(process, "cover"));
             }
             finally
             {
@@ -657,8 +739,12 @@ public class RecordingFlowTests
                     () => Directory.GetFiles(tempSaveDir, "*.mp4").FirstOrDefault(),
                     TimeSpan.FromSeconds(20));
 
-                Assert.NotNull(deliveredResult?.Result);
-                Assert.True(File.Exists(deliveredResult.Result));
+                if (deliveredResult?.Result == null)
+                {
+                    Assert.Fail($"Leftover recording must be delivered within 20s: scratch={ListFiles(appScratchDir)} save={ListFiles(tempSaveDir)} " +
+                        DescribeApp(process, "leftover"));
+                }
+                Assert.True(File.Exists(deliveredResult!.Result));
                 Assert.False(File.Exists(scratchFile), "Recovered file must be moved/removed from scratch folder");
             }
             finally
