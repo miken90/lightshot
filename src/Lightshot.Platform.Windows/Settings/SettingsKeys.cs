@@ -35,6 +35,14 @@ public static class SettingsKeys
     // Phase 4 custom setting preserved for editor state
     public const string EditorLastArrowStyle = "editor.lastArrowStyle";
 
+    // Custom string keys read through ISettingsStore.GetSetting/SetSetting. They must stay out of AllKeys:
+    // JsonSettingsStore reloads root keys only when they are not in AllKeys (JsonSettingsStore.cs:612-635).
+    public const string UpdateEnabled = "update.enabled";            // "true" (default when absent) or "false"
+    public const string UpdateSequence = "update.sequence";          // sequence floor of the applied release
+    public const string UpdatePendingVersion = "update.pendingVersion";
+    public const string UpdatePendingSequence = "update.pendingSequence";
+    public const string AppLaunchCount = "app.launchCount";          // installed launches, for second-launch consent
+
     // Default values
     public const string DefaultFormat = "png";
     public const double DefaultJpegQuality = 0.9;
