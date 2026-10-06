@@ -20,6 +20,7 @@
     <PackageReference Include="Vortice.MediaFoundation" />
     <PackageReference Include="Velopack" />
     <PackageReference Include="SkiaSharp" />
+    <PackageReference Include="NAudio" />
   </ItemGroup>
 
   <ItemGroup>
