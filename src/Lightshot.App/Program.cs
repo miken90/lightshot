@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
+using Lightshot.Core;
 using Lightshot.Platform.Windows.Files;
 using Lightshot.Platform.Windows.Settings;
 using Lightshot.Platform.Windows.Windows;
@@ -127,6 +128,7 @@ public static class Program
             args.Contains("--area", StringComparer.OrdinalIgnoreCase) ||
             args.Contains("--capture-area", StringComparer.OrdinalIgnoreCase) ||
             args.Contains("--quick-access", StringComparer.OrdinalIgnoreCase) ||
+            args.Contains("--record-screen", StringComparer.OrdinalIgnoreCase) ||
             string.Equals(Environment.GetEnvironmentVariable("LIGHTSHOT_DISABLE_ONBOARDING"), "1", StringComparison.OrdinalIgnoreCase) ||
             string.Equals(Environment.GetEnvironmentVariable("LIGHTSHOT_TEST_MODE"), "1", StringComparison.OrdinalIgnoreCase);
 
@@ -142,6 +144,11 @@ public static class Program
             args.Contains("--quick-access", StringComparer.OrdinalIgnoreCase))
         {
             app.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Send, new Action(() => controller.TriggerAreaCapture()));
+        }
+
+        if (args.Contains("--record-screen", StringComparer.OrdinalIgnoreCase))
+        {
+            app.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Send, new Action(() => controller.TriggerCaptureAction(CaptureAction.RecordScreen)));
         }
 
         int exitCode = app.Run();
