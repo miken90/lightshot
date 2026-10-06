@@ -404,9 +404,10 @@ public sealed partial class AppController : ICaptureUI, IDisposable
                 {
                     ThemeService.Instance.Apply(pref);
                     _trayIcon.UpdateTheme(ThemeService.GetSystemUsesLightTheme());
-                });
+                },
+                updates: CreateUpdateSettingsViewModel());
             _settingsWindow = new SettingsWindow(vm);
-            _settingsWindow.Closed += (s, e) => _settingsWindow = null;
+            _settingsWindow.Closed += (s, e) => { _settingsWindow = null; _openUpdateSettings = null; };
         }
 
         _settingsWindow.Show();

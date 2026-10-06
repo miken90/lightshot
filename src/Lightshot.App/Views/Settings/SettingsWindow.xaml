@@ -38,6 +38,9 @@
             <TabItem Header="Advanced" Foreground="{DynamicResource Theme.TextPrimary}">
                 <local:AdvancedPane x:Name="AdvancedPaneView" />
             </TabItem>
+            <TabItem Header="Updates" Foreground="{DynamicResource Theme.TextPrimary}">
+                <local:UpdatePane x:Name="UpdatePaneView" />
+            </TabItem>
             <TabItem Header="About" Foreground="{DynamicResource Theme.TextPrimary}">
                 <local:AboutPane x:Name="AboutPaneView" />
             </TabItem>

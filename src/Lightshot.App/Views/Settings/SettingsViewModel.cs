@@ -38,9 +38,11 @@ public class SettingsViewModel : INotifyPropertyChanged
         Func<HotkeyBindings, IReadOnlyList<CaptureAction>>? applyHotkeys = null,
         Action<int>? applyRetention = null,
         Action<AppearancePreference>? applyAppearance = null,
-        bool? isHevcAvailable = null)
+        bool? isHevcAvailable = null,
+        UpdateSettingsViewModel? updates = null)
     {
         _store = store;
+        Updates = updates ?? new UpdateSettingsViewModel(store, typeof(SettingsViewModel).Assembly.GetName().Version?.ToString(3) ?? "0.0.0", isInstalled: false);
         _applyHotkeys = applyHotkeys;
         _applyRetention = applyRetention;
         _applyAppearance = applyAppearance;
@@ -68,6 +70,8 @@ public class SettingsViewModel : INotifyPropertyChanged
             _jpegQuality = 0.9;
         }
     }
+
+    public UpdateSettingsViewModel Updates { get; }
 
     public HotkeyBindings Hotkeys
     {

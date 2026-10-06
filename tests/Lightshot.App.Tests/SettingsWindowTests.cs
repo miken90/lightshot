@@ -83,4 +83,53 @@ public class SettingsWindowTests
             }
         });
     }
+
+    [Fact]
+    [Unit]
+    public void HasUpdatesTabHostingUpdatePane()
+    {
+        RunInSta(() =>
+        {
+            var store = new MemorySettingsStore();
+            var vm = new SettingsViewModel(store);
+            var window = new SettingsWindow(vm);
+
+            try
+            {
+                var grid = (Grid)window.Content;
+                var tabControl = grid.Children.OfType<TabControl>().FirstOrDefault();
+                Assert.NotNull(tabControl);
+
+                var items = tabControl.Items.OfType<TabItem>().ToList();
+                int updatesIndex = items.FindIndex(t => t.Header?.ToString() == "Updates");
+                int aboutIndex = items.FindIndex(t => t.Header?.ToString() == "About");
+
+                Assert.True(updatesIndex >= 0);
+                Assert.True(aboutIndex > updatesIndex);
+                Assert.IsType<UpdatePane>(items[updatesIndex].Content);
+
+                var aboutTab = items[aboutIndex];
+                var aboutPane = Assert.IsType<AboutPane>(aboutTab.Content);
+                var buttons = FindLogicalChildren<Button>(aboutPane).ToList();
+                Assert.DoesNotContain(buttons, b => string.Equals(b.Content?.ToString(), "Check for Updates", StringComparison.OrdinalIgnoreCase));
+            }
+            finally
+            {
+                window.Close();
+            }
+        });
+    }
+
+    private static System.Collections.Generic.IEnumerable<T> FindLogicalChildren<T>(System.Windows.DependencyObject parent) where T : System.Windows.DependencyObject
+    {
+        if (parent == null) yield break;
+        foreach (object child in System.Windows.LogicalTreeHelper.GetChildren(parent))
+        {
+            if (child is System.Windows.DependencyObject dep)
+            {
+                if (dep is T match) yield return match;
+                foreach (var nested in FindLogicalChildren<T>(dep)) yield return nested;
+            }
+        }
+    }
 }

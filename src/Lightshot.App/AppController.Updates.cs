@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Lightshot.App.Views.Editor;
 using Lightshot.App.Views.Notices;
+using Lightshot.App.Views.Settings;
 using Lightshot.App.Views.VideoEditor;
 using Lightshot.Platform.Windows.Updates;
 using Lightshot.Platform.Windows.Windows;
@@ -18,6 +19,7 @@ public sealed partial class AppController
 {
     private UpdateService? _updates;
     private UpdateNoticeController? _updateNotice;
+    private UpdateSettingsViewModel? _openUpdateSettings;
 
     private void InitializeUpdates()
     {
@@ -28,10 +30,30 @@ public sealed partial class AppController
             showNotice: (title, text) => _trayIcon.ShowNotice(title, text),
             shutdown: () => Application.Current?.Dispatcher.BeginInvoke(new Action(() => Application.Current.Shutdown(0))),
             testMode: IsTestMode());
+        _updateNotice.Staged += v => _openUpdateSettings?.SetStaged(v);
         _trayIcon.OnRestartToUpdate = () => _ = _updateNotice.RestartToUpdateAsync();
         _trayIcon.OnNoticeClicked = () => ShowSettingsWindow();
         _ = _updateNotice.StartAsync(); // StartAsync catches check failures itself
     }
+
+    private UpdateSettingsViewModel CreateUpdateSettingsViewModel()
+    {
+        var vm = new UpdateSettingsViewModel(
+            _settingsStore,
+            _updates?.RunningVersion ?? AppVersion(),
+            isInstalled: _updates?.IsInstalled == true && !IsTestMode(),
+            stagedVersion: _updateNotice?.StagedVersion,
+            checkNow: () => _updateNotice?.CheckNowAsync() ?? Task.FromResult(UpdateCheckOutcome.NotInstalled),
+            restart: async () =>
+            {
+                if (_updateNotice != null) await _updateNotice.RestartToUpdateAsync();
+            });
+        _openUpdateSettings = vm;
+        return vm;
+    }
+
+    private static string AppVersion() =>
+        typeof(AppController).Assembly.GetName().Version?.ToString(3) ?? "0.0.0";
 
     private bool HasWorkInProgress()
     {
