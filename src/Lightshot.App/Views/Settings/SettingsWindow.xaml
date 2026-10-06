@@ -32,6 +32,9 @@
             <TabItem Header="After Capture" Foreground="{DynamicResource Theme.TextPrimary}">
                 <local:AfterCapturePane x:Name="AfterCapturePaneView" />
             </TabItem>
+            <TabItem Header="Recording" Foreground="{DynamicResource Theme.TextPrimary}">
+                <local:RecordingPane x:Name="RecordingPaneView" />
+            </TabItem>
             <TabItem Header="Advanced" Foreground="{DynamicResource Theme.TextPrimary}">
                 <local:AdvancedPane x:Name="AdvancedPaneView" />
             </TabItem>

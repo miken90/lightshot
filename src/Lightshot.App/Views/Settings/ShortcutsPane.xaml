@@ -36,13 +36,40 @@
             <local:HotkeyRecorder x:Name="WindowRecorder" Grid.Column="1"/>
         </Grid>
 
-        <Grid Margin="0,0,0,16">
+        <Grid Margin="0,0,0,8">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="200"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="Repeat Last Capture" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <local:HotkeyRecorder x:Name="RepeatLastRecorder" Grid.Column="1"/>
+        </Grid>
+
+        <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Record Screen" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
+            <local:HotkeyRecorder x:Name="RecordScreenRecorder" Grid.Column="1"/>
+        </Grid>
+
+        <Grid Margin="0,0,0,8">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Pause/Resume Recording" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
+            <local:HotkeyRecorder x:Name="PauseResumeRecorder" Grid.Column="1"/>
+        </Grid>
+
+        <Grid Margin="0,0,0,16">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="200"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Text="Restart Recording" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
+            <local:HotkeyRecorder x:Name="RestartRecorder" Grid.Column="1"/>
         </Grid>
 
         <TextBlock x:Name="ConflictWarning" 
