@@ -7,8 +7,8 @@
         Title="Media Preview" 
         Height="540" Width="800"
         WindowStartupLocation="CenterScreen"
-        Background="#181818" 
-        Foreground="White"
+        Background="{DynamicResource Theme.Background}" 
+        Foreground="{DynamicResource Theme.TextPrimary}"
         KeyDown="OnKeyDown">
     <Grid>
         <Grid.RowDefinitions>
@@ -25,15 +25,12 @@
                       MediaEnded="OnMediaEnded"/>
 
         <!-- Control Bar -->
-        <Border Grid.Row="1" Background="#222222" Padding="12,8">
+        <Border Grid.Row="1" Background="{DynamicResource Theme.Panel}" Padding="12,8">
             <DockPanel LastChildFill="False">
                 <Button Click="OnPlayPauseClick" 
-                        Width="32" Height="28" 
-                        DockPanel.Dock="Left" 
-                        Background="#333333" 
-                        Foreground="White" 
-                        BorderThickness="0">
-                    <TextBlock x:Name="PlayPauseIcon" Text="&#x23F8;" FontSize="12"/>
+                        Style="{DynamicResource Button.Icon}"
+                        DockPanel.Dock="Left">
+                    <TextBlock x:Name="PlayPauseIcon" Text="&#xE769;" FontFamily="{DynamicResource Font.SegoeFluentIcons}"/>
                 </Button>
 
                 <TextBlock x:Name="TimeTextBlock" 
@@ -42,15 +39,12 @@
                            Margin="12,0,0,0" 
                            DockPanel.Dock="Left"
                            FontFamily="Consolas, monospace"
-                           Foreground="#CCCCCC"/>
+                           Foreground="{DynamicResource Theme.TextSecondary}"/>
 
                 <Button Click="OnCloseClick" 
                         Content="Close (Esc)" 
-                        Padding="12,4" Height="28" 
-                        DockPanel.Dock="Right" 
-                        Background="#333333" 
-                        Foreground="White" 
-                        BorderThickness="0"/>
+                        MinWidth="80"
+                        DockPanel.Dock="Right"/>
             </DockPanel>
         </Border>
     </Grid>

@@ -5,7 +5,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         mc:Ignorable="d"
         Title="Progress" 
-        Height="180" Width="380"
+        SizeToContent="Height" Width="380"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None"
         AllowsTransparency="True"
@@ -21,8 +21,8 @@
             BorderBrush="{DynamicResource Theme.PanelEdgeStrong}" 
             BorderThickness="1" 
             CornerRadius="12" 
-            Padding="20"
-            Margin="8"
+            Padding="20" 
+            Margin="8" 
             Effect="{DynamicResource Theme.DropShadow}">
         <Grid>
             <Grid.RowDefinitions>
@@ -35,9 +35,7 @@
             <!-- Title -->
             <TextBlock Grid.Row="0" 
                        Text="{Binding Title}" 
-                       FontSize="15" 
-                       FontWeight="SemiBold" 
-                       Foreground="{DynamicResource Theme.TextPrimary}" 
+                       Style="{DynamicResource Text.Title}"
                        Margin="0,0,0,8"/>
 
             <!-- Status message -->
@@ -54,22 +52,20 @@
                          Minimum="0" Maximum="100" 
                          Value="{Binding Progress}" 
                          IsIndeterminate="{Binding IsIndeterminate}" 
-                         Foreground="#007AFF" 
                          Background="#33808080" 
-                         BorderThickness="0"
+                         BorderThickness="0" 
                          Margin="0,0,0,16"/>
 
             <!-- Action buttons -->
             <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Click="OnCancelToVideoClick" 
                         Content="Save as Video Instead" 
-                        Padding="10,4" Height="28" 
-                        Margin="0,0,8,0" 
+                        Margin="{DynamicResource Space.ButtonGap}" 
                         Visibility="{Binding CanCancelToVideo, Converter={StaticResource BoolToVis}}"/>
 
                 <Button Click="OnCancelClick" 
                         Content="Cancel" 
-                        Padding="12,4" Height="28"/>
+                        MinWidth="80"/>
             </StackPanel>
         </Grid>
     </Border>

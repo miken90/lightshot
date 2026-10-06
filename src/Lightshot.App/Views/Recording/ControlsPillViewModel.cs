@@ -52,7 +52,7 @@ public class ControlsPillViewModel : INotifyPropertyChanged
     }
 
     public string StatusText => _isPaused ? "Paused" : "Recording";
-    public string PlayPauseIcon => _isPaused ? "\u25B6" : "\u23F8"; // Play : Pause
+    public string PlayPauseIcon => _isPaused ? "\uE768" : "\uE769"; // Play : Pause
 
     public double ElapsedSeconds
     {

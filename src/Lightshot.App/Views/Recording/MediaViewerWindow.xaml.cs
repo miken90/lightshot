@@ -49,13 +49,13 @@ public partial class MediaViewerWindow : Window
         {
             MediaPlayer.Pause();
             _isPlaying = false;
-            PlayPauseIcon.Text = "\u25B6";
+            PlayPauseIcon.Text = "\uE768";
         }
         else
         {
             MediaPlayer.Play();
             _isPlaying = true;
-            PlayPauseIcon.Text = "\u23F8";
+            PlayPauseIcon.Text = "\uE769";
         }
     }
 

@@ -33,7 +33,7 @@
                            FontWeight="SemiBold" 
                            Foreground="{DynamicResource Theme.TextPrimary}"/>
                 <TextBlock Text="{Binding StatusText}" 
-                           FontSize="9" 
+                           FontSize="11" 
                            Foreground="{DynamicResource Theme.TextSecondary}" 
                            HorizontalAlignment="Center"/>
             </StackPanel>
@@ -44,7 +44,7 @@
                 <StackPanel Orientation="Horizontal" 
                             Visibility="{Binding HasMicrophone, Converter={StaticResource BoolToVis}}" 
                             Margin="0,1">
-                    <TextBlock Text="&#x1F3A4;" FontSize="10" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="&#xE720;" FontFamily="{DynamicResource Font.SegoeFluentIcons}" FontSize="12" Margin="0,0,4,0" VerticalAlignment="Center"/>
                     <ProgressBar Minimum="0" Maximum="1" Value="{Binding MicrophoneLevel}" 
                                  Width="36" Height="4" Foreground="#30D158" Background="#40808080" BorderThickness="0"/>
                 </StackPanel>
@@ -53,13 +53,13 @@
                 <StackPanel Orientation="Horizontal" 
                             Visibility="{Binding HasComputerAudio, Converter={StaticResource BoolToVis}}" 
                             Margin="0,1">
-                    <TextBlock Text="&#x1F50A;" FontSize="10" Margin="0,0,4,0" VerticalAlignment="Center"/>
+                    <TextBlock Text="&#xE767;" FontFamily="{DynamicResource Font.SegoeFluentIcons}" FontSize="12" Margin="0,0,4,0" VerticalAlignment="Center"/>
                     <ProgressBar Minimum="0" Maximum="1" Value="{Binding ComputerAudioLevel}" 
                                  Width="36" Height="4" Foreground="#30D158" Background="#40808080" BorderThickness="0"/>
                 </StackPanel>
 
                 <!-- Muted Warning -->
-                <TextBlock Text="Mic muted?" FontSize="8" Foreground="{DynamicResource Theme.Warning}" 
+                <TextBlock Text="Mic muted?" FontSize="11" Foreground="{DynamicResource Theme.Warning}" 
                            HorizontalAlignment="Center"
                            Visibility="{Binding ShowsMutedWarning, Converter={StaticResource BoolToVis}}"/>
             </StackPanel>
@@ -69,40 +69,40 @@
             <!-- Pause / Resume Button -->
             <Button AutomationProperties.AutomationId="RecordingPauseResumeButton"
                     Click="OnPauseResumeClick" 
-                    Width="30" Height="30" 
+                    Style="{DynamicResource Button.Icon}"
                     Margin="2,0" 
                     ToolTip="{Binding StatusText}">
-                <TextBlock Text="{Binding PlayPauseIcon}" FontSize="12"/>
+                <TextBlock Text="{Binding PlayPauseIcon}" FontFamily="{DynamicResource Font.SegoeFluentIcons}"/>
             </Button>
 
             <!-- Stop Button -->
             <Button AutomationProperties.AutomationId="RecordingStopButton"
                     Click="OnStopClick" 
-                    Width="30" Height="30" 
+                    Style="{DynamicResource Button.Icon}"
                     Margin="2,0" 
                     Background="#E02020" 
                     Foreground="White" 
                     BorderThickness="0"
                     ToolTip="Stop Recording">
-                <TextBlock Text="&#x25A0;" FontSize="13"/>
+                <TextBlock Text="&#xE71A;" FontFamily="{DynamicResource Font.SegoeFluentIcons}"/>
             </Button>
 
             <!-- Restart Button -->
             <Button AutomationProperties.AutomationId="RecordingRestartButton"
                     Click="OnRestartClick" 
-                    Width="30" Height="30" 
+                    Style="{DynamicResource Button.Icon}"
                     Margin="2,0" 
                     ToolTip="Restart Recording">
-                <TextBlock Text="&#x21BA;" FontSize="14"/>
+                <TextBlock Text="&#xE72C;" FontFamily="{DynamicResource Font.SegoeFluentIcons}"/>
             </Button>
 
             <!-- Discard Button -->
             <Button AutomationProperties.AutomationId="RecordingDiscardButton"
                     Click="OnDiscardClick" 
-                    Width="30" Height="30" 
+                    Style="{DynamicResource Button.Icon}"
                     Margin="2,0" 
                     ToolTip="Discard Recording">
-                <TextBlock Text="&#x1F5D1;" FontSize="12"/>
+                <TextBlock Text="&#xE74D;" FontFamily="{DynamicResource Font.SegoeFluentIcons}"/>
             </Button>
         </StackPanel>
     </Border>

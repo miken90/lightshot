@@ -11,7 +11,7 @@
         ShowInTaskbar="False" 
         Topmost="True" 
         ResizeMode="NoResize"
-        Width="300" 
+        Width="320" 
         SizeToContent="Height"
         KeyDown="OnKeyDown"
         MouseMove="OnPreviewMouseMove">
@@ -62,26 +62,23 @@
             <!-- Rename / Filename -->
             <TextBox x:Name="NameTextBox" 
                      Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
-                     Margin="0,10,0,10" 
-                     Padding="6,4"/>
+                     Margin="0,10,0,10"/>
 
             <!-- Action Buttons Row -->
             <DockPanel LastChildFill="False">
                 <!-- Trash (Delete) -->
                 <Button AutomationProperties.AutomationId="PostRecordingTrashButton"
                         Click="OnTrashClick" 
-                        Width="32" Height="30" 
+                        Style="{DynamicResource Button.Icon}"
+                        Content="&#xE74D;"
                         DockPanel.Dock="Left" 
                         Foreground="{DynamicResource Theme.Warning}" 
-                        ToolTip="Move to Trash">
-                    <TextBlock Text="&#x1F5D1;" FontSize="13"/>
-                </Button>
+                        ToolTip="Move to Trash"/>
 
                 <!-- Copy -->
                 <Button AutomationProperties.AutomationId="PostRecordingCopyButton"
                         Click="OnCopyClick" 
-                        Padding="10,4" Height="30" 
-                        Margin="6,0,0,0" 
+                        Margin="{DynamicResource Space.ButtonGap}" 
                         DockPanel.Dock="Left" 
                         ToolTip="Copy to Clipboard">
                     <TextBlock Text="Copy"/>
@@ -90,8 +87,7 @@
                 <!-- Edit (if video) -->
                 <Button AutomationProperties.AutomationId="PostRecordingEditButton"
                         Click="OnEditClick" 
-                        Padding="10,4" Height="30" 
-                        Margin="6,0,0,0" 
+                        Margin="{DynamicResource Space.ButtonGap}" 
                         DockPanel.Dock="Left" 
                         Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}" 
                         ToolTip="Edit Video">
@@ -101,12 +97,8 @@
                 <!-- Save -->
                 <Button AutomationProperties.AutomationId="PostRecordingSaveButton"
                         Click="OnSaveClick" 
-                        Padding="12,4" Height="30" 
+                        Style="{DynamicResource AccentButtonStyle}"
                         DockPanel.Dock="Right" 
-                        Background="#007AFF" 
-                        Foreground="White" 
-                        BorderThickness="0" 
-                        FontWeight="SemiBold"
                         ToolTip="Save Recording">
                     <TextBlock Text="Save"/>
                 </Button>
