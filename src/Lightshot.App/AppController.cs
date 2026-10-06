@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
+using System.Diagnostics;
 using Lightshot.App.Theming;
 using Lightshot.App.Views.Editor;
 using Lightshot.App.Views.History;
@@ -14,14 +15,18 @@ using Lightshot.App.Views.Notices;
 using Lightshot.App.Views.Onboarding;
 using Lightshot.App.Views.Pin;
 using Lightshot.App.Views.QuickAccess;
+using Lightshot.App.Views.Recording;
 using Lightshot.App.Views.Settings;
 using Lightshot.Core;
+using Lightshot.Platform.Windows.Audio;
 using Lightshot.Platform.Windows.Capture;
 using Lightshot.Platform.Windows.Clipboard;
 using Lightshot.Platform.Windows.Displays;
 using Lightshot.Platform.Windows.Files;
 using Lightshot.Platform.Windows.Hotkeys;
+using Lightshot.Platform.Windows.Media;
 using Lightshot.Platform.Windows.Overlay;
+using Lightshot.Platform.Windows.Recording;
 using Lightshot.Platform.Windows.Settings;
 using Lightshot.Platform.Windows.Shell;
 using Lightshot.Platform.Windows.Tray;
@@ -35,7 +40,7 @@ namespace Lightshot.App;
 /// capture service, overlay host, hotkeys, tray, window presenter, sinks, settings store, editor,
 /// Quick Access cards, PinBoard, History, and Settings.
 /// </summary>
-public sealed class AppController : ICaptureUI, IDisposable
+public sealed partial class AppController : ICaptureUI, IDisposable
 {
     private readonly ShellThread _shellThread;
     private readonly DisplayTopology _topology;
@@ -53,6 +58,11 @@ public sealed class AppController : ICaptureUI, IDisposable
     private readonly HistoryStore _historyStore;
     private readonly PinBoard _pinBoard;
     private readonly QuickAccessHost _quickAccessHost;
+    private readonly ScratchStore _scratchStore;
+    private readonly AudioDeviceService _audioDevices;
+    private readonly WindowsRecordingService _recordingService;
+    private readonly SystemMediaSink _mediaSink;
+    private readonly RecordingSelectionOverlay _recordingOverlay;
     private readonly AppCoordinator _coordinator;
 
     private EditorWindow? _activeEditorWindow;
@@ -115,23 +125,34 @@ public sealed class AppController : ICaptureUI, IDisposable
                 Pin: image => PinImage(image)),
             settings: () => _settingsStore.QuickAccess);
 
+        // One scratch root for engine takes, coordinator outputs and recovery, so a crash leaves files recovery can see.
+        _scratchStore = new ScratchStore(Path.Combine(AppPaths.LocalData, "Lightshot Recordings"));
+        _audioDevices = new AudioDeviceService();
+        var engine = new RecordingEngine(scratchStore: _scratchStore, audioDeviceService: _audioDevices,
+            playSounds: () => _settingsStore.RecordingDefaults.PlaySounds);
+        _recordingService = new WindowsRecordingService(engine, _audioDevices);
+        _mediaSink = new SystemMediaSink();
+        _recordingOverlay = new RecordingSelectionOverlay(_overlay, _audioDevices, _settingsStore);
+
         _coordinator = new AppCoordinator(
             _captureService,
-            _overlay,
+            _recordingOverlay,
             _imageSource,
             _imageSink,
             _settingsStore,
             history: _historyStore,
-            recordingService: null,
-            mediaSink: null,
-            gifEncoder: null,
-            mediaMetadata: null,
-            scratchDirectory: null,
+            recordingService: _recordingService,
+            mediaSink: _mediaSink,
+            gifEncoder: new MfGifEncoder(),
+            mediaMetadata: new MfMediaMetadata(),
+            scratchDirectory: AppPaths.LocalData,
             renderer: _renderer,
             codec: _codec,
             sleep: null,
             clock: null,
             ui: this);
+
+        Debug.Assert(string.Equals(Path.GetFullPath(_coordinator.RecordingScratchDirectory), Path.GetFullPath(_scratchStore.RootDirectory), StringComparison.OrdinalIgnoreCase));
     }
 
     public void Initialize()
@@ -163,6 +184,7 @@ public sealed class AppController : ICaptureUI, IDisposable
         };
 
         RegisterHotkeys();
+        InitializeRecording();
     }
 
     private void OnSettingChanged(object? sender, string key)
@@ -218,6 +240,15 @@ public sealed class AppController : ICaptureUI, IDisposable
                 break;
             case CaptureAction.RepeatLast:
                 _ = _coordinator.RepeatLastCaptureAsync();
+                break;
+            case CaptureAction.RecordScreen:
+                _ = _coordinator.ToggleRecordingAsync();
+                break;
+            case CaptureAction.PauseResumeRecording:
+                _ = _coordinator.PauseResumeRecordingAsync();
+                break;
+            case CaptureAction.RestartRecording:
+                _ = _coordinator.RestartRecordingAsync();
                 break;
         }
     }
@@ -455,23 +486,6 @@ public sealed class AppController : ICaptureUI, IDisposable
             "Please check Windows system permissions.");
     }
 
-    public void PresentRecordingState(RecordingSession session) { }
-    public Task<bool> RunRecordingCountdownAsync(int seconds) => Task.FromResult(true);
-    public Task<bool> ConfirmRecordingRestartAsync() => Task.FromResult(true);
-    public Task<bool> ConfirmRecordingDiscardAsync() => Task.FromResult(true);
-    public Task<bool> ResolveMicrophoneDisconnectedAsync() => Task.FromResult(true);
-    public void PresentRecordingFinished(string path) { }
-    public void PresentPostRecordingOverlay(PendingRecording recording) { }
-    public void OpenVideoEditor(string path, string? inputPath = null) { }
-    public void PresentRecordingPreparation(Action cancel) { }
-    public void UpdateRecordingPreparation(double progress) { }
-    public void DismissRecordingPreparation() { }
-    public void PresentGifConversion(Action cancel) { }
-    public void UpdateGifConversion(double progress) { }
-    public void DismissGifConversion() { }
-    public Task<bool> ResolveCancelledGifConversionAsync() => Task.FromResult(true);
-    public void PresentRecordingFailure(RecordingError error) { }
-
     public void Dispose()
     {
         if (_disposed) return;
@@ -510,6 +524,7 @@ public sealed class AppController : ICaptureUI, IDisposable
         _pinBoard.Dispose();
         _trayIcon.Dispose();
         _hotkeys.Dispose();
+        DisposeRecording();
         _overlay.Dispose();
         _shellThread.Dispose();
     }
