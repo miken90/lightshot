@@ -14,11 +14,16 @@
         </Grid.RowDefinitions>
 
         <!-- Top Time Readouts -->
-        <DockPanel Grid.Row="0" Margin="0,0,0,4">
-            <TextBlock x:Name="StartLabel" Text="00:00" Foreground="{DynamicResource Theme.TextSecondary}" FontSize="11" DockPanel.Dock="Left"/>
-            <TextBlock x:Name="DurationLabel" Text="00:00" Foreground="{DynamicResource Theme.TextPrimary}" FontSize="11" FontWeight="SemiBold" HorizontalAlignment="Center"/>
-            <TextBlock x:Name="EndLabel" Text="00:00" Foreground="{DynamicResource Theme.TextSecondary}" FontSize="11" DockPanel.Dock="Right"/>
-        </DockPanel>
+        <Grid Grid.Row="0" Margin="0,0,0,4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" x:Name="StartLabel" Text="00:00" Foreground="{DynamicResource Theme.TextSecondary}" FontSize="12" HorizontalAlignment="Left"/>
+            <TextBlock Grid.Column="1" x:Name="DurationLabel" Text="00:00" Foreground="{DynamicResource Theme.TextPrimary}" FontSize="12" FontWeight="SemiBold" HorizontalAlignment="Center"/>
+            <TextBlock Grid.Column="2" x:Name="EndLabel" Text="00:00" Foreground="{DynamicResource Theme.TextSecondary}" FontSize="12" HorizontalAlignment="Right"/>
+        </Grid>
 
         <!-- Track & Thumbs Area -->
         <Canvas x:Name="TrackCanvas" Grid.Row="1" Background="#2A2A2A" ClipToBounds="True">
