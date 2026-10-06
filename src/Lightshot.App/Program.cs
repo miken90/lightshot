@@ -154,6 +154,8 @@ public static class Program
 
         int exitCode = app.Run();
         activateWaitHandle?.Unregister(null);
+        // Apply on quit (spec consent rule); runs after the UI has stopped.
+        controller.ApplyPendingUpdateOnExit();
         controller.Dispose();
         return exitCode;
     }

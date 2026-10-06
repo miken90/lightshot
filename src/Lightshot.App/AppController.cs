@@ -185,6 +185,7 @@ public sealed partial class AppController : ICaptureUI, IDisposable
 
         RegisterHotkeys();
         InitializeRecording();
+        InitializeUpdates();
     }
 
     private void OnSettingChanged(object? sender, string key)
@@ -522,6 +523,7 @@ public sealed partial class AppController : ICaptureUI, IDisposable
 
         _quickAccessHost.Dispose();
         _pinBoard.Dispose();
+        DisposeUpdates();
         _trayIcon.Dispose();
         _hotkeys.Dispose();
         DisposeRecording();
