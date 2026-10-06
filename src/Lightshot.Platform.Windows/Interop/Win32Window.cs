@@ -19,6 +19,7 @@ public static class Win32Window
     public const uint WDA_NONE = 0x00000000;
     public const uint WDA_EXCLUDEFROMCAPTURE = 0x00000011;
 
+    public const uint WM_CLOSE = 0x0010;
     public const uint WM_PAINT = 0x000F;
     public const uint WM_ERASEBKGND = 0x0014;
     public const uint WM_KEYDOWN = 0x0100;

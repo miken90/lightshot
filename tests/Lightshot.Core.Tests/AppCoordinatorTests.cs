@@ -404,6 +404,40 @@ public class AppCoordinatorTests
     }
 
     [Fact]
+    public async Task AreaCaptureTriggeredWhileTheOverlayIsOpenIsIgnored()
+    {
+        var ui = new FakeCaptureUI();
+        var overlay = new FakeOverlayController(region: SampleRegion())
+        {
+            PendingRegion = new TaskCompletionSource<CaptureRegion?>()
+        };
+        var capture = new FakeCaptureService(SampleImage());
+        var coordinator = FrozenCoordinator(capture, overlay, ui: ui);
+
+        var first = coordinator.CaptureAreaAsync();
+        // Ignored triggers return at once; a stacked second flow would wait on the open overlay instead.
+        await Task.WhenAll(
+                coordinator.CaptureAreaAsync(),
+                coordinator.CaptureWindowAsync(),
+                coordinator.CaptureFullscreenAsync())
+            .WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+
+        Assert.Equal(1, overlay.CallCount);
+        Assert.Equal(0, overlay.WindowCallCount);
+        Assert.Empty(capture.CapturedDisplays);
+        Assert.Empty(ui.OpenedImages);
+
+        overlay.PendingRegion.SetResult(SampleRegion());
+        await first;
+        Assert.Single(ui.OpenedImages);
+
+        overlay.PendingRegion = null;
+        await coordinator.CaptureAreaAsync();
+        Assert.Equal(2, overlay.CallCount);
+        Assert.Equal(2, ui.OpenedImages.Count);
+    }
+
+    [Fact]
     public async Task OpenInEditorIsReadAtCaptureTimeSoAChangeAppliesToTheNextCapture()
     {
         var ui = new FakeCaptureUI();

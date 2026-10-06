@@ -2,16 +2,41 @@
 // MIT License, Copyright (c) 2026 Viet Le
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Lightshot.Core;
 
 public partial class AppCoordinator
 {
+    // 1 while a screenshot flow runs. A second trigger (hotkey, tray, second launch) during the
+    // overlay would stack a second overlay and yield a second image, so it is ignored.
+    private int _captureInProgress;
+
+    private async Task RunExclusiveCaptureAsync(Func<Task> flow)
+    {
+        if (Interlocked.Exchange(ref _captureInProgress, 1) == 1)
+        {
+            return;
+        }
+
+        try
+        {
+            await flow();
+        }
+        finally
+        {
+            Volatile.Write(ref _captureInProgress, 0);
+        }
+    }
+
     /// <summary>
     /// Fullscreen capture flow: checks onboarding, applies delay, captures display, routes to editor/QA.
     /// </summary>
-    public async Task CaptureFullscreenAsync(uint? displayId = null)
+    public Task CaptureFullscreenAsync(uint? displayId = null) =>
+        RunExclusiveCaptureAsync(() => RunFullscreenCaptureAsync(displayId));
+
+    private async Task RunFullscreenCaptureAsync(uint? displayId)
     {
         _lastCapture = new LastCapture.Fullscreen(displayId);
         if (!await GuideFirstRunAuthorizationIfNeededAsync(_captureService))
@@ -36,7 +61,9 @@ public partial class AppCoordinator
     /// <summary>
     /// Area capture flow: checks onboarding, freezes screen (or delays if timed), opens overlay, routes crop.
     /// </summary>
-    public async Task CaptureAreaAsync()
+    public Task CaptureAreaAsync() => RunExclusiveCaptureAsync(RunAreaCaptureAsync);
+
+    private async Task RunAreaCaptureAsync()
     {
         _lastCapture = new LastCapture.Area();
         if (!await GuideFirstRunAuthorizationIfNeededAsync(_captureService))
@@ -159,7 +186,9 @@ public partial class AppCoordinator
     /// <summary>
     /// Window capture flow: checks onboarding, freezes screen with windows, opens picker, routes capture.
     /// </summary>
-    public async Task CaptureWindowAsync()
+    public Task CaptureWindowAsync() => RunExclusiveCaptureAsync(RunWindowCaptureAsync);
+
+    private async Task RunWindowCaptureAsync()
     {
         _lastCapture = new LastCapture.Window();
         if (!await GuideFirstRunAuthorizationIfNeededAsync(_captureService))

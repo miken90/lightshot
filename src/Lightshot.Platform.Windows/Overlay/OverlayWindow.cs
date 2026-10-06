@@ -225,6 +225,12 @@ public sealed class OverlayWindow : IDisposable
             case Win32Window.WM_SETCURSOR:
                 SetCustomCursor();
                 return (IntPtr)1;
+
+            case Win32Window.WM_CLOSE:
+                // Alt+F4 or an external close cancels like Esc; destroying the window would leave the
+                // selection pending forever and block every later capture.
+                SelectionCompleted?.Invoke(null);
+                return IntPtr.Zero;
         }
 
         return Win32Window.DefWindowProcW(hWnd, uMsg, wParam, lParam);

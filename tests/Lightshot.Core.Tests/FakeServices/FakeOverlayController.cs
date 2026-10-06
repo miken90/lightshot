@@ -12,6 +12,9 @@ public class FakeOverlayController : IOverlayController
     public CaptureRegion? WindowRegion { get; set; }
     public RecordingChoice? RecordingChoiceResult { get; set; }
 
+    // When set, region selection stays open until the test completes this source.
+    public TaskCompletionSource<CaptureRegion?>? PendingRegion { get; set; }
+
     public int CallCount { get; private set; }
     public int WindowCallCount { get; private set; }
     public int RecordingCallCount { get; private set; }
@@ -32,7 +35,7 @@ public class FakeOverlayController : IOverlayController
         CallCount++;
         Backdrops.Add(frozen);
         Adjustables.Add(adjustable);
-        return Task.FromResult(Region);
+        return PendingRegion?.Task ?? Task.FromResult(Region);
     }
 
     public Task<CaptureRegion?> SelectWindowAsync(FrozenScreen? frozen = null)
