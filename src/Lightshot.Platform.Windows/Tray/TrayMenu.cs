@@ -41,10 +41,68 @@ public static class TrayMenu
     private static extern bool AppendMenuW(IntPtr hMenu, uint uFlags, UIntPtr uIDNewItem, string lpNewItem);
 
     [DllImport("user32.dll", SetLastError = true)]
-    private static extern bool DestroyMenu(IntPtr hMenu);
+    public static extern bool DestroyMenu(IntPtr hMenu);
 
     [DllImport("user32.dll", SetLastError = true)]
     private static extern uint TrackPopupMenuEx(IntPtr hMenu, uint uFlags, int x, int y, IntPtr hWnd, IntPtr lpTPMParams);
+
+    public static IntPtr CreateMenuHandle(
+        HotkeyBindings? bindings = null,
+        IReadOnlyList<DisplayMenuItem>? displays = null)
+    {
+        IntPtr hMenu = CreatePopupMenu();
+        if (hMenu == IntPtr.Zero) return IntPtr.Zero;
+
+        // 1. Area Capture
+        string areaChord = GetChordSuffix(bindings, CaptureAction.Area);
+        AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_AREA), $"Capture Area{areaChord}");
+
+        // 2. Fullscreen Capture
+        string fsChord = GetChordSuffix(bindings, CaptureAction.Fullscreen);
+        if (displays != null && displays.Count > 1)
+        {
+            IntPtr hSubMenu = CreatePopupMenu();
+            AppendMenuW(hSubMenu, MF_STRING, new UIntPtr(CMD_FULLSCREEN), "All Displays");
+            for (int i = 0; i < displays.Count; i++)
+            {
+                uint cmd = (uint)(CMD_DISPLAY_BASE + i);
+                AppendMenuW(hSubMenu, MF_STRING, new UIntPtr(cmd), displays[i].DisplayName);
+            }
+            AppendMenuW(hMenu, MF_POPUP, (UIntPtr)(ulong)hSubMenu, $"Capture Fullscreen{fsChord}");
+        }
+        else
+        {
+            AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_FULLSCREEN), $"Capture Fullscreen{fsChord}");
+        }
+
+        // 3. Window Capture
+        string winChord = GetChordSuffix(bindings, CaptureAction.Window);
+        AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_WINDOW), $"Capture Window{winChord}");
+
+        // 4. Repeat Last
+        string repChord = GetChordSuffix(bindings, CaptureAction.RepeatLast);
+        AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_REPEAT_LAST), $"Repeat Last Capture{repChord}");
+
+        // 5. Open image
+        AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_OPEN_FILE), "Open Image...");
+
+        // Separator
+        AppendMenuW(hMenu, MF_SEPARATOR, UIntPtr.Zero, string.Empty);
+
+        // History
+        AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_HISTORY), "History");
+
+        // Settings
+        AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_SETTINGS), "Settings...");
+
+        // Separator
+        AppendMenuW(hMenu, MF_SEPARATOR, UIntPtr.Zero, string.Empty);
+
+        // Quit
+        AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_QUIT), "Quit Lightshot");
+
+        return hMenu;
+    }
 
     public static uint Show(
         IntPtr hWnd,
@@ -53,59 +111,11 @@ public static class TrayMenu
         HotkeyBindings? bindings = null,
         IReadOnlyList<DisplayMenuItem>? displays = null)
     {
-        IntPtr hMenu = CreatePopupMenu();
+        IntPtr hMenu = CreateMenuHandle(bindings, displays);
         if (hMenu == IntPtr.Zero) return 0;
 
         try
         {
-            // 1. Area Capture
-            string areaChord = GetChordSuffix(bindings, CaptureAction.Area);
-            AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_AREA), $"Capture Area{areaChord}");
-
-            // 2. Fullscreen Capture
-            string fsChord = GetChordSuffix(bindings, CaptureAction.Fullscreen);
-            if (displays != null && displays.Count > 1)
-            {
-                IntPtr hSubMenu = CreatePopupMenu();
-                AppendMenuW(hSubMenu, MF_STRING, new UIntPtr(CMD_FULLSCREEN), "All Displays");
-                for (int i = 0; i < displays.Count; i++)
-                {
-                    uint cmd = (uint)(CMD_DISPLAY_BASE + i);
-                    AppendMenuW(hSubMenu, MF_STRING, new UIntPtr(cmd), displays[i].DisplayName);
-                }
-                AppendMenuW(hMenu, MF_POPUP, (UIntPtr)(ulong)hSubMenu, $"Capture Fullscreen{fsChord}");
-            }
-            else
-            {
-                AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_FULLSCREEN), $"Capture Fullscreen{fsChord}");
-            }
-
-            // 3. Window Capture
-            string winChord = GetChordSuffix(bindings, CaptureAction.Window);
-            AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_WINDOW), $"Capture Window{winChord}");
-
-            // 4. Repeat Last
-            string repChord = GetChordSuffix(bindings, CaptureAction.RepeatLast);
-            AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_REPEAT_LAST), $"Repeat Last Capture{repChord}");
-
-            // 5. Open image
-            AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_OPEN_FILE), "Open Image...");
-
-            // Separator
-            AppendMenuW(hMenu, MF_SEPARATOR, UIntPtr.Zero, string.Empty);
-
-            // History
-            AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_HISTORY), "History");
-
-            // Settings
-            AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_SETTINGS), "Settings...");
-
-            // Separator
-            AppendMenuW(hMenu, MF_SEPARATOR, UIntPtr.Zero, string.Empty);
-
-            // Quit
-            AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_QUIT), "Quit Lightshot");
-
             // Set foreground window before TrackPopupMenuEx to ensure proper menu dismissal
             Win32Window.SetForegroundWindow(hWnd);
 

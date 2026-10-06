@@ -27,10 +27,6 @@ public class FakeCaptureUI : ICaptureUI
 
     public int DiscardConfirmations { get; private set; }
     public bool ConfirmDiscardResult { get; set; } = true;
-
-    public int MicrophoneDisconnectedResolutions { get; private set; }
-    public bool ResolveMicrophoneDisconnectedResult { get; set; } = true;
-
     public List<string> FinishedRecordings { get; } = [];
     public List<PendingRecording> PostRecordings { get; } = [];
     public List<(string Path, string? InputPath)> VideoEditorOpens { get; } = [];
@@ -83,9 +79,17 @@ public class FakeCaptureUI : ICaptureUI
         return Task.FromResult(ConfirmDiscardResult);
     }
 
+    public int MicrophoneDisconnectedResolutions { get; private set; }
+    public bool ResolveMicrophoneDisconnectedResult { get; set; } = true;
+    public Queue<bool> MicrophoneDisconnectedResults { get; } = new();
+
     public Task<bool> ResolveMicrophoneDisconnectedAsync()
     {
         MicrophoneDisconnectedResolutions++;
+        if (MicrophoneDisconnectedResults.Count > 0)
+        {
+            return Task.FromResult(MicrophoneDisconnectedResults.Dequeue());
+        }
         return Task.FromResult(ResolveMicrophoneDisconnectedResult);
     }
 

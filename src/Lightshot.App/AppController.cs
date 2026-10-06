@@ -106,6 +106,7 @@ public sealed class AppController : ICaptureUI, IDisposable
         _trayIcon.OnCaptureAction = action => TriggerCaptureAction(action);
         _trayIcon.OnFullscreenDisplayCapture = displayId => _ = _coordinator.CaptureFullscreenAsync(displayId);
         _trayIcon.OnOpenFile = () => _coordinator.OpenFile();
+        _trayIcon.OnHistory = () => { /* History dialog in Phase 5 */ };
         _trayIcon.OnSettings = () => { /* Settings dialog in Phase 5 */ };
         _trayIcon.OnQuit = () =>
         {

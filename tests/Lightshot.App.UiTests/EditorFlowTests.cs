@@ -77,8 +77,31 @@ public class EditorFlowTests
             using var automation = new UIA3Automation();
             using var app = Application.Attach(process);
 
-            // 5. Allow overlay window to initialize and show
-            Thread.Sleep(1200);
+            // 5. Wait for overlay window to initialize and show (robust replacement for fixed Thread.Sleep)
+            var overlayWindowResult = Retry.WhileNull(
+                () =>
+                {
+                    var w = app.GetAllTopLevelWindows(automation)
+                        .FirstOrDefault(win => win.Title == "LightshotOverlay" || (win.ClassName != null && win.ClassName.StartsWith("LightshotOverlayWindow")));
+                    if (w != null) return w;
+
+                    IntPtr hwnd = FindOverlayHwnd(process.Id);
+                    if (hwnd != IntPtr.Zero)
+                    {
+                        try
+                        {
+                            return automation.FromHandle(hwnd)?.AsWindow();
+                        }
+                        catch
+                        {
+                        }
+                    }
+                    return null;
+                },
+                TimeSpan.FromSeconds(10));
+
+            Assert.NotNull(overlayWindowResult?.Result);
+            Thread.Sleep(300);
 
             // Drag a 300x200 selection rectangle on primary monitor
             const int selX = 350;
@@ -376,5 +399,40 @@ public class EditorFlowTests
             Thread.Sleep(150);
         }
         return null;
+    }
+
+    private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
+
+    [DllImport("user32.dll")]
+    private static extern bool EnumWindows(EnumWindowsProc lpEnumFunc, IntPtr lParam);
+
+    [DllImport("user32.dll")]
+    private static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint lpdwProcessId);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    private static extern int GetWindowTextW(IntPtr hWnd, System.Text.StringBuilder lpString, int nMaxCount);
+
+    [DllImport("user32.dll")]
+    private static extern bool IsWindowVisible(IntPtr hWnd);
+
+    private static IntPtr FindOverlayHwnd(int processId)
+    {
+        IntPtr found = IntPtr.Zero;
+        EnumWindows((hWnd, lParam) =>
+        {
+            GetWindowThreadProcessId(hWnd, out uint pid);
+            if (pid == (uint)processId && IsWindowVisible(hWnd))
+            {
+                var sb = new System.Text.StringBuilder(128);
+                GetWindowTextW(hWnd, sb, 128);
+                if (sb.ToString() == "LightshotOverlay")
+                {
+                    found = hWnd;
+                    return false;
+                }
+            }
+            return true;
+        }, IntPtr.Zero);
+        return found;
     }
 }

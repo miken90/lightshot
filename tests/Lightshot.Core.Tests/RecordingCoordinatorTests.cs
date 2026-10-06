@@ -610,6 +610,8 @@ public class RecordingCoordinatorTests
     public async Task ALostMicrophoneAsksAndContinuesOrStops()
     {
         using var h = new Harness();
+        h.Ui.MicrophoneDisconnectedResults.Enqueue(true);
+        h.Ui.MicrophoneDisconnectedResults.Enqueue(false);
         await h.Coordinator.StartRecordingAsync(DisplayRegion);
         h.Service.OnEvent?.Invoke(new RecordingEvent.AudioInputLost());
         while (h.Ui.MicrophoneDisconnectedResolutions == 0) await Task.Yield();
@@ -617,7 +619,6 @@ public class RecordingCoordinatorTests
         Assert.True(h.Coordinator.IsRecording); // "Continue Without Audio"
         Assert.Equal(0, h.Service.StopCount);
 
-        h.Ui.ResolveMicrophoneDisconnectedResult = false;
         h.Service.OnEvent?.Invoke(new RecordingEvent.AudioInputLost());
         while (h.Coordinator.IsRecording || h.Sink.Saves.Count == 0) await Task.Yield();
         Assert.Equal(2, h.Ui.MicrophoneDisconnectedResolutions);

@@ -120,11 +120,13 @@ public static class TrayIconAssets
 
             // Repository root check (tests)
             var dir = new DirectoryInfo(AppContext.BaseDirectory);
-            while (dir != null && !File.Exists(Path.Combine(dir.FullName, "Lightshot.slnx")))
+            int depth = 0;
+            while (dir != null && depth < 6 && !File.Exists(Path.Combine(dir.FullName, "Lightshot.slnx")))
             {
                 dir = dir.Parent;
+                depth++;
             }
-            if (dir != null)
+            if (dir != null && File.Exists(Path.Combine(dir.FullName, "Lightshot.slnx")))
             {
                 string repoPath = Path.Combine(dir.FullName, "src", "Lightshot.App", "Resources", "Icons", "Tray", fileName);
                 if (File.Exists(repoPath)) return File.ReadAllBytes(repoPath);

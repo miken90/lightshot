@@ -97,7 +97,7 @@ public static class Program
         if (args.Contains("--area", StringComparer.OrdinalIgnoreCase) ||
             args.Contains("--capture-area", StringComparer.OrdinalIgnoreCase))
         {
-            app.Dispatcher.BeginInvoke(new Action(() => controller.TriggerAreaCapture()));
+            app.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Send, new Action(() => controller.TriggerAreaCapture()));
         }
 
         int exitCode = app.Run();
