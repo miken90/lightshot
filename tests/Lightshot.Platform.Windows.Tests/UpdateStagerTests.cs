@@ -155,4 +155,132 @@ public class UpdateStagerTests
             }
         }
     }
+
+    [Fact]
+    [Unit]
+    public async Task WritesVelopackFeedForVerifiedPackage()
+    {
+        byte[] packageBytes = UpdateFeed.MinimalNupkg("LightshotApp", "9.9.9");
+        string packageFileName = "LightshotApp-9.9.9-full.nupkg";
+        string sha256Hex = Convert.ToHexString(SHA256.HashData(packageBytes));
+        string sha1Hex = Convert.ToHexString(SHA1.HashData(packageBytes));
+
+        string tempStaging = Path.Combine(Path.GetTempPath(), "lightshot-test-staging-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempStaging);
+
+        try
+        {
+            // Place an older nupkg in staging beforehand
+            string oldNupkgPath = Path.Combine(tempStaging, "LightshotApp-9.9.8-full.nupkg");
+            await File.WriteAllBytesAsync(oldNupkgPath, new byte[] { 1, 2, 3 });
+
+            var handler = new UrlMapHandler();
+            string packageUrl = "https://example.com/" + packageFileName;
+            handler.Map(packageUrl, packageBytes);
+
+            var client = new HttpClient(handler);
+            var stager = new UpdateStager(client);
+            var manifest = new UpdateManifest
+            {
+                Version = "9.9.9",
+                Sequence = 10,
+                Package = packageFileName,
+                Sha256 = sha256Hex,
+                Size = packageBytes.Length
+            };
+
+            var state = new UpdateState();
+            bool result = await stager.StagePackageAsync(manifest, tempStaging, state, "https://example.com/", ct: TestContext.Current.CancellationToken);
+
+            Assert.True(result);
+            Assert.True(state.IsStaged);
+
+            string feedPath = Path.Combine(tempStaging, UpdateStager.FeedFileName);
+            Assert.True(File.Exists(feedPath));
+
+            string feedJson = await File.ReadAllTextAsync(feedPath);
+            var feed = Velopack.VelopackAssetFeed.FromJson(feedJson);
+            Assert.NotNull(feed);
+            var asset = Assert.Single(feed.Assets);
+            Assert.Equal("LightshotApp", asset.PackageId);
+            Assert.Equal("9.9.9", asset.Version?.ToNormalizedString());
+            Assert.Equal(Velopack.VelopackAssetType.Full, asset.Type);
+            Assert.Equal(packageFileName, asset.FileName);
+            Assert.Equal(sha1Hex, asset.SHA1);
+            Assert.Equal(sha256Hex, asset.SHA256);
+            Assert.Equal(packageBytes.Length, asset.Size);
+
+            // Verify older package is removed
+            Assert.False(File.Exists(oldNupkgPath));
+        }
+        finally
+        {
+            if (Directory.Exists(tempStaging))
+            {
+                Directory.Delete(tempStaging, recursive: true);
+            }
+        }
+    }
+
+    [Fact]
+    [Unit]
+    public async Task ReusesVerifiedPackageWithoutDownloading()
+    {
+        byte[] packageBytes = UpdateFeed.MinimalNupkg("LightshotApp", "9.9.9");
+        string packageFileName = "LightshotApp-9.9.9-full.nupkg";
+        string sha256Hex = Convert.ToHexString(SHA256.HashData(packageBytes));
+
+        string tempStaging = Path.Combine(Path.GetTempPath(), "lightshot-test-staging-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempStaging);
+
+        try
+        {
+            var handler = new UrlMapHandler();
+            string packageUrl = "https://example.com/" + packageFileName;
+            handler.Map(packageUrl, packageBytes);
+
+            var client = new HttpClient(handler);
+            var stager = new UpdateStager(client);
+            var manifest = new UpdateManifest
+            {
+                Version = "9.9.9",
+                Sequence = 10,
+                Package = packageFileName,
+                Sha256 = sha256Hex,
+                Size = packageBytes.Length
+            };
+
+            // Stage first time
+            var state1 = new UpdateState();
+            bool result1 = await stager.StagePackageAsync(manifest, tempStaging, state1, "https://example.com/", ct: TestContext.Current.CancellationToken);
+            Assert.True(result1);
+            Assert.Single(handler.Requests);
+
+            // Stage second time with recording handler that has no mappings
+            var recordingHandler = new UrlMapHandler();
+            var recordingClient = new HttpClient(recordingHandler);
+            var stager2 = new UpdateStager(recordingClient);
+
+            var state2 = new UpdateState();
+            bool result2 = await stager2.StagePackageAsync(manifest, tempStaging, state2, "https://example.com/", ct: TestContext.Current.CancellationToken);
+            Assert.True(result2);
+            Assert.True(state2.IsStaged);
+            Assert.Empty(recordingHandler.Requests);
+
+            // Feed still exists and matches
+            string feedPath = Path.Combine(tempStaging, UpdateStager.FeedFileName);
+            Assert.True(File.Exists(feedPath));
+            string feedJson = await File.ReadAllTextAsync(feedPath);
+            var feed = Velopack.VelopackAssetFeed.FromJson(feedJson);
+            Assert.NotNull(feed);
+            Assert.Single(feed.Assets);
+        }
+        finally
+        {
+            if (Directory.Exists(tempStaging))
+            {
+                Directory.Delete(tempStaging, recursive: true);
+            }
+        }
+    }
 }
