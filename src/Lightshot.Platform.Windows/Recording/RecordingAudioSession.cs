@@ -28,18 +28,25 @@ internal sealed class RecordingAudioSession : IDisposable
     private bool _started;
     private bool _disposed;
 
+    private readonly Action? _onMicLost;
+
     public IReadOnlyList<AudioTrackConfig> TrackConfigs => _trackConfigs;
     public bool HasMic => _mic != null;
     public bool HasLoopback => _loopback != null;
 
+    public AudioLevelMeter MicMeter { get; } = new();
+    public AudioLevelMeter LoopbackMeter { get; } = new();
+
     public RecordingAudioSession(
         AudioDeviceService audioDeviceService,
         RecordingOptions options,
-        Action<int, byte[], long, long> writeAudioSample)
+        Action<int, byte[], long, long> writeAudioSample,
+        Action? onMicLost = null)
     {
         _audioDeviceService = audioDeviceService ?? throw new ArgumentNullException(nameof(audioDeviceService));
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _writeAudioSample = writeAudioSample ?? throw new ArgumentNullException(nameof(writeAudioSample));
+        _onMicLost = onMicLost;
 
         bool recordMic = _options.Microphone is not InputDeviceSelection.Off;
         bool hasLoopback = _options.ComputerAudio;
@@ -87,13 +94,14 @@ internal sealed class RecordingAudioSession : IDisposable
                     deviceId: pickedDeviceId,
                     mono: _options.MonoAudio,
                     volume: _options.MicrophoneVolume,
-                    onFrames: frames => _audioMixer?.OnMicFrames(frames));
+                    onFrames: frames => _audioMixer?.OnMicFrames(frames),
+                    levelMeter: MicMeter);
                 _mic.Start();
             }
 
             if (hasLoopback)
             {
-                _loopback = new ProcessLoopbackCapture();
+                _loopback = new ProcessLoopbackCapture(levelMeter: LoopbackMeter);
                 _loopback.OnAudioSample += frames => _audioMixer?.OnLoopbackFrames(frames);
                 _loopback.Start();
             }
@@ -106,6 +114,7 @@ internal sealed class RecordingAudioSession : IDisposable
         {
             _audioMixer?.OnMicLost();
         }
+        _onMicLost?.Invoke();
     }
 
     public void Pause()

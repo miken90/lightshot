@@ -58,6 +58,8 @@ public sealed class RecordingEngine : IDisposable
     private bool _isRecording;
     private bool _disposed;
 
+    private readonly Func<bool> _playSounds;
+
     static RecordingEngine()
     {
         try
@@ -72,6 +74,8 @@ public sealed class RecordingEngine : IDisposable
     public RecordingOptions? ActiveOptions => _activeOptions;
     public string? DestinationPath => _destinationPath;
     public AudioDeviceService AudioDeviceService => _audioDeviceService;
+    public float? MicrophoneLevel => _audioSession is { HasMic: true } s ? s.MicMeter.Level : null;
+    public float? ComputerAudioLevel => _audioSession is { HasLoopback: true } s ? s.LoopbackMeter.Level : null;
 
     public TimeSpan Duration
     {
@@ -90,7 +94,8 @@ public sealed class RecordingEngine : IDisposable
         TakeFinalizer? takeFinalizer = null,
         Func<IReadOnlyList<DisplayInfo>>? displayProvider = null,
         IInputEventSource? inputEventSource = null,
-        AudioDeviceService? audioDeviceService = null)
+        AudioDeviceService? audioDeviceService = null,
+        Func<bool>? playSounds = null)
     {
         _scratchStore = scratchStore ?? new ScratchStore();
         _encoderSelector = encoderSelector ?? new EncoderSelector();
@@ -98,6 +103,7 @@ public sealed class RecordingEngine : IDisposable
         _displayProvider = displayProvider ?? (() => DisplayTopology.GetDisplays());
         _inputEventSource = inputEventSource;
         _audioDeviceService = audioDeviceService ?? new AudioDeviceService();
+        _playSounds = playSounds ?? (() => true);
     }
 
     /// <summary>
@@ -169,7 +175,7 @@ public sealed class RecordingEngine : IDisposable
                     _intermediateBgra = _pipeline.CreateBgraIntermediateTexture();
                 }
 
-                _audioSession = new RecordingAudioSession(_audioDeviceService, options, WriteAudioSample);
+                _audioSession = new RecordingAudioSession(_audioDeviceService, options, WriteAudioSample, () => _onEvent?.Invoke(new RecordingEvent.AudioInputLost()));
 
                 var selectedEncoder = _encoderSelector.SelectEncoder(preferHevc: useHevc);
                 _writer = new MfFragmentedWriter(
@@ -194,7 +200,7 @@ public sealed class RecordingEngine : IDisposable
                 _isRecording = true;
                 _startQpc = QpcClock.NowTicks;
 
-                RecordingSounds.Play(RecordingCue.Start, true);
+                RecordingSounds.Play(RecordingCue.Start, _playSounds());
 
                 _captureThread = new Thread(CaptureLoop)
                 {
@@ -313,7 +319,7 @@ public sealed class RecordingEngine : IDisposable
             long nowHns = QpcClock.ToHns(QpcClock.NowTicks - _startQpc);
             _pauseClock.Pause(nowHns);
             _audioSession?.Pause();
-            RecordingSounds.Play(RecordingCue.Pause, true);
+            RecordingSounds.Play(RecordingCue.Pause, _playSounds());
         }
         return Task.CompletedTask;
     }
@@ -376,7 +382,7 @@ public sealed class RecordingEngine : IDisposable
                 return Task.FromResult<(string? Path, RecordingError? Error)>((null, new RecordingError.SystemFailure($"Finalizing fragmented writer failed: {ex.Message}")));
             }
 
-            RecordingSounds.Play(RecordingCue.Stop, true);
+            RecordingSounds.Play(RecordingCue.Stop, _playSounds());
             _powerRequest?.Deactivate();
 
             string takePath = _takePath;
