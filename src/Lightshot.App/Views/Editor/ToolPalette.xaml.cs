@@ -11,9 +11,7 @@ namespace Lightshot.App.Views.Editor;
 public partial class ToolPalette : UserControl
 {
     private static readonly Brush s_activeBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(255, 0, 122, 255));
-    private static readonly Brush s_inactiveBrush = Brushes.Transparent;
     private static readonly Brush s_activeForeground = Brushes.White;
-    private static readonly Brush s_inactiveForeground = new SolidColorBrush(System.Windows.Media.Color.FromArgb(220, 224, 224, 224));
 
     private EditorViewModel? _viewModel;
     private readonly Dictionary<EditorTool, Button> _buttons = new();
@@ -21,7 +19,6 @@ public partial class ToolPalette : UserControl
     static ToolPalette()
     {
         s_activeBrush.Freeze();
-        s_inactiveForeground.Freeze();
     }
 
     public ToolPalette()
@@ -72,8 +69,16 @@ public partial class ToolPalette : UserControl
         foreach (var (tool, btn) in _buttons)
         {
             bool isActive = _viewModel.ActiveTool == tool;
-            btn.Background = isActive ? s_activeBrush : s_inactiveBrush;
-            btn.Foreground = isActive ? s_activeForeground : s_inactiveForeground;
+            if (isActive)
+            {
+                btn.Background = s_activeBrush;
+                btn.Foreground = s_activeForeground;
+            }
+            else
+            {
+                btn.ClearValue(Control.BackgroundProperty);
+                btn.ClearValue(Control.ForegroundProperty);
+            }
         }
     }
 

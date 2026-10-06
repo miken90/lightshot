@@ -57,4 +57,7 @@
     <SolidColorBrush x:Key="Theme.StudioPink" Color="#FFF26699"/>
     <SolidColorBrush x:Key="Theme.StudioViolet" Color="#FF9973F2"/>
 
+    <!-- Icons -->
+    <SolidColorBrush x:Key="Icon.Brush" Color="#FF1C1C21"/>
+
 </ResourceDictionary>

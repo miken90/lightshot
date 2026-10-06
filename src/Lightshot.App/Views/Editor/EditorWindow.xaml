@@ -11,8 +11,8 @@
         MinHeight="520"
         MinWidth="760"
         WindowStartupLocation="CenterScreen"
-        Background="#1E1E1E"
-        Foreground="#E0E0E0">
+        Background="{DynamicResource Theme.Panel}"
+        Foreground="{DynamicResource Theme.TextPrimary}">
     <Window.InputBindings>
         <KeyBinding Modifiers="Ctrl" Key="S" Command="{Binding CopyAndCloseCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
         <KeyBinding Modifiers="Ctrl" Key="C" Command="{Binding CopyCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -33,7 +33,7 @@
         </Grid.RowDefinitions>
 
         <!-- Top Toolbar -->
-        <Border Grid.Row="0" Background="#252526" BorderBrush="#333333" BorderThickness="0,0,0,1" Padding="8,4,8,4">
+        <Border Grid.Row="0" Background="{DynamicResource Theme.Panel}" BorderBrush="{DynamicResource Theme.PanelEdge}" BorderThickness="0,0,0,1" Padding="8,4">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -69,7 +69,7 @@
         </Border>
 
         <!-- Main Canvas Area -->
-        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="#181818">
+        <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="{DynamicResource Theme.StudioCanvas}">
             <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
                 <Canvas x:Name="CanvasContainer">
                     <local:CanvasHost x:Name="MainCanvasHost"

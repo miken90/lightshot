@@ -4,8 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
-             Background="#2D2D2D"
-             BorderBrush="#444444"
+             Background="{DynamicResource Theme.Panel}"
+             BorderBrush="{DynamicResource Theme.PanelEdge}"
              BorderThickness="1"
              Padding="8"
              Width="176">

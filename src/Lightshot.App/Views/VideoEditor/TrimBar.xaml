@@ -26,7 +26,7 @@
         </Grid>
 
         <!-- Track & Thumbs Area -->
-        <Canvas x:Name="TrackCanvas" Grid.Row="1" Background="#2A2A2A" ClipToBounds="True">
+        <Canvas x:Name="TrackCanvas" Grid.Row="1" Background="{DynamicResource Theme.Well}" ClipToBounds="True">
             <!-- Selected Range Highlight -->
             <Rectangle x:Name="SelectedRangeRect" Fill="#007AFF" Height="32" Opacity="0.4"/>
 

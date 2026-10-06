@@ -10,7 +10,7 @@
         Width="420"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
-        Background="{DynamicResource Theme.Background}"
+        Background="{DynamicResource Theme.Panel}"
         Foreground="{DynamicResource Theme.TextPrimary}"
         ShowInTaskbar="False">
     <Grid Margin="{DynamicResource Space.Dialog}">

@@ -10,8 +10,8 @@
         Height="700" Width="1000"
         MinHeight="550" MinWidth="800"
         WindowStartupLocation="CenterScreen"
-        Background="#1E1E1E" 
-        Foreground="#E0E0E0">
+        Background="{DynamicResource Theme.Panel}" 
+        Foreground="{DynamicResource Theme.TextPrimary}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </Window.Resources>
@@ -25,9 +25,9 @@
         </Grid.RowDefinitions>
 
         <!-- Top Header / Toolbar -->
-        <Border Grid.Row="0" Background="#252526" BorderBrush="#333333" BorderThickness="0,0,0,1" Padding="16,8">
+        <Border Grid.Row="0" Background="{DynamicResource Theme.Panel}" BorderBrush="{DynamicResource Theme.PanelEdge}" BorderThickness="0,0,0,1" Padding="16,8">
             <DockPanel LastChildFill="False">
-                <TextBlock Text="Video Editor" FontWeight="SemiBold" FontSize="15" Foreground="White" VerticalAlignment="Center" DockPanel.Dock="Left"/>
+                <TextBlock Text="Video Editor" FontWeight="SemiBold" FontSize="15" Foreground="{DynamicResource Theme.TextPrimary}" VerticalAlignment="Center" DockPanel.Dock="Left"/>
 
                 <!-- Revert Button -->
                 <Button Click="OnRevertClick" 
@@ -57,7 +57,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Video Player -->
-            <Border Grid.Column="0" Background="#141414" Margin="12" CornerRadius="8" ClipToBounds="True">
+            <Border Grid.Column="0" Background="{DynamicResource Theme.Well}" Margin="12" CornerRadius="8" ClipToBounds="True">
                 <MediaElement x:Name="Player" 
                               LoadedBehavior="Manual" 
                               UnloadedBehavior="Manual" 
@@ -66,24 +66,24 @@
             </Border>
 
             <!-- Inspector Panel -->
-            <Border Grid.Column="1" Background="#252526" BorderBrush="#333333" BorderThickness="1,0,0,0" Padding="16">
+            <Border Grid.Column="1" Background="{DynamicResource Theme.Panel}" BorderBrush="{DynamicResource Theme.PanelEdge}" BorderThickness="1,0,0,0" Padding="16">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
-                        <TextBlock Text="Export Options" FontWeight="SemiBold" FontSize="13" Foreground="White" Margin="0,0,0,12"/>
+                        <TextBlock Text="Export Options" FontWeight="SemiBold" FontSize="13" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,12"/>
 
                         <!-- Trim Only Mode Toggle -->
                         <RadioButton Content="Trim Only (Fast, no re-encode)" 
                                      IsChecked="{Binding IsTrimOnly}" 
-                                     Foreground="#CCCCCC" Margin="0,0,0,6"/>
+                                     Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,6"/>
                         <RadioButton Content="Trim &amp; Convert (Re-encode)" 
                                      IsChecked="{Binding IsTrimOnly, Converter={x:Static local:InverseBoolConverter.Instance}}" 
-                                     Foreground="#CCCCCC" Margin="0,0,0,16"/>
+                                     Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,16"/>
 
                         <!-- Resolution Preset -->
-                        <TextBlock Text="Resolution" Foreground="#AAAAAA" FontSize="11" Margin="0,0,0,4"/>
+                        <TextBlock Text="Resolution" Foreground="{DynamicResource Theme.TextSecondary}" FontSize="11" Margin="0,0,0,4"/>
                         <ComboBox SelectedItem="{Binding DimensionPreset}" 
                                   IsEnabled="{Binding IsTrimOnly, Converter={x:Static local:InverseBoolConverter.Instance}}"
-                                  Margin="0,0,0,16" Background="#333333" Foreground="White">
+                                  Margin="0,0,0,16">
                             <core:DimensionPreset>Original</core:DimensionPreset>
                             <core:DimensionPreset>P1080</core:DimensionPreset>
                             <core:DimensionPreset>P720</core:DimensionPreset>
@@ -91,16 +91,16 @@
                         </ComboBox>
 
                         <!-- Quality Slider -->
-                        <TextBlock Text="Quality" Foreground="#AAAAAA" FontSize="11" Margin="0,0,0,4"/>
+                        <TextBlock Text="Quality" Foreground="{DynamicResource Theme.TextSecondary}" FontSize="11" Margin="0,0,0,4"/>
                         <DockPanel Margin="0,0,0,16" IsEnabled="{Binding IsTrimOnly, Converter={x:Static local:InverseBoolConverter.Instance}}">
-                            <TextBlock Text="{Binding Quality, StringFormat={}{0:P0}}" Width="48" Margin="8,0,0,0" DockPanel.Dock="Right" Foreground="#CCCCCC" VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Quality, StringFormat={}{0:P0}}" Width="48" Margin="8,0,0,0" DockPanel.Dock="Right" Foreground="{DynamicResource Theme.TextSecondary}" VerticalAlignment="Center"/>
                             <Slider Minimum="0" Maximum="1" Value="{Binding Quality}" VerticalAlignment="Center"/>
                         </DockPanel>
 
                         <!-- Estimated Size -->
-                        <Border Background="#1E1E1E" CornerRadius="6" Padding="12,8" Margin="0,8,0,16">
+                        <Border Background="{DynamicResource Theme.Well}" CornerRadius="6" Padding="12,8" Margin="0,8,0,16">
                             <StackPanel>
-                                <TextBlock Text="Estimated File Size" FontSize="11" Foreground="#888888"/>
+                                <TextBlock Text="Estimated File Size" FontSize="11" Foreground="{DynamicResource Theme.TextSecondary}"/>
                                 <TextBlock Text="{Binding FormattedEstimatedSize}" FontSize="16" FontWeight="SemiBold" Foreground="#30D158" Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
@@ -115,15 +115,15 @@
         </Grid>
 
         <!-- Bottom: TrimBar Controls -->
-        <Border Grid.Row="2" Background="#222222" BorderBrush="#333333" BorderThickness="0,1,0,0" Padding="12,8">
+        <Border Grid.Row="2" Background="{DynamicResource Theme.Panel}" BorderBrush="{DynamicResource Theme.PanelEdge}" BorderThickness="0,1,0,0" Padding="12,8">
             <local:TrimBar x:Name="EditorTrimBar"/>
         </Border>
 
         <!-- Progress Overlay if Busy -->
-        <Border Grid.Row="3" Background="#2A2A2A" Padding="12,6" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
+        <Border Grid.Row="3" Background="{DynamicResource Theme.Panel}" Padding="12,6" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                 <ProgressBar IsIndeterminate="True" Width="100" Height="4" Margin="0,0,12,0" VerticalAlignment="Center"/>
-                <TextBlock Text="{Binding StatusMessage}" Foreground="#CCCCCC" VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding StatusMessage}" Foreground="{DynamicResource Theme.TextSecondary}" VerticalAlignment="Center"/>
             </StackPanel>
         </Border>
     </Grid>

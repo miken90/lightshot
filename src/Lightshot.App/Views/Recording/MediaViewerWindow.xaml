@@ -7,7 +7,7 @@
         Title="Media Preview" 
         Height="540" Width="800"
         WindowStartupLocation="CenterScreen"
-        Background="{DynamicResource Theme.Background}" 
+        Background="{DynamicResource Theme.Panel}" 
         Foreground="{DynamicResource Theme.TextPrimary}"
         KeyDown="OnKeyDown">
     <Grid>
