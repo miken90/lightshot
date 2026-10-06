@@ -20,6 +20,51 @@ public class TrayMenuTests
     [DllImport("user32.dll", CharSet = CharSet.Unicode)]
     private static extern int GetMenuStringW(IntPtr hMenu, uint uId, [Out] System.Text.StringBuilder lpString, int nMaxCount, uint uFlags);
 
+    [DllImport("user32.dll")]
+    private static extern int GetMenuItemCount(IntPtr hMenu);
+
+    [DllImport("user32.dll")]
+    private static extern uint GetMenuItemID(IntPtr hMenu, int nPos);
+
+    [Fact]
+    [Unit]
+    public void RestartToUpdateItemSitsAboveQuit()
+    {
+        IntPtr hMenu = TrayMenu.CreateMenuHandle(null, null, null, "Restart to Update (9.9.9)");
+        Assert.NotEqual(IntPtr.Zero, hMenu);
+        try
+        {
+            var sb = new System.Text.StringBuilder(256);
+            GetMenuStringW(hMenu, TrayMenu.CMD_RESTART_TO_UPDATE, sb, sb.Capacity, MF_BYCOMMAND);
+            Assert.Equal("Restart to Update (9.9.9)", sb.ToString());
+
+            uint state = GetMenuState(hMenu, TrayMenu.CMD_RESTART_TO_UPDATE, MF_BYCOMMAND);
+            Assert.NotEqual(0xFFFFFFFF, state);
+            Assert.Equal(0u, state & (MF_DISABLED | MF_GRAYED));
+
+            int count = GetMenuItemCount(hMenu);
+            Assert.True(count >= 3);
+            Assert.Equal(TrayMenu.CMD_RESTART_TO_UPDATE, GetMenuItemID(hMenu, count - 3));
+            Assert.Equal(TrayMenu.CMD_QUIT, GetMenuItemID(hMenu, count - 1));
+        }
+        finally
+        {
+            TrayMenu.DestroyMenu(hMenu);
+        }
+
+        IntPtr hMenuWithout = TrayMenu.CreateMenuHandle(null, null, null, null);
+        Assert.NotEqual(IntPtr.Zero, hMenuWithout);
+        try
+        {
+            uint state = GetMenuState(hMenuWithout, TrayMenu.CMD_RESTART_TO_UPDATE, MF_BYCOMMAND);
+            Assert.Equal(0xFFFFFFFF, state);
+        }
+        finally
+        {
+            TrayMenu.DestroyMenu(hMenuWithout);
+        }
+    }
+
     [Fact]
     [Unit]
     public void HistoryAndSettingsMenuItemsAreEnabled()

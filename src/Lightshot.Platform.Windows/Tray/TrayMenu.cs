@@ -36,6 +36,7 @@ public static class TrayMenu
     public const uint CMD_RECORD_SCREEN = 1009;
     public const uint CMD_STOP_RECORDING = 1010;
     public const uint CMD_RECORDING_TIMER = 1011;
+    public const uint CMD_RESTART_TO_UPDATE = 1012;
     public const uint CMD_DISPLAY_BASE = 2000;
 
     [DllImport("user32.dll", SetLastError = true)]
@@ -53,7 +54,8 @@ public static class TrayMenu
     public static IntPtr CreateMenuHandle(
         HotkeyBindings? bindings = null,
         IReadOnlyList<DisplayMenuItem>? displays = null,
-        RecordingMenuState? recording = null)
+        RecordingMenuState? recording = null,
+        string? updateItemText = null)
     {
         IntPtr hMenu = CreatePopupMenu();
         if (hMenu == IntPtr.Zero) return IntPtr.Zero;
@@ -112,6 +114,11 @@ public static class TrayMenu
         // Settings
         AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_SETTINGS), "Settings...");
 
+        if (!string.IsNullOrEmpty(updateItemText))
+        {
+            AppendMenuW(hMenu, MF_STRING, new UIntPtr(CMD_RESTART_TO_UPDATE), updateItemText);
+        }
+
         // Separator
         AppendMenuW(hMenu, MF_SEPARATOR, UIntPtr.Zero, string.Empty);
 
@@ -127,9 +134,10 @@ public static class TrayMenu
         int y,
         HotkeyBindings? bindings = null,
         IReadOnlyList<DisplayMenuItem>? displays = null,
-        RecordingMenuState? recording = null)
+        RecordingMenuState? recording = null,
+        string? updateItemText = null)
     {
-        IntPtr hMenu = CreateMenuHandle(bindings, displays, recording);
+        IntPtr hMenu = CreateMenuHandle(bindings, displays, recording, updateItemText);
         if (hMenu == IntPtr.Zero) return 0;
 
         try

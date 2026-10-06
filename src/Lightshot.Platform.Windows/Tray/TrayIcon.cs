@@ -19,11 +19,14 @@ public sealed class TrayIcon : IDisposable
     private const uint NIF_MESSAGE = 0x00000001;
     private const uint NIF_ICON = 0x00000002;
     private const uint NIF_TIP = 0x00000004;
+    private const uint NIF_INFO = 0x00000010;
+    private const uint NIIF_INFO = 0x00000001;
     private const uint NOTIFYICON_VERSION_4 = 4;
 
     private const uint WM_TRAYCALLBACK = Win32Window.WM_APP + 0x100;
     private const uint NIN_SELECT = Win32Window.WM_USER + 0;
     private const uint NIN_KEYSELECT = Win32Window.WM_USER + 1;
+    private const uint NIN_BALLOONUSERCLICK = Win32Window.WM_USER + 5;
     private const uint WM_CONTEXTMENU = 0x007B;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
@@ -86,8 +89,12 @@ public sealed class TrayIcon : IDisposable
     public Action? OnHistory { get; set; }
     public Action? OnSettings { get; set; }
     public Action? OnQuit { get; set; }
+    public Action? OnRestartToUpdate { get; set; }
+    public Action? OnNoticeClicked { get; set; }
 
     private bool _isRecording;
+    private string? _updateMenuText;
+    private bool _updateAvailable;
 
     public TrayIcon(string tooltip = "Lightshot")
     {
@@ -176,11 +183,33 @@ public sealed class TrayIcon : IDisposable
                 case NIN_KEYSELECT:
                     ShowContextMenu();
                     return IntPtr.Zero;
+
+                case NIN_BALLOONUSERCLICK:
+                    OnNoticeClicked?.Invoke();
+                    return IntPtr.Zero;
             }
         }
 
         return Win32Window.DefWindowProcW(hWnd, uMsg, wParam, lParam);
     }
+
+    public void SetUpdateAvailable(string? menuText)
+    {
+        _updateMenuText = menuText;
+        bool available = menuText != null;
+        if (available != _updateAvailable)
+        {
+            _updateAvailable = available;
+            if (!_isRecording)
+            {
+                UpdateIcon(IdleIcon());
+            }
+        }
+    }
+
+    private IntPtr IdleIcon() => _updateAvailable
+        ? TrayIconAssets.CreateTrayIconWithUpdateDot(_currentSystemUsesLightTheme)
+        : TrayIconAssets.LoadTrayIcon(_currentSystemUsesLightTheme);
 
     public void UpdateTheme(bool systemUsesLightTheme)
     {
@@ -188,7 +217,7 @@ public sealed class TrayIcon : IDisposable
         _currentSystemUsesLightTheme = systemUsesLightTheme;
         if (!_isRecording)
         {
-            IntPtr newIcon = TrayIconAssets.LoadTrayIcon(systemUsesLightTheme);
+            IntPtr newIcon = IdleIcon();
             if (newIcon != IntPtr.Zero)
             {
                 UpdateIcon(newIcon);
@@ -200,7 +229,23 @@ public sealed class TrayIcon : IDisposable
     {
         if (_isRecording == recording) return;
         _isRecording = recording;
-        UpdateIcon(recording ? TrayIconAssets.CreateRecordingTrayIcon() : TrayIconAssets.LoadTrayIcon(_currentSystemUsesLightTheme));
+        UpdateIcon(recording ? TrayIconAssets.CreateRecordingTrayIcon() : IdleIcon());
+    }
+
+    public void ShowNotice(string title, string text)
+    {
+        if (!_added || _disposed) return;
+        var nid = new NOTIFYICONDATAW
+        {
+            cbSize = (uint)Marshal.SizeOf<NOTIFYICONDATAW>(),
+            hWnd = _hWnd,
+            uID = 1,
+            uFlags = NIF_INFO,
+            szInfoTitle = title?.Length > 63 ? title[..63] : (title ?? string.Empty),
+            szInfo = text?.Length > 255 ? text[..255] : (text ?? string.Empty),
+            dwInfoFlags = NIIF_INFO
+        };
+        Shell_NotifyIconW(NIM_MODIFY, ref nid);
     }
 
     public void UpdateIcon(IntPtr newIcon)
@@ -228,9 +273,12 @@ public sealed class TrayIcon : IDisposable
     private void ShowContextMenu()
     {
         GetCursorPos(out var pt);
-        uint cmd = TrayMenu.Show(_hWnd, pt.x, pt.y, Bindings, Displays, RecordingState?.Invoke());
+        uint cmd = TrayMenu.Show(_hWnd, pt.x, pt.y, Bindings, Displays, RecordingState?.Invoke(), _updateMenuText);
         switch (cmd)
         {
+            case TrayMenu.CMD_RESTART_TO_UPDATE:
+                OnRestartToUpdate?.Invoke();
+                break;
             case TrayMenu.CMD_RECORD_SCREEN:
             case TrayMenu.CMD_STOP_RECORDING:
                 OnCaptureAction?.Invoke(CaptureAction.RecordScreen);

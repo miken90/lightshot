@@ -30,6 +30,41 @@ public static class TrayIconAssets
     private static extern IntPtr CreateIconIndirect(ref ICONINFO piconinfo);
 
     [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool GetIconInfo(IntPtr hIcon, out ICONINFO piconinfo);
+
+    [DllImport("user32.dll")]
+    private static extern IntPtr GetDC(IntPtr hWnd);
+
+    [DllImport("user32.dll")]
+    private static extern int ReleaseDC(IntPtr hWnd, IntPtr hDC);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct BITMAPINFOHEADER
+    {
+        public uint biSize;
+        public int biWidth;
+        public int biHeight;
+        public ushort biPlanes;
+        public ushort biBitCount;
+        public uint biCompression;
+        public uint biSizeImage;
+        public int biXPelsPerMeter;
+        public int biYPelsPerMeter;
+        public uint biClrUsed;
+        public uint biClrImportant;
+    }
+
+    [DllImport("gdi32.dll")]
+    private static extern int GetDIBits(
+        IntPtr hdc,
+        IntPtr hbm,
+        uint start,
+        uint cLines,
+        [Out] uint[] lpvBits,
+        ref BITMAPINFOHEADER lpbmi,
+        uint usage);
+
+    [DllImport("user32.dll", SetLastError = true)]
     public static extern bool DestroyIcon(IntPtr hIcon);
 
     [DllImport("user32.dll", SetLastError = true)]
@@ -304,6 +339,107 @@ public static class TrayIconAssets
             maskHandle.Free();
             if (hbmColor != IntPtr.Zero) DeleteObject(hbmColor);
             if (hbmMask != IntPtr.Zero) DeleteObject(hbmMask);
+        }
+    }
+
+    public const uint UpdateDotColor = 0xFF0A84FF;
+
+    // Reads a 32-bpp top-down copy of an icon's colour bitmap; null if the icon cannot be read.
+    public static uint[]? ReadIconPixels(IntPtr hIcon, int size)
+    {
+        if (hIcon == IntPtr.Zero || size <= 0) return null;
+        if (!GetIconInfo(hIcon, out var info)) return null;
+
+        try
+        {
+            if (info.hbmColor == IntPtr.Zero) return null;
+            IntPtr hdc = GetDC(IntPtr.Zero);
+            if (hdc == IntPtr.Zero) return null;
+
+            try
+            {
+                var bmi = new BITMAPINFOHEADER
+                {
+                    biSize = (uint)Marshal.SizeOf<BITMAPINFOHEADER>(),
+                    biWidth = size,
+                    biHeight = -size,
+                    biPlanes = 1,
+                    biBitCount = 32,
+                    biCompression = 0
+                };
+
+                uint[] pixels = new uint[size * size];
+                int lines = GetDIBits(hdc, info.hbmColor, 0, (uint)size, pixels, ref bmi, 0);
+                if (lines == 0) return null;
+
+                bool hasAlpha = false;
+                for (int i = 0; i < pixels.Length; i++)
+                {
+                    if ((pixels[i] & 0xFF000000) != 0)
+                    {
+                        hasAlpha = true;
+                        break;
+                    }
+                }
+
+                if (!hasAlpha)
+                {
+                    for (int i = 0; i < pixels.Length; i++)
+                    {
+                        pixels[i] |= 0xFF000000;
+                    }
+                }
+
+                return pixels;
+            }
+            finally
+            {
+                ReleaseDC(IntPtr.Zero, hdc);
+            }
+        }
+        finally
+        {
+            if (info.hbmColor != IntPtr.Zero) DeleteObject(info.hbmColor);
+            if (info.hbmMask != IntPtr.Zero) DeleteObject(info.hbmMask);
+        }
+    }
+
+    // Pure: returns a copy of argb with a filled blue dot of radius size*0.22 in the bottom-right corner.
+    public static uint[] AddUpdateDot(uint[] argb, int size)
+    {
+        uint[] copy = (uint[])argb.Clone();
+        double r = size * 0.22;
+        double rSq = r * r;
+        double cx = size - r - 0.5;
+        double cy = size - r - 0.5;
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                double dx = x - cx;
+                double dy = y - cy;
+                if (dx * dx + dy * dy <= rSq)
+                {
+                    copy[y * size + x] = UpdateDotColor;
+                }
+            }
+        }
+
+        return copy;
+    }
+
+    public static IntPtr CreateTrayIconWithUpdateDot(bool systemUsesLightTheme, int size = 16)
+    {
+        IntPtr baseIcon = LoadTrayIcon(systemUsesLightTheme, size);
+        try
+        {
+            uint[] pixels = (baseIcon == IntPtr.Zero ? null : ReadIconPixels(baseIcon, size)) ?? new uint[size * size];
+            return CreateIconFromPixels(AddUpdateDot(pixels, size), size, size);
+        }
+        finally
+        {
+            if (baseIcon != IntPtr.Zero) DestroyIcon(baseIcon);
         }
     }
 
