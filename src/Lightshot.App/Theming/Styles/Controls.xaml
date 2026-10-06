@@ -61,4 +61,8 @@
         <Setter Property="FontFamily" Value="Segoe Fluent Icons, Segoe MDL2 Assets"/>
         <Setter Property="FontSize" Value="16"/>
     </Style>
+    <!-- Implicit TextBox padding: Fluent default (10,5,6,6) leaves only 19 px for a 19.3 px line at 14 px font, clipping vertically. (10,3,6,4) gives 23 px room without clipping. -->
+    <Style TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+        <Setter Property="Padding" Value="10,3,6,4"/>
+    </Style>
 </ResourceDictionary>
