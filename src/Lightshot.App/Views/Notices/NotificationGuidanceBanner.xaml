@@ -33,22 +33,18 @@
             <!-- Action button -->
             <Button Grid.Column="2" 
                     Content="Open Settings" 
-                    Padding="10,4" 
+                    MinWidth="100" 
                     Margin="8,0,4,0" 
                     VerticalAlignment="Center"
                     Click="OnOpenSettingsClick"/>
 
             <!-- Dismiss button -->
             <Button Grid.Column="3" 
-                    Content="&#x2715;" 
-                    Width="24" 
-                    Height="24" 
+                    Content="&#xE711;" 
+                    Style="{DynamicResource Button.IconSmall}"
                     Margin="4,0,0,0" 
                     VerticalAlignment="Center"
                     Click="OnDismissClick"
-                    Background="Transparent" 
-                    Foreground="{DynamicResource Theme.TextSecondary}" 
-                    BorderThickness="0"
                     ToolTip="Dismiss"/>
         </Grid>
     </Border>

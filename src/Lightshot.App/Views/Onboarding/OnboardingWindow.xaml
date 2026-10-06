@@ -5,12 +5,12 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         mc:Ignorable="d"
         Title="Welcome to Lightshot" 
-        Height="460" 
+        SizeToContent="Height" 
         Width="520"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         Foreground="{DynamicResource Theme.TextPrimary}">
-    <Grid Margin="24">
+    <Grid Margin="{DynamicResource Space.Dialog}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
@@ -19,7 +19,7 @@
 
         <!-- Header -->
         <StackPanel Grid.Row="0" Margin="0,0,0,16">
-            <TextBlock Text="Welcome to Lightshot" FontSize="20" FontWeight="Bold" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,4"/>
+            <TextBlock Text="Welcome to Lightshot" Style="{DynamicResource Text.Title}"/>
             <TextBlock Text="Fast, lightweight screen captures with instant annotation." FontSize="13" Foreground="{DynamicResource Theme.TextSecondary}"/>
         </StackPanel>
 
@@ -48,27 +48,26 @@
                         <Button Content="Open Windows Keyboard Settings" 
                                 Click="OnOpenKeyboardSettingsClick" 
                                 HorizontalAlignment="Left" 
-                                Padding="8,4"/>
+                                MinWidth="220"/>
                     </StackPanel>
                 </Border>
 
                 <!-- How it works -->
-                <GroupBox Header="Quick Guide" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,16" Padding="12">
-                    <StackPanel>
-                        <DockPanel Margin="0,4">
-                            <TextBlock Text="1. " FontWeight="Bold" Foreground="{DynamicResource Theme.AccentBlue}" DockPanel.Dock="Left"/>
-                            <TextBlock Text="Press PrtScn (or custom shortcut) and drag across any region." TextWrapping="Wrap" Foreground="{DynamicResource Theme.TextPrimary}"/>
-                        </DockPanel>
-                        <DockPanel Margin="0,4">
-                            <TextBlock Text="2. " FontWeight="Bold" Foreground="{DynamicResource Theme.AccentBlue}" DockPanel.Dock="Left"/>
-                            <TextBlock Text="Use the toolbar to draw arrows, boxes, text, or highlights." TextWrapping="Wrap" Foreground="{DynamicResource Theme.TextPrimary}"/>
-                        </DockPanel>
-                        <DockPanel Margin="0,4">
-                            <TextBlock Text="3. " FontWeight="Bold" Foreground="{DynamicResource Theme.AccentBlue}" DockPanel.Dock="Left"/>
-                            <TextBlock Text="Press Ctrl+C to copy or Ctrl+S to save to your Screenshots folder." TextWrapping="Wrap" Foreground="{DynamicResource Theme.TextPrimary}"/>
-                        </DockPanel>
-                    </StackPanel>
-                </GroupBox>
+                <TextBlock Text="Quick Guide" Style="{DynamicResource Text.SectionHeader}" Margin="0,0,0,8"/>
+                <StackPanel Margin="0,0,0,16">
+                    <DockPanel Margin="0,4">
+                        <TextBlock Text="1. " FontWeight="Bold" Foreground="{DynamicResource Theme.AccentBlue}" DockPanel.Dock="Left"/>
+                        <TextBlock Text="Press PrtScn (or custom shortcut) and drag across any region." TextWrapping="Wrap" Foreground="{DynamicResource Theme.TextPrimary}"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,4">
+                        <TextBlock Text="2. " FontWeight="Bold" Foreground="{DynamicResource Theme.AccentBlue}" DockPanel.Dock="Left"/>
+                        <TextBlock Text="Use the toolbar to draw arrows, boxes, text, or highlights." TextWrapping="Wrap" Foreground="{DynamicResource Theme.TextPrimary}"/>
+                    </DockPanel>
+                    <DockPanel Margin="0,4">
+                        <TextBlock Text="3. " FontWeight="Bold" Foreground="{DynamicResource Theme.AccentBlue}" DockPanel.Dock="Left"/>
+                        <TextBlock Text="Press Ctrl+C to copy or Ctrl+S to save to your Screenshots folder." TextWrapping="Wrap" Foreground="{DynamicResource Theme.TextPrimary}"/>
+                    </DockPanel>
+                </StackPanel>
 
                 <!-- Defaults summary -->
                 <TextBlock Text="Lightshot runs quietly in your system tray. You can adjust hotkeys, colors, and save locations at any time in Settings." 
@@ -82,9 +81,8 @@
         <Border Grid.Row="2" Padding="0,16,0,0">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Content="Get Started" 
-                        Width="120" 
-                        Height="32" 
-                        FontWeight="SemiBold" 
+                        Style="{DynamicResource AccentButtonStyle}"
+                        MinWidth="120"
                         Click="OnGetStartedClick" 
                         IsDefault="True"/>
             </StackPanel>

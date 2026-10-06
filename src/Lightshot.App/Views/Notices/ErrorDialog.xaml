@@ -5,38 +5,33 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         mc:Ignorable="d"
         Title="Notice" 
-        Height="220" 
+        SizeToContent="Height" 
+        MaxWidth="520"
         Width="420"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
-        Background="#252526"
-        Foreground="#E0E0E0"
+        Background="{DynamicResource Theme.Background}"
+        Foreground="{DynamicResource Theme.TextPrimary}"
         ShowInTaskbar="False">
-    <Grid Margin="20">
+    <Grid Margin="{DynamicResource Space.Dialog}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <TextBlock x:Name="TitleTextBlock" FontSize="16" FontWeight="SemiBold" Foreground="#FFFFFF" Margin="0,0,0,10" Text="Notice"/>
+        <TextBlock x:Name="TitleTextBlock" Style="{DynamicResource Text.Title}" Margin="0,0,0,10" Text="Notice"/>
 
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" Margin="0,0,0,15">
             <StackPanel>
-                <TextBlock x:Name="MessageTextBlock" TextWrapping="Wrap" FontSize="13" Foreground="#CCCCCC"/>
-                <TextBlock x:Name="DetailsTextBlock" TextWrapping="Wrap" FontSize="11" Foreground="#888888" Margin="0,8,0,0" Visibility="Collapsed"/>
+                <TextBlock x:Name="MessageTextBlock" TextWrapping="Wrap" FontSize="13" Foreground="{DynamicResource Theme.TextSecondary}"/>
+                <TextBlock x:Name="DetailsTextBlock" TextWrapping="Wrap" Style="{DynamicResource Text.Caption}" Margin="0,8,0,0" Visibility="Collapsed"/>
             </StackPanel>
         </ScrollViewer>
 
         <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right">
-            <Button Content="OK" Width="80" Height="26" IsDefault="True" Click="OnOkClick"
-                    Background="#007AFF" Foreground="White" BorderThickness="0" Cursor="Hand">
-                <Button.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="4"/>
-                    </Style>
-                </Button.Resources>
-            </Button>
+            <Button Content="OK" MinWidth="80" IsDefault="True" Click="OnOkClick"
+                    Style="{DynamicResource AccentButtonStyle}"/>
         </StackPanel>
     </Grid>
 </Window>
