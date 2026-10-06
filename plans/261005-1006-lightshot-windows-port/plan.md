@@ -54,7 +54,7 @@ Scope narrows from full parity to an MVP focused on screenshot and recording. Au
 | 3 | [phase-03-core-and-rendering.md](phase-03-core-and-rendering.md) | Tested domain library and deterministic `render()` (MVP subset: 28 classes, 451 tests) | 12d | done | 1, 2 (spikes A, D) |
 | 4 | [phase-04-capture-editor-mvp.md](phase-04-capture-editor-mvp.md) | **First usable app**: hotkey, area/window/display capture, editor, copy/save | 18d | done | 3, 2 (spikes A, D) |
 | 5 | [phase-05-pin-quickaccess-history-settings.md](phase-05-pin-quickaccess-history-settings.md) | Pin, Quick Access, history, settings, onboarding, light/dark, launch at login | 14d | done | 4 |
-| 7 | [phase-07-recording.md](phase-07-recording.md) | Video/GIF recording, audio, input overlays, video editor (without camera bubble) | 26-35d | pending | 2 (spike B), 4, 5 |
+| 7 | [phase-07-recording.md](phase-07-recording.md) | Video/GIF recording, audio, input overlays, video editor (without camera bubble) | 26-35d | done | 2 (spike B), 4, 5 |
 | 9 | [phase-09-update-and-release.md](phase-09-update-and-release.md) | ECDSA-verified update check, installer, release script (first public release has updater) | 6d | pending | 1, 4, 5 |
 | 6 | [phase-06-redaction-ocr-codes.md](phase-06-redaction-ocr-codes.md) | Auto Redact, OCR Text, QR/barcode | 9d | deferred (post-MVP) | 4, 5, 2 (spike E) |
 | 8 | [phase-08-studio.md](phase-08-studio.md) | Studio editor, auto zoom, cursor from data, backgrounds, captions, export | 35-45d | deferred (post-MVP) | 3, 2 (spikes C, E), 7 |

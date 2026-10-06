@@ -152,3 +152,125 @@ This section details manual verification procedures for Phase 5 integration feat
 - **Expected Results**:
   - The application icon renders crisply with rich color gradient and clean edges at all sizes (16px to 256px).
   - No generic executable placeholder icon is shown at any zoom level or in Start Menu / Taskbar.
+
+# Phase 7 Manual Verification Checklist
+
+This document details the manual verification procedures for acceptance rows in Phase 7 (Screen Recording) that cannot be reliably covered by headless or automated test suites.
+
+## Row 1: Visual quality of toolbar, pill, frame pulse and dim
+- **Scope**: Topmost toolbar window, ControlsPill position and appearance, 3 px pulsing red border, desktop dimming.
+- **Preconditions**:
+  - `Lightshot.App` is running.
+- **Steps**:
+  1. Trigger screen recording via tray menu or hotkey.
+  2. Select an area on screen and press Enter.
+  3. Observe the `RecordingToolbarWindow` positioned at the bottom center of the work area, 24 DIP above the bottom.
+  4. Click "Record Video" and observe the 3-2-1 countdown.
+  5. While recording is active, inspect the recording frame border (3 px red border pulsing when active, solid when paused) and surrounding screen dimming if enabled in settings.
+  6. Inspect `ControlsPill` floating near the top/bottom of screen.
+- **Expected Results**:
+  - Toolbar, countdown, frame, and pill render cleanly with proper themes and zero visual artifacts.
+  - Border pulses smoothly during active recording and becomes steady upon pause.
+
+## Row 2: Tray menu clicks, timer tooltip, and live red-dot swap
+- **Scope**: Tray icon glyph swap during recording, tooltip elapsed timer formatting, tray context menu recording commands.
+- **Preconditions**:
+  - `Lightshot.App` is running with tray icon visible.
+- **Steps**:
+  1. Right-click the Lightshot tray icon; verify "Record Screen" item appears with current shortcut chord.
+  2. Click "Record Screen", confirm selection, and start recording.
+  3. Observe tray icon immediately transforms into a high-visibility red dot icon (`0xFFFF3B30`).
+  4. Hover cursor over the tray icon; verify tooltip reads `Lightshot - Recording mm:ss` with ticking elapsed time when `ShowRecordingTimeInMenuBar` is enabled.
+  5. Right-click the tray icon while recording; verify "Record Screen" is replaced by disabled "Recording mm:ss" row and enabled "Stop Recording" row.
+  6. Click "Stop Recording".
+- **Expected Results**:
+  - Tray icon transitions to red dot on start and reverts to standard feather icon upon stop.
+  - Tooltip accurately formats and advances elapsed seconds.
+  - Context menu reflects active recording state and properly triggers stop.
+
+## Row 3: Microphone disconnect prompt, Bluetooth loss, sleep/lock during a take
+- **Scope**: Audio hardware detachment, WASAPI device invalidation, power/session interruption handling.
+- **Preconditions**:
+  - External USB microphone or Bluetooth headset connected and selected as recording input.
+  - Active screen recording with microphone audio enabled.
+- **Steps**:
+  1. Unplug the USB microphone or disconnect Bluetooth audio while recording is in progress.
+  2. Observe the application response.
+  3. In the prompted dialog ("The microphone was disconnected. Continue recording without audio?"), choose "OK" to continue or "Cancel" to stop.
+  4. Repeat in a new take and test locking Windows (`Win+L`) or putting the machine to sleep.
+- **Expected Results**:
+  - Audio device loss is gracefully caught without crashing the application or encoder pipeline.
+  - The confirmation dialog appears; continuing writes silent audio or drops the microphone track, and stopping finalizes the take intact.
+
+## Row 4: Notification guidance banner presentation and Do Not Disturb
+- **Scope**: `NotificationGuidanceBanner` display logic, `SHQueryUserNotificationState` detection, once-per-session enforcement.
+- **Preconditions**:
+  - Windows Do Not Disturb / Focus Assist is enabled or disabled.
+  - Recording Defaults configured with `HideNotifications = true`.
+- **Steps**:
+  1. Enable Windows Do Not Disturb / Focus Assist in Windows Settings.
+  2. Start a screen recording selection.
+  3. Observe whether the guidance banner appears above the recording toolbar linking to notification settings.
+  4. Dismiss the banner or complete the take, then trigger another recording within the same app session.
+  5. Repeat with Do Not Disturb turned off.
+- **Expected Results**:
+  - The banner appears when Windows Do Not Disturb is enabled and `HideNotifications` is active, alerting the user to Windows notification behavior.
+  - The banner displays at most once per application session.
+
+## Row 5: GIF conversion progress, cancel, and keep-video
+- **Scope**: ProgressPopup presentation, cancel callback routing, and GIF-to-video fallback prompt.
+- **Preconditions**:
+  - `Lightshot.App` is running.
+- **Steps**:
+  1. Select a recording region and click "Record GIF" on the toolbar.
+  2. Record a ~5 second take and click Stop.
+  3. Observe the "Converting to GIF" modal progress popup displaying live conversion progress.
+  4. Click "Cancel" on the progress popup.
+  5. When prompted "GIF conversion was cancelled. Keep the video instead?", select "Yes".
+  6. Inspect `save.location` or post-recording overlay.
+- **Expected Results**:
+  - The GIF progress popup tracks encode progress accurately.
+  - Cancelling cleanly aborts GIF encoding and prompts whether to retain the source MP4 take.
+  - Selecting "Yes" saves the original MP4 without data loss.
+
+## Row 6: Sounds follow the "Play sounds" setting
+- **Scope**: Audio cues for countdown ticks and start/stop recording events.
+- **Preconditions**:
+  - System audio output enabled.
+- **Steps**:
+  1. Open Lightshot Settings -> Recording and ensure "Play sounds" is enabled.
+  2. Start a recording with countdown enabled; listen for audio beeps during countdown and start tone.
+  3. Stop recording; listen for completion tone.
+  4. Open Settings -> Recording and toggle "Play sounds" to OFF.
+  5. Start and stop another recording.
+- **Expected Results**:
+  - Audio cues play during countdown and start/stop when enabled.
+  - Zero audio cues play when "Play sounds" is disabled.
+
+## Row 7: Video editor opens from post-recording overlay with accurate duration
+- **Scope**: Post-recording overlay "Edit" action, metadata extraction, VideoEditorWindow launch.
+- **Preconditions**:
+  - A video recording take has just been completed with `AfterRecording = ShowOverlay`.
+- **Steps**:
+  1. Stop an active recording to bring up the `PostRecordingOverlay`.
+  2. Click the "Edit" button (`PostRecordingEditButton`).
+  3. Observe `VideoEditorWindow` opening.
+  4. Inspect the timeline slider, duration label, and preview canvas.
+- **Expected Results**:
+  - `VideoEditorWindow` launches smoothly without blocking the UI dispatcher.
+  - Duration and video dimensions match the recorded take's actual Media Foundation metadata.
+
+## Row 8: Recording hotkeys fire globally
+- **Scope**: Global system hotkeys for Record Screen, Pause/Resume Recording, and Restart Recording.
+- **Preconditions**:
+  - Lightshot running in background with non-conflicting hotkeys assigned in Settings -> Shortcuts (e.g., `Ctrl+Shift+R` for Record, `Ctrl+Shift+P` for Pause/Resume, `Ctrl+Shift+X` for Restart).
+- **Steps**:
+  1. Focus another application (e.g., Notepad or browser).
+  2. Press the Record Screen hotkey (`Ctrl+Shift+R`).
+  3. Confirm the selection overlay activates.
+  4. Start recording, then while another app is focused, press Pause/Resume (`Ctrl+Shift+P`).
+  5. Press Pause/Resume again to resume.
+  6. Press Restart (`Ctrl+Shift+X`) and confirm the restart dialog.
+- **Expected Results**:
+  - Hotkeys trigger reliably from any foreground application window.
+  - Recording pauses, resumes, and restarts according to the configured chords.

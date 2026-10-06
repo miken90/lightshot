@@ -1,6 +1,6 @@
 # Phase 7: Recording (video, GIF, audio, input overlays, recovery, video editor)
 
-Status: in-progress (package R2 media core implemented: QpcClock, PauseClock, ScratchStore, EncoderSelector, MfFragmentedWriter, Mp4Remuxer, TakeFinalizer) | Effort: 26–35d (was 30–40d; camera package R4 deferred post-MVP, -4 to -5d) | Priority: P1 | Depends on: phases 2, 4, 5
+Status: done (2026-10-06) | Effort: 26–35d (was 30–40d; camera package R4 deferred post-MVP, -4 to -5d) | Priority: P1 | Depends on: phases 2, 4, 5
 
 ## Overview
 
@@ -74,7 +74,7 @@ Modify: `AppController.cs` (recording `CaptureUI` members), `Tray/TrayMenu.cs` (
 ## Implementation steps
 
 1. Empirical check first: log `SHQueryUserNotificationState` while toggling Do Not Disturb on this build; decide detection vs once-per-session banner.
-2. R2 core: `ScratchStore` (`%LocalAppData%\Lightshot\Recordings`), `QpcClock`, `PauseClock`, `FrameCadencePlanner` driver. DDA source on the output's adapter with `AcquireNextFrame` timeouts as "no change"; recreate duplication on `DXGI_ERROR_ACCESS_LOST` (UAC secure desktop, mode change); abort cleanly with a message on resolution change mid-take.
+2. R2 core: `ScratchStore` (`%LocalAppData%\Lightshot\Lightshot Recordings`), `QpcClock`, `PauseClock`, `FrameCadencePlanner` driver. DDA source on the output's adapter with `AcquireNextFrame` timeouts as "no change"; recreate duplication on `DXGI_ERROR_ACCESS_LOST` (UAC secure desktop, mode change); abort cleanly with a message on resolution change mid-take.
 3. Encoder: `EncoderSelector` probes hardware H.264/HEVC MFTs, falls back to the software H.264 encoder; sink writer configured with D3D manager, average bit rate from `VideoBitRate`, GOP 2 s, fragmented MP4 container; per-stream AAC; write progress to the session; disk-full maps to `RecordingError.diskFull`.
 4. Finalise: end the session at the stop timestamp taken before stopping capture (static tail kept); strip the trailing MF `mfra` box from the fragmented take immediately after the sink writer finalises (before any reader opens it; Spike B `tfra` defect). Then `Mp4Remuxer` (passthrough source reader to sink writer with `MF_MPEG4SINK_MOOV_BEFORE_MDAT`) writes `<name>.mp4.partial` and validates it: moov before mdat, the same stream count and types as the take, and a duration within 100 ms. Only then is it renamed to `.mp4`, delivered, and the take deleted. On failure (exception or validation) delete the remux partial and retry once after 2 s (antivirus or indexer locks). On the second failure, deliver nothing and add nothing to History. Keep the take in scratch as a recoverable take and show an error ("Recording saved but could not be finalised") with Show file (Explorer selects the take) and Retry; disk full maps to `RecordingError.diskFull`. A take is never deleted after a failed remux.
 5. R3 audio: mic via WASAPI (shared mode, 48 kHz float), loopback via process-exclude activation; loopback stamped against the render endpoint clock (`IAudioClock` position on render device smoothed by drift filter per Spike B gate decision), mic stamped from device position (`qpcPosition`) before contiguity; disconnect notification raises `audioSourceLost` while video continues.
@@ -123,7 +123,7 @@ Modify: `AppController.cs` (recording `CaptureUI` members), `Tray/TrayMenu.cs` (
 
 ## Rollback
 
-The service sits behind `IRecordingService`; revert the phase to restore the screenshot-only app. Scratch files live under `%LocalAppData%\Lightshot\Recordings` and can be deleted. Recording settings keys are additive. If hardware encoders prove unreliable, the software H.264 path stays as the default (flag in `EncoderSelector`).
+The service sits behind `IRecordingService`; revert the phase to restore the screenshot-only app. Scratch files live under `%LocalAppData%\Lightshot\Lightshot Recordings` and can be deleted. Recording settings keys are additive. If hardware encoders prove unreliable, the software H.264 path stays as the default (flag in `EncoderSelector`).
 
 ## Risks
 
