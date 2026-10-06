@@ -67,7 +67,8 @@
             <Separator Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="0,2,8,2"/>
 
             <!-- Pause / Resume Button -->
-            <Button Click="OnPauseResumeClick" 
+            <Button AutomationProperties.AutomationId="RecordingPauseResumeButton"
+                    Click="OnPauseResumeClick" 
                     Width="30" Height="30" 
                     Margin="2,0" 
                     Background="{DynamicResource Theme.Surface}" 
@@ -78,7 +79,8 @@
             </Button>
 
             <!-- Stop Button -->
-            <Button Click="OnStopClick" 
+            <Button AutomationProperties.AutomationId="RecordingStopButton"
+                    Click="OnStopClick" 
                     Width="30" Height="30" 
                     Margin="2,0" 
                     Background="#E02020" 
@@ -89,7 +91,8 @@
             </Button>
 
             <!-- Restart Button -->
-            <Button Click="OnRestartClick" 
+            <Button AutomationProperties.AutomationId="RecordingRestartButton"
+                    Click="OnRestartClick" 
                     Width="30" Height="30" 
                     Margin="2,0" 
                     Background="{DynamicResource Theme.Surface}" 
@@ -100,7 +103,8 @@
             </Button>
 
             <!-- Discard Button -->
-            <Button Click="OnDiscardClick" 
+            <Button AutomationProperties.AutomationId="RecordingDiscardButton"
+                    Click="OnDiscardClick" 
                     Width="30" Height="30" 
                     Margin="2,0" 
                     Background="{DynamicResource Theme.Surface}" 

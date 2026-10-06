@@ -18,6 +18,8 @@ public class PostRecordingOverlayViewModel : INotifyPropertyChanged, IDisposable
     private readonly IClock _clock;
     private readonly Action<string>? _onDismiss;
     private readonly Action<string>? _onEditor;
+    private readonly Action<string>? _onCopy;
+    private readonly Action? _onDelete;
 
     private PendingRecording _recording;
     private string _name;
@@ -33,13 +35,17 @@ public class PostRecordingOverlayViewModel : INotifyPropertyChanged, IDisposable
         IMediaSink mediaSink,
         IClock? clock = null,
         Action<string>? onDismiss = null,
-        Action<string>? onEditor = null)
+        Action<string>? onEditor = null,
+        Action<string>? onCopy = null,
+        Action? onDelete = null)
     {
         _recording = recording ?? throw new ArgumentNullException(nameof(recording));
         _mediaSink = mediaSink ?? throw new ArgumentNullException(nameof(mediaSink));
         _clock = clock ?? SystemClock.Instance;
         _onDismiss = onDismiss;
         _onEditor = onEditor;
+        _onCopy = onCopy;
+        _onDelete = onDelete;
 
         _name = !string.IsNullOrWhiteSpace(recording.SuggestedName)
             ? recording.SuggestedName
@@ -148,7 +154,7 @@ public class PostRecordingOverlayViewModel : INotifyPropertyChanged, IDisposable
     {
         if (IsSettled) return;
         CancelTimer();
-        _mediaSink.CopyFile(FilePath);
+        if (_onCopy != null) _onCopy(_name); else _mediaSink.CopyFile(FilePath);
         IsSettled = true;
         Settled?.Invoke(this, EventArgs.Empty);
     }
@@ -172,7 +178,7 @@ public class PostRecordingOverlayViewModel : INotifyPropertyChanged, IDisposable
     {
         if (IsSettled) return;
         CancelTimer();
-        _mediaSink.Trash(FilePath);
+        if (_onDelete != null) _onDelete(); else _mediaSink.Trash(FilePath);
         IsDeleted = true;
         IsSettled = true;
         Settled?.Invoke(this, EventArgs.Empty);

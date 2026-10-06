@@ -169,4 +169,44 @@ public class PostRecordingOverlayViewModelTests
         Assert.True(vm.IsSettled);
         Assert.Equal("new_name", vm.Name);
     }
+
+    [Fact]
+    [Unit]
+    public void CopyAndTrashRouteThroughCallbacksWhenSupplied()
+    {
+        var clock = new FakeClock();
+        var sink = new FakeMediaSink();
+        var recording = new PendingRecording(@"C:\Temp\sample.mp4", RecordingOutputKind.Video, 5.0, suggestedName: "custom_take");
+
+        string? copiedName = null;
+        bool deleted = false;
+
+        var vm = new PostRecordingOverlayViewModel(
+            recording,
+            sink,
+            clock,
+            onCopy: name => copiedName = name,
+            onDelete: () => deleted = true);
+
+        vm.Copy();
+
+        Assert.True(vm.IsSettled);
+        Assert.Equal("custom_take", copiedName);
+        Assert.Empty(sink.CopiedFiles);
+
+        // Reset settled state with a new VM for Trash testing
+        var vm2 = new PostRecordingOverlayViewModel(
+            recording,
+            sink,
+            clock,
+            onCopy: name => copiedName = name,
+            onDelete: () => deleted = true);
+
+        vm2.Trash();
+
+        Assert.True(vm2.IsSettled);
+        Assert.True(vm2.IsDeleted);
+        Assert.True(deleted);
+        Assert.Empty(sink.TrashedFiles);
+    }
 }

@@ -135,7 +135,8 @@
                 Padding="4">
             <StackPanel>
                 <!-- Record GIF Button (Alt + Return) -->
-                <Button Click="OnRecordGifClick" 
+                <Button AutomationProperties.AutomationId="RecordGifButton"
+                        Click="OnRecordGifClick" 
                         Height="32" 
                         Background="Transparent" 
                         BorderThickness="0" 
@@ -153,7 +154,8 @@
                 <Separator Margin="0,2"/>
 
                 <!-- Record Video Button (Return) -->
-                <Button Click="OnRecordVideoClick" 
+                <Button AutomationProperties.AutomationId="RecordVideoButton"
+                        Click="OnRecordVideoClick" 
                         Height="32" 
                         Background="Transparent" 
                         BorderThickness="0" 

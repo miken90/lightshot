@@ -71,7 +71,8 @@
             <!-- Action Buttons Row -->
             <DockPanel LastChildFill="False">
                 <!-- Trash (Delete) -->
-                <Button Click="OnTrashClick" 
+                <Button AutomationProperties.AutomationId="PostRecordingTrashButton"
+                        Click="OnTrashClick" 
                         Width="32" Height="30" 
                         DockPanel.Dock="Left" 
                         Background="{DynamicResource Theme.Surface}" 
@@ -82,7 +83,8 @@
                 </Button>
 
                 <!-- Copy -->
-                <Button Click="OnCopyClick" 
+                <Button AutomationProperties.AutomationId="PostRecordingCopyButton"
+                        Click="OnCopyClick" 
                         Padding="10,4" Height="30" 
                         Margin="6,0,0,0" 
                         DockPanel.Dock="Left" 
@@ -94,11 +96,12 @@
                 </Button>
 
                 <!-- Edit (if video) -->
-                <Button Click="OnEditClick" 
+                <Button AutomationProperties.AutomationId="PostRecordingEditButton"
+                        Click="OnEditClick" 
                         Padding="10,4" Height="30" 
                         Margin="6,0,0,0" 
                         DockPanel.Dock="Left" 
-                        Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}"
+                        Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}" 
                         Background="{DynamicResource Theme.Surface}" 
                         Foreground="{DynamicResource Theme.TextPrimary}" 
                         BorderBrush="{DynamicResource Theme.Border}"
@@ -107,12 +110,13 @@
                 </Button>
 
                 <!-- Save -->
-                <Button Click="OnSaveClick" 
+                <Button AutomationProperties.AutomationId="PostRecordingSaveButton"
+                        Click="OnSaveClick" 
                         Padding="12,4" Height="30" 
                         DockPanel.Dock="Right" 
                         Background="#007AFF" 
                         Foreground="White" 
-                        BorderThickness="0"
+                        BorderThickness="0" 
                         FontWeight="SemiBold"
                         ToolTip="Save Recording">
                     <TextBlock Text="Save"/>
