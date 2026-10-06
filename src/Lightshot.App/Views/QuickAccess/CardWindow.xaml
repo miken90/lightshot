@@ -21,7 +21,7 @@
             <Setter Property="Background" Value="#E0E0E0"/>
             <Setter Property="Foreground" Value="#111111"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -43,8 +43,8 @@
         <Style x:Key="CircleCornerButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#99000000"/>
             <Setter Property="Foreground" Value="#FFFFFF"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontFamily" Value="{DynamicResource Font.SegoeFluentIcons}"/>
+            <Setter Property="FontSize" Value="12"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -114,7 +114,7 @@
                     <Button x:Name="CloseButton"
                             AutomationProperties.AutomationId="CloseButton"
                             Style="{StaticResource CircleCornerButtonStyle}"
-                            Content="✕"
+                            Content="&#xE711;"
                             ToolTip="Close"
                             Width="24" Height="24"
                             HorizontalAlignment="Left" VerticalAlignment="Top"
@@ -123,7 +123,7 @@
                     <Button x:Name="PinButton"
                             AutomationProperties.AutomationId="PinButton"
                             Style="{StaticResource CircleCornerButtonStyle}"
-                            Content="📌"
+                            Content="&#xE718;"
                             ToolTip="Pin"
                             Width="24" Height="24"
                             HorizontalAlignment="Right" VerticalAlignment="Top"
@@ -132,7 +132,7 @@
                     <Button x:Name="AnnotateButton"
                             AutomationProperties.AutomationId="AnnotateButton"
                             Style="{StaticResource CircleCornerButtonStyle}"
-                            Content="✎"
+                            Content="&#xE70F;"
                             ToolTip="Annotate"
                             Width="24" Height="24"
                             HorizontalAlignment="Left" VerticalAlignment="Bottom"
