@@ -8,6 +8,7 @@ using Lightshot.Platform.Windows.Files;
 using Lightshot.Platform.Windows.Settings;
 using Lightshot.Platform.Windows.Windows;
 using Velopack;
+using Lightshot.App.Startup;
 
 namespace Lightshot.App;
 
@@ -20,7 +21,7 @@ public static class Program
     [STAThread]
     public static int Main(string[] args)
     {
-        VelopackApp.Build().Run();
+        VelopackHooks.Run();
 
         // Ensure directories exist and settings file migrations are run at startup
         AppPaths.EnsureDirectoriesCreated();

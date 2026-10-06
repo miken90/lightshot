@@ -344,7 +344,7 @@ public sealed partial class AppController
         }
     }
 
-    private static bool IsTestMode()
+    internal static bool IsTestMode()
     {
         return string.Equals(Environment.GetEnvironmentVariable("LIGHTSHOT_TEST_MODE"), "1", StringComparison.OrdinalIgnoreCase) ||
                string.Equals(Environment.GetEnvironmentVariable("LIGHTSHOT_DISABLE_ONBOARDING"), "1", StringComparison.OrdinalIgnoreCase);
