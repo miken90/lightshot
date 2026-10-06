@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
-using Lightshot.Core.Settings;
+using Lightshot.Core;
 using Lightshot.Platform.Windows.Settings;
 
 namespace Lightshot.Platform.Windows.Updates;
