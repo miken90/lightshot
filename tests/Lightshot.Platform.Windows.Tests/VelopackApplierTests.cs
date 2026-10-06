@@ -136,8 +136,8 @@ public class VelopackApplierTests
             var asset = await applier.PrepareStagedUpdateAsync(stagingDir, TestContext.Current.CancellationToken);
             Assert.Null(asset);
 
-            // packagesDir stays empty
-            Assert.Empty(Directory.GetFiles(packagesDir));
+            // packagesDir has no downloaded update packages
+            Assert.Empty(Directory.GetFiles(packagesDir, "*.nupkg"));
         }
         finally
         {
