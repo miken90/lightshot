@@ -14,11 +14,15 @@ public sealed class WindowsHotkeyService : IHotkeyService, IDisposable
     private readonly ShellThread? _shellThread;
     private readonly bool _ownsShellThread;
     private HotkeyWindow? _window;
+    private readonly PrintScreenHook _printScreenHook;
     private Action<CaptureAction>? _currentHandler;
     private bool _disposed;
 
     public WindowsHotkeyService(ShellThread? shellThread = null)
     {
+        // Same thread and handler as WM_HOTKEY, so a claimed PrintScreen press dispatches identically.
+        _printScreenHook = new PrintScreenHook(action => _shellThread?.Post(() => _currentHandler?.Invoke(action)));
+
         if (shellThread != null)
         {
             _shellThread = shellThread;
@@ -49,7 +53,8 @@ public sealed class WindowsHotkeyService : IHotkeyService, IDisposable
 
         _currentHandler = handler;
 
-        return _shellThread!.Invoke(() =>
+        var printScreenChords = new Dictionary<HotkeyModifiers, CaptureAction>();
+        var failedActions = _shellThread!.Invoke(() =>
         {
             _window!.UnregisterAll();
 
@@ -71,6 +76,10 @@ public sealed class WindowsHotkeyService : IHotkeyService, IDisposable
                 if (_window.TryRegister(action, binding, out _))
                 {
                     claimedChords.Add(chordKey);
+                    if (binding.KeyCode == PrintScreenHook.VK_SNAPSHOT)
+                    {
+                        printScreenChords[binding.Modifiers] = action;
+                    }
                 }
                 else
                 {
@@ -80,11 +89,16 @@ public sealed class WindowsHotkeyService : IHotkeyService, IDisposable
 
             return (IReadOnlyList<CaptureAction>)failed;
         });
+
+        // Only chords RegisterHotKey granted: one held by another app stays reported as failed.
+        _printScreenHook.SetChords(printScreenChords);
+        return failedActions;
     }
 
     public void UnregisterAll()
     {
         if (_disposed || _shellThread == null) return;
+        _printScreenHook.SetChords(new Dictionary<HotkeyModifiers, CaptureAction>());
         _shellThread.Invoke(() =>
         {
             _window?.UnregisterAll();
@@ -100,6 +114,7 @@ public sealed class WindowsHotkeyService : IHotkeyService, IDisposable
     {
         if (_disposed) return;
         _disposed = true;
+        _printScreenHook.Dispose();
 
         if (_shellThread != null)
         {

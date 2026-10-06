@@ -30,7 +30,8 @@ This document records the upstream defaults, platform differences, and architect
   - `fullscreen`: `Ctrl+PrintScreen` (`keyCode: 0x2C` / `VK_SNAPSHOT`, modifiers: `Control`, `keyLabel: "PrintScreen"`)
   - Other actions (`window`, `repeatLast`, `recordScreen`, `captureText`, `pauseResumeRecording`, `restartRecording`) remain unbound by default.
   - Windows Reason: Standard Windows convention and classic Lightshot behavior rely on `PrintScreen` for area capture and `Ctrl+PrintScreen` for fullscreen capture.
-  - Tested by: `HotkeyBindingTests.DefaultsArePrintScreenVariants`.
+  - Windows 11 hands `PrintScreen` to the Snipping Tool by default (`PrintScreenKeyForSnippingEnabled` absent counts as on): `RegisterHotKey` still succeeds but `WM_HOTKEY` never arrives. A low-level keyboard hook therefore claims every `PrintScreen` chord Lightshot registered and swallows the key so the Snipping Tool overlay does not open.
+  - Tested by: `HotkeyBindingTests.DefaultsArePrintScreenVariants`, `PrintScreenHookTests`, `AreaCaptureFlowTests.FirstPrintScreenPressOpensTheLightshotOverlayAndOneEditor`.
 
 ## 4. Filename Sanitization and Windows-Forbidden Characters
 
