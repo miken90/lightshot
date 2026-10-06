@@ -69,19 +69,25 @@ public sealed class GifWriter : IDisposable
     /// <summary>
     /// Writes a single frame with a local color table and specified delay in centiseconds (1/100 s).
     /// </summary>
-    public void WriteFrame(QuantizedGifFrame frame, ushort delayCentiseconds, bool restoreToBackground = true)
+    public void WriteFrame(QuantizedGifFrame frame, ushort delayCentiseconds, bool restoreToBackground = true, int? transparentIndex = null)
     {
         ArgumentNullException.ThrowIfNull(frame);
         EnsureHeader();
+
+        int? trans = transparentIndex ?? frame.TransparentIndex;
 
         // 1. Graphic Control Extension
         _stream.WriteByte(0x21); // Extension Introducer
         _stream.WriteByte(0xF9); // Graphic Control Label
         _stream.WriteByte(0x04); // Block Size
         byte disposal = (byte)(restoreToBackground ? (2 << 2) : (1 << 2)); // Disposal method
+        if (trans.HasValue)
+        {
+            disposal |= 0x01; // Transparent Color Flag
+        }
         _stream.WriteByte(disposal);
         WriteUInt16(delayCentiseconds);
-        _stream.WriteByte(0x00); // Transparent color index
+        _stream.WriteByte((byte)(trans ?? 0)); // Transparent color index
         _stream.WriteByte(0x00); // Block Terminator
 
         // Calculate table size power of 2

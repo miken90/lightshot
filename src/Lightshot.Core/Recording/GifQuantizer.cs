@@ -23,7 +23,8 @@ public sealed record QuantizedGifFrame(
     IReadOnlyList<Rgb24> Palette,
     byte[] IndexedPixels,
     int Width,
-    int Height)
+    int Height,
+    int? TransparentIndex = null)
 {
     public byte[] PaletteBytes
     {
@@ -100,93 +101,225 @@ public static class GifQuantizer
         maxColors = Math.Clamp(maxColors, 2, 256);
 
         int pixelCount = width * height;
-        var distinctColors = new HashSet<Rgb24>();
-        var framePixels = new Rgb24[pixelCount];
-
+        bool hasTransparent = false;
         for (int i = 0; i < pixelCount; i++)
         {
-            int offset = i * 4;
-            byte r = isBgra ? bgraOrRgbaPixels[offset + 2] : bgraOrRgbaPixels[offset];
-            byte g = bgraOrRgbaPixels[offset + 1];
-            byte b = isBgra ? bgraOrRgbaPixels[offset] : bgraOrRgbaPixels[offset + 2];
-            var color = new Rgb24(r, g, b);
-            framePixels[i] = color;
-            distinctColors.Add(color);
+            if (bgraOrRgbaPixels[i * 4 + 3] == 0)
+            {
+                hasTransparent = true;
+                break;
+            }
         }
 
-        List<Rgb24> palette;
-        if (distinctColors.Count <= maxColors)
+        if (!hasTransparent)
         {
-            palette = distinctColors.OrderBy(c => c).ToList();
+            var distinctColors = new HashSet<Rgb24>();
+            var framePixels = new Rgb24[pixelCount];
+
+            for (int i = 0; i < pixelCount; i++)
+            {
+                int offset = i * 4;
+                byte r = isBgra ? bgraOrRgbaPixels[offset + 2] : bgraOrRgbaPixels[offset];
+                byte g = bgraOrRgbaPixels[offset + 1];
+                byte b = isBgra ? bgraOrRgbaPixels[offset] : bgraOrRgbaPixels[offset + 2];
+                var color = new Rgb24(r, g, b);
+                framePixels[i] = color;
+                distinctColors.Add(color);
+            }
+
+            List<Rgb24> palette;
+            if (distinctColors.Count <= maxColors)
+            {
+                palette = distinctColors.OrderBy(c => c).ToList();
+            }
+            else
+            {
+                var boxes = new List<ColorBox> { new(distinctColors.OrderBy(c => c).ToList()) };
+
+                while (boxes.Count < maxColors)
+                {
+                    int bestIndex = -1;
+                    int maxRange = -1;
+                    for (int i = 0; i < boxes.Count; i++)
+                    {
+                        if (boxes[i].Colors.Count > 1 && boxes[i].MaxRange > maxRange)
+                        {
+                            maxRange = boxes[i].MaxRange;
+                            bestIndex = i;
+                        }
+                    }
+
+                    if (bestIndex < 0 || maxRange <= 0) break;
+
+                    var boxToSplit = boxes[bestIndex];
+                    boxes.RemoveAt(bestIndex);
+
+                    int rRange = boxToSplit.RangeR;
+                    int gRange = boxToSplit.RangeG;
+                    int bRange = boxToSplit.RangeB;
+
+                    if (rRange >= gRange && rRange >= bRange)
+                    {
+                        boxToSplit.Colors.Sort((a, b) => a.R != b.R ? a.R.CompareTo(b.R) : a.CompareTo(b));
+                    }
+                    else if (gRange >= rRange && gRange >= bRange)
+                    {
+                        boxToSplit.Colors.Sort((a, b) => a.G != b.G ? a.G.CompareTo(b.G) : a.CompareTo(b));
+                    }
+                    else
+                    {
+                        boxToSplit.Colors.Sort((a, b) => a.B != b.B ? a.B.CompareTo(b.B) : a.CompareTo(b));
+                    }
+
+                    int median = boxToSplit.Colors.Count / 2;
+                    var left = new ColorBox(boxToSplit.Colors.GetRange(0, median));
+                    var right = new ColorBox(boxToSplit.Colors.GetRange(median, boxToSplit.Colors.Count - median));
+
+                    boxes.Add(left);
+                    boxes.Add(right);
+                }
+
+                palette = boxes.Select(b => b.AverageColor()).Distinct().OrderBy(c => c).ToList();
+            }
+
+            var indexed = new byte[pixelCount];
+            var colorCache = new Dictionary<Rgb24, byte>();
+
+            for (int i = 0; i < pixelCount; i++)
+            {
+                var p = framePixels[i];
+                if (!colorCache.TryGetValue(p, out byte idx))
+                {
+                    idx = FindNearestColorIndex(p, palette);
+                    colorCache[p] = idx;
+                }
+                indexed[i] = idx;
+            }
+
+            return new QuantizedGifFrame(palette, indexed, width, height, null);
         }
         else
         {
-            var boxes = new List<ColorBox> { new(distinctColors.OrderBy(c => c).ToList()) };
+            // Reserve index 0 for transparent color
+            int effectiveMaxColors = Math.Max(2, maxColors - 1);
+            var distinctColors = new HashSet<Rgb24>();
+            var framePixels = new Rgb24[pixelCount];
 
-            while (boxes.Count < maxColors)
+            for (int i = 0; i < pixelCount; i++)
             {
-                // Find box with largest range (deterministic tie-breaking)
-                int bestIndex = -1;
-                int maxRange = -1;
-                for (int i = 0; i < boxes.Count; i++)
+                int offset = i * 4;
+                if (bgraOrRgbaPixels[offset + 3] == 0) continue;
+                byte r = isBgra ? bgraOrRgbaPixels[offset + 2] : bgraOrRgbaPixels[offset];
+                byte g = bgraOrRgbaPixels[offset + 1];
+                byte b = isBgra ? bgraOrRgbaPixels[offset] : bgraOrRgbaPixels[offset + 2];
+                var color = new Rgb24(r, g, b);
+                framePixels[i] = color;
+                distinctColors.Add(color);
+            }
+
+            List<Rgb24> palette = [new Rgb24(0, 0, 0)]; // index 0 = transparent
+            if (distinctColors.Count == 0)
+            {
+                palette.Add(new Rgb24(0, 0, 0));
+            }
+            else if (distinctColors.Count <= effectiveMaxColors)
+            {
+                palette.AddRange(distinctColors.OrderBy(c => c));
+            }
+            else
+            {
+                var boxes = new List<ColorBox> { new(distinctColors.OrderBy(c => c).ToList()) };
+
+                while (boxes.Count < effectiveMaxColors)
                 {
-                    if (boxes[i].Colors.Count > 1 && boxes[i].MaxRange > maxRange)
+                    int bestIndex = -1;
+                    int maxRange = -1;
+                    for (int i = 0; i < boxes.Count; i++)
                     {
-                        maxRange = boxes[i].MaxRange;
-                        bestIndex = i;
+                        if (boxes[i].Colors.Count > 1 && boxes[i].MaxRange > maxRange)
+                        {
+                            maxRange = boxes[i].MaxRange;
+                            bestIndex = i;
+                        }
                     }
+
+                    if (bestIndex < 0 || maxRange <= 0) break;
+
+                    var boxToSplit = boxes[bestIndex];
+                    boxes.RemoveAt(bestIndex);
+
+                    int rRange = boxToSplit.RangeR;
+                    int gRange = boxToSplit.RangeG;
+                    int bRange = boxToSplit.RangeB;
+
+                    if (rRange >= gRange && rRange >= bRange)
+                    {
+                        boxToSplit.Colors.Sort((a, b) => a.R != b.R ? a.R.CompareTo(b.R) : a.CompareTo(b));
+                    }
+                    else if (gRange >= rRange && gRange >= bRange)
+                    {
+                        boxToSplit.Colors.Sort((a, b) => a.G != b.G ? a.G.CompareTo(b.G) : a.CompareTo(b));
+                    }
+                    else
+                    {
+                        boxToSplit.Colors.Sort((a, b) => a.B != b.B ? a.B.CompareTo(b.B) : a.CompareTo(b));
+                    }
+
+                    int median = boxToSplit.Colors.Count / 2;
+                    var left = new ColorBox(boxToSplit.Colors.GetRange(0, median));
+                    var right = new ColorBox(boxToSplit.Colors.GetRange(median, boxToSplit.Colors.Count - median));
+
+                    boxes.Add(left);
+                    boxes.Add(right);
                 }
 
-                if (bestIndex < 0 || maxRange <= 0) break;
+                palette.AddRange(boxes.Select(b => b.AverageColor()).Distinct().OrderBy(c => c));
+            }
 
-                var boxToSplit = boxes[bestIndex];
-                boxes.RemoveAt(bestIndex);
+            var indexed = new byte[pixelCount];
+            var colorCache = new Dictionary<Rgb24, byte>();
 
-                // Sort along primary axis with largest range
-                int rRange = boxToSplit.RangeR;
-                int gRange = boxToSplit.RangeG;
-                int bRange = boxToSplit.RangeB;
-
-                if (rRange >= gRange && rRange >= bRange)
+            for (int i = 0; i < pixelCount; i++)
+            {
+                if (bgraOrRgbaPixels[i * 4 + 3] == 0)
                 {
-                    boxToSplit.Colors.Sort((a, b) => a.R != b.R ? a.R.CompareTo(b.R) : a.CompareTo(b));
-                }
-                else if (gRange >= rRange && gRange >= bRange)
-                {
-                    boxToSplit.Colors.Sort((a, b) => a.G != b.G ? a.G.CompareTo(b.G) : a.CompareTo(b));
+                    indexed[i] = 0;
                 }
                 else
                 {
-                    boxToSplit.Colors.Sort((a, b) => a.B != b.B ? a.B.CompareTo(b.B) : a.CompareTo(b));
+                    var p = framePixels[i];
+                    if (!colorCache.TryGetValue(p, out byte idx))
+                    {
+                        idx = FindNearestColorIndexExcludingTransparent(p, palette);
+                        colorCache[p] = idx;
+                    }
+                    indexed[i] = idx;
                 }
-
-                int median = boxToSplit.Colors.Count / 2;
-                var left = new ColorBox(boxToSplit.Colors.GetRange(0, median));
-                var right = new ColorBox(boxToSplit.Colors.GetRange(median, boxToSplit.Colors.Count - median));
-
-                boxes.Add(left);
-                boxes.Add(right);
             }
 
-            palette = boxes.Select(b => b.AverageColor()).Distinct().OrderBy(c => c).ToList();
+            return new QuantizedGifFrame(palette, indexed, width, height, TransparentIndex: 0);
         }
+    }
 
-        // Map pixels to nearest palette index
-        var indexed = new byte[pixelCount];
-        var colorCache = new Dictionary<Rgb24, byte>();
-
-        for (int i = 0; i < pixelCount; i++)
+    private static byte FindNearestColorIndexExcludingTransparent(Rgb24 color, IReadOnlyList<Rgb24> palette)
+    {
+        int bestDist = int.MaxValue;
+        byte bestIndex = 1;
+        for (int i = 1; i < palette.Count; i++)
         {
-            var p = framePixels[i];
-            if (!colorCache.TryGetValue(p, out byte idx))
+            var c = palette[i];
+            int dr = color.R - c.R;
+            int dg = color.G - c.G;
+            int db = color.B - c.B;
+            int dist = dr * dr + dg * dg + db * db;
+            if (dist < bestDist)
             {
-                idx = FindNearestColorIndex(p, palette);
-                colorCache[p] = idx;
+                bestDist = dist;
+                bestIndex = (byte)i;
+                if (dist == 0) break;
             }
-            indexed[i] = idx;
         }
-
-        return new QuantizedGifFrame(palette, indexed, width, height);
+        return bestIndex;
     }
 
     private static byte FindNearestColorIndex(Rgb24 color, IReadOnlyList<Rgb24> palette)
