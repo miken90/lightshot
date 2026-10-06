@@ -61,12 +61,16 @@ public partial class EditorWindow : Window
         DataContext = _viewModel;
         _viewModel.RequestClose += OnRequestClose;
         _viewModel.ShowError += OnShowError;
-        _viewModel.CanvasInvalidated += OnCanvasInvalidated;
 
         ToolPaletteControl.BindViewModel(_viewModel);
         StyleBarControl.BindViewModel(_viewModel);
 
+        // The canvas must re-render (and take its new size) before the window resizes the
+        // container to it; handlers run in subscription order, so subscribe after the canvas.
+        // Otherwise a crop, reset or undo leaves the container at the old size and the
+        // centred canvas spills past it.
         MainCanvasHost.ViewModel = _viewModel;
+        _viewModel.CanvasInvalidated += OnCanvasInvalidated;
         FloatingTextEditor.Attach(MainCanvasHost, _viewModel);
 
         UpdateContainerSize();

@@ -24,6 +24,7 @@ public sealed class SelectionAdorner : Adorner
     private static readonly SolidColorBrush s_handleFillBrush = Brushes.White;
     private static readonly Pen s_selectionBorderPen = new(s_selectionBorderBrush, 1.5) { DashStyle = DashStyles.Dash };
     private static readonly Pen s_handleBorderPen = new(s_selectionBorderBrush, 1.5);
+    private static readonly Pen s_draftOutlinePen = new(s_selectionBorderBrush, 1.5);
 
     public const double HandleVisualRadius = 4.5;
 
@@ -31,6 +32,7 @@ public sealed class SelectionAdorner : Adorner
     {
         s_selectionBorderBrush.Freeze();
         s_handleBorderPen.Freeze();
+        s_draftOutlinePen.Freeze();
         s_selectionBorderPen.Freeze();
     }
 
@@ -48,6 +50,14 @@ public sealed class SelectionAdorner : Adorner
         base.OnRender(dc);
 
         if (_viewModel.ActiveTool == EditorTool.Crop) return;
+
+        if (_viewModel.DraftOutline is { } draft)
+        {
+            var draftTopLeft = _canvasHost.ImageToScreen(new Point(draft.MinX, draft.MinY));
+            var draftBottomRight = _canvasHost.ImageToScreen(new Point(draft.MaxX, draft.MaxY));
+            dc.DrawRectangle(null, s_draftOutlinePen, new System.Windows.Rect(draftTopLeft, draftBottomRight));
+        }
+
         if (!_viewModel.HasSelection || !_viewModel.SelectedID.HasValue) return;
 
         var selected = _viewModel.Document.Element(_viewModel.SelectedID.Value);

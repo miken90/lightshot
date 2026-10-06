@@ -94,7 +94,11 @@ public sealed class CanvasHost : FrameworkElement, IDisposable
         }
 
         var elements = _viewModel != null ? _viewModel.DisplayElements : doc.Elements;
-        var newBitmap = DocumentRenderer.Flatten(doc, elements);
+        // A focus area still being dragged out dims like a placed one; the draft itself is
+        // painted separately below, and ElementPainter draws nothing for focus.
+        var draft = _viewModel?.DraftElement;
+        var focusElements = draft != null ? elements.Append(draft) : elements;
+        var newBitmap = DocumentRenderer.Flatten(doc, elements, focusElements);
 
         if (newBitmap != null && _viewModel?.DraftElement != null)
         {

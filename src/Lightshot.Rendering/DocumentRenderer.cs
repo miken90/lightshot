@@ -40,7 +40,12 @@ public class DocumentRenderer : IImageRenderer
     /// Flattens the base image plus the specified subset of elements in z-order into an SKBitmap.
     /// Shared by Render and redaction backdrop generation.
     /// </summary>
-    public static SKBitmap? Flatten(AnnotationDocument document, IReadOnlyList<AnnotationElement> elements)
+    /// <param name="focusElements">Elements whose focus areas dim the image; defaults to the
+    /// document's. The editor passes what it shows, including a focus area still being drawn.</param>
+    public static SKBitmap? Flatten(
+        AnnotationDocument document,
+        IReadOnlyList<AnnotationElement> elements,
+        IEnumerable<AnnotationElement>? focusElements = null)
     {
         var frame = document.VisibleFrame;
         int width = Math.Max(1, (int)Math.Round(frame.Width));
@@ -57,7 +62,7 @@ public class DocumentRenderer : IImageRenderer
             DrawBaseImage(canvas, document.BaseImage, frame);
 
             // 2. Draw focus area dimming under the marks
-            var focusAreas = document.Elements
+            var focusAreas = (focusElements ?? document.Elements)
                 .Select(e => e.ElementKind.FocusRect)
                 .Where(r => r.HasValue)
                 .Select(r => r!.Value)

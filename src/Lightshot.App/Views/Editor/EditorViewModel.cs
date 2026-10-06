@@ -445,6 +445,17 @@ public class EditorViewModel : INotifyPropertyChanged
         }
     }
 
+    /// <summary>
+    /// The region a Focus or Redact drag is drawing, for the adorner to outline. Neither
+    /// paints an edge of its own: focus only dims around it, and a blur or pixelate patch
+    /// can be invisible over flat content, so without this the user cannot see the region.
+    /// </summary>
+    public Rect? DraftOutline => _draft?.Kind switch
+    {
+        AnnotationElement.Kind.Focus or AnnotationElement.Kind.Redaction => _draft.Kind.BoundingBox.Standardized,
+        _ => null,
+    };
+
     // MARK: - Gestures
 
     public void GestureStarted(Point point)
