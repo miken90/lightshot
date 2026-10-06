@@ -6,84 +6,80 @@
              xmlns:local="clr-namespace:Lightshot.App.Views.Settings"
              mc:Ignorable="d" 
              d:DesignHeight="350" d:DesignWidth="450">
-    <StackPanel Margin="16">
-        <TextBlock Text="Global Shortcuts" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,12"/>
+    <StackPanel Margin="{DynamicResource Space.Pane}">
+        <TextBlock Text="Global Shortcuts" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
 
-        <Grid Margin="0,0,0,8">
+        <Grid Margin="0,0,0,4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="220"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="Capture Area" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <local:HotkeyRecorder x:Name="AreaRecorder" Grid.Column="1"/>
         </Grid>
 
-        <Grid Margin="0,0,0,8">
+        <Grid Margin="0,0,0,4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="220"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="Capture Fullscreen" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <local:HotkeyRecorder x:Name="FullscreenRecorder" Grid.Column="1"/>
         </Grid>
 
-        <Grid Margin="0,0,0,8">
+        <Grid Margin="0,0,0,4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="220"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="Capture Window" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <local:HotkeyRecorder x:Name="WindowRecorder" Grid.Column="1"/>
         </Grid>
 
-        <Grid Margin="0,0,0,8">
+        <Grid Margin="0,0,0,4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="220"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="Repeat Last Capture" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <local:HotkeyRecorder x:Name="RepeatLastRecorder" Grid.Column="1"/>
         </Grid>
 
-        <Grid Margin="0,0,0,8">
+        <Grid Margin="0,0,0,4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="220"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="Record Screen" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <local:HotkeyRecorder x:Name="RecordScreenRecorder" Grid.Column="1"/>
         </Grid>
 
-        <Grid Margin="0,0,0,8">
+        <Grid Margin="0,0,0,4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="220"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="Pause/Resume Recording" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <local:HotkeyRecorder x:Name="PauseResumeRecorder" Grid.Column="1"/>
         </Grid>
 
-        <Grid Margin="0,0,0,16">
+        <Grid Margin="{DynamicResource Space.SectionGap}">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="220"/>
             </Grid.ColumnDefinitions>
             <TextBlock Text="Restart Recording" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <local:HotkeyRecorder x:Name="RestartRecorder" Grid.Column="1"/>
         </Grid>
 
         <TextBlock x:Name="ConflictWarning" 
-                   Text="⚠ Some shortcuts conflict with each other or are reserved by Windows."
+                   Text="⚠ Some shortcuts conflict with each other or are reserved by Windows." 
                    Foreground="{DynamicResource Theme.Warning}" 
                    Visibility="Collapsed" 
                    Margin="0,0,0,12"/>
 
         <Button Content="Reset Shortcuts to Defaults" 
                 HorizontalAlignment="Left" 
-                Padding="12,4" 
-                Background="{DynamicResource Theme.Panel}" 
-                Foreground="{DynamicResource Theme.TextPrimary}"
-                BorderBrush="{DynamicResource Theme.PanelEdgeStrong}"
                 Click="OnResetDefaultsClick"/>
     </StackPanel>
 </UserControl>

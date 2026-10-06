@@ -5,12 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="400">
-    <StackPanel Margin="16">
-        <TextBlock Text="After Capture" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
-        <TextBlock Text="Configure actions performed immediately when a capture completes." Foreground="{DynamicResource Theme.TextSecondary}" Margin="0,0,0,16"/>
+    <StackPanel Margin="{DynamicResource Space.Pane}">
+        <TextBlock Text="After Capture" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
+        <TextBlock Text="Configure actions performed immediately when a capture completes." Foreground="{DynamicResource Theme.TextSecondary}" Margin="{DynamicResource Space.SectionGap}"/>
 
-        <CheckBox Content="Show Quick Access card in bottom corner" IsChecked="True" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
-        <CheckBox Content="Copy image to clipboard" IsChecked="True" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
-        <CheckBox Content="Save image to file" IsChecked="False" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+        <CheckBox Content="Show Quick Access card in bottom corner" IsChecked="True" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
+        <CheckBox Content="Copy image to clipboard" IsChecked="True" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
+        <CheckBox Content="Save image to file" IsChecked="False" Foreground="{DynamicResource Theme.TextPrimary}" Margin="{DynamicResource Space.SectionGap}"/>
     </StackPanel>
 </UserControl>

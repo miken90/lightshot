@@ -13,13 +13,8 @@
 
         <Button x:Name="RecordButton"
                 Grid.Column="0"
-                Height="28"
-                Padding="8,2"
+                MinWidth="140"
                 HorizontalContentAlignment="Center"
-                Background="{DynamicResource Theme.Panel}"
-                Foreground="{DynamicResource Theme.TextPrimary}"
-                BorderBrush="{DynamicResource Theme.PanelEdgeStrong}"
-                BorderThickness="1"
                 Click="OnRecordClick"
                 PreviewKeyDown="OnPreviewKeyDown">
             <TextBlock x:Name="ChordText" Text="{Binding DisplayText, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
@@ -28,14 +23,11 @@
         <Button x:Name="ClearButton"
                 Grid.Column="1"
                 Margin="4,0,0,0"
-                Width="24"
-                Height="28"
-                Content="✕"
-                FontSize="10"
-                Background="Transparent"
+                Style="{DynamicResource Button.Icon}"
+                Content="&#xE711;"
                 Foreground="{DynamicResource Theme.TextSecondary}"
-                BorderThickness="0"
                 ToolTip="Clear shortcut"
+                AutomationProperties.Name="Clear shortcut"
                 Click="OnClearClick"/>
     </Grid>
 </UserControl>

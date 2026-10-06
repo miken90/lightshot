@@ -10,35 +10,35 @@
         <local:InverseBoolConverter x:Key="InverseBoolConverter"/>
     </UserControl.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
-        <StackPanel Margin="16">
-            <TextBlock Text="Image Format" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+        <StackPanel Margin="{DynamicResource Space.Pane}">
+            <TextBlock Text="Image Format" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
+            <StackPanel Orientation="Horizontal" Margin="{DynamicResource Space.SectionGap}">
                 <RadioButton Content="PNG" GroupName="Format" IsChecked="{Binding FormatIsJpeg, Converter={StaticResource InverseBoolConverter}, FallbackValue=True}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,16,0"/>
                 <RadioButton Content="JPEG" GroupName="Format" IsChecked="{Binding FormatIsJpeg}" Foreground="{DynamicResource Theme.TextPrimary}"/>
             </StackPanel>
 
-            <TextBlock Text="Save Location" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,8,0,4"/>
-            <Grid Margin="0,0,0,12">
+            <TextBlock Text="Save Location" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
+            <Grid Margin="{DynamicResource Space.SectionGap}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBox Text="{Binding SaveLocation, UpdateSourceTrigger=PropertyChanged}" Background="{DynamicResource Theme.Panel}" Foreground="{DynamicResource Theme.TextPrimary}" BorderBrush="{DynamicResource Theme.PanelEdgeStrong}" Padding="6,4"/>
-                <Button Grid.Column="1" Content="Browse..." Margin="8,0,0,0" Padding="12,4" Background="{DynamicResource Theme.Panel}" Foreground="{DynamicResource Theme.TextPrimary}" BorderBrush="{DynamicResource Theme.PanelEdgeStrong}" Click="OnBrowseClick"/>
+                <TextBox Text="{Binding SaveLocation, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button Grid.Column="1" Content="Browse..." Margin="{DynamicResource Space.ButtonGap}" Click="OnBrowseClick"/>
             </Grid>
 
-            <TextBlock Text="Filename Pattern" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,4"/>
-            <TextBox Text="{Binding FilenamePattern, UpdateSourceTrigger=PropertyChanged}" Background="{DynamicResource Theme.Panel}" Foreground="{DynamicResource Theme.TextPrimary}" BorderBrush="{DynamicResource Theme.PanelEdgeStrong}" Padding="6,4" Margin="0,0,0,16"/>
+            <TextBlock Text="Filename Pattern" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
+            <TextBox Text="{Binding FilenamePattern, UpdateSourceTrigger=PropertyChanged}" Margin="{DynamicResource Space.SectionGap}"/>
 
-            <TextBlock Text="Capture Behavior" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
-            <CheckBox Content="Open screenshot in editor after capture" IsChecked="{Binding OpenInEditor}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,6"/>
-            <CheckBox Content="Include mouse cursor in screenshot" IsChecked="{Binding IncludeCursor}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,6"/>
-            <CheckBox Content="Adjust area before capture" IsChecked="{Binding AdjustAreaBeforeCapture}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,6"/>
-            <CheckBox Content="Hide desktop icons during capture" IsChecked="{Binding HideDesktopIcons}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,16"/>
+            <TextBlock Text="Capture Behavior" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
+            <CheckBox Content="Open screenshot in editor after capture" IsChecked="{Binding OpenInEditor}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
+            <CheckBox Content="Include mouse cursor in screenshot" IsChecked="{Binding IncludeCursor}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
+            <CheckBox Content="Adjust area before capture" IsChecked="{Binding AdjustAreaBeforeCapture}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
+            <CheckBox Content="Hide desktop icons during capture" IsChecked="{Binding HideDesktopIcons}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="{DynamicResource Space.SectionGap}"/>
 
-            <TextBlock Text="History Retention" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,4"/>
+            <TextBlock Text="History Retention" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <TextBox Text="{Binding HistoryRetention, UpdateSourceTrigger=PropertyChanged}" Width="80" Background="{DynamicResource Theme.Panel}" Foreground="{DynamicResource Theme.TextPrimary}" BorderBrush="{DynamicResource Theme.PanelEdgeStrong}" Padding="6,4"/>
+                <TextBox Text="{Binding HistoryRetention, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
                 <TextBlock Text="items" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextSecondary}" Margin="8,0,0,0"/>
             </StackPanel>
         </StackPanel>

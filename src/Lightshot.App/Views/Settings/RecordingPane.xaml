@@ -24,12 +24,12 @@
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled">
-        <StackPanel Margin="16">
+        <StackPanel Margin="{DynamicResource Space.Pane}">
             <!-- Section 1: Video -->
-            <TextBlock Text="Video" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+            <TextBlock Text="Video" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <Grid Margin="8,0,0,16">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="180"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
@@ -40,7 +40,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Frame rate" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4"/>
-                <ComboBox Grid.Row="0" Grid.Column="1" SelectedValue="{Binding VideoFps}" SelectedValuePath="Tag" Width="140" HorizontalAlignment="Left" Margin="0,4">
+                <ComboBox Grid.Row="0" Grid.Column="1" SelectedValue="{Binding VideoFps}" SelectedValuePath="Tag" MinWidth="160" HorizontalAlignment="Left" Margin="0,4">
                     <ComboBoxItem Content="10 fps" Tag="{StaticResource Int10}"/>
                     <ComboBoxItem Content="15 fps" Tag="{StaticResource Int15}"/>
                     <ComboBoxItem Content="30 fps" Tag="{StaticResource Int30}"/>
@@ -48,14 +48,14 @@
                 </ComboBox>
 
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="Maximum resolution" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4"/>
-                <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding VideoMaxResolution}" Width="140" HorizontalAlignment="Left" Margin="0,4">
+                <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding VideoMaxResolution}" MinWidth="160" HorizontalAlignment="Left" Margin="0,4">
                     <core:MaxResolution>Original</core:MaxResolution>
                     <core:MaxResolution>P1080</core:MaxResolution>
                     <core:MaxResolution>P720</core:MaxResolution>
                 </ComboBox>
 
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Encoder" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4"/>
-                <ComboBox Grid.Row="2" Grid.Column="1" SelectedItem="{Binding VideoCodec}" Width="160" HorizontalAlignment="Left" Margin="0,4">
+                <ComboBox Grid.Row="2" Grid.Column="1" SelectedItem="{Binding VideoCodec}" MinWidth="160" HorizontalAlignment="Left" Margin="0,4">
                     <core:VideoCodec>H264</core:VideoCodec>
                     <ComboBox.ItemContainerStyle>
                         <Style TargetType="ComboBoxItem">
@@ -72,10 +72,10 @@
             </Grid>
 
             <!-- Section 2: GIF -->
-            <TextBlock Text="GIF" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+            <TextBlock Text="GIF" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <Grid Margin="8,0,0,16">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="160"/>
+                    <ColumnDefinition Width="180"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
@@ -86,7 +86,7 @@
                 </Grid.RowDefinitions>
 
                 <TextBlock Grid.Row="0" Grid.Column="0" Text="Frame rate" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4"/>
-                <ComboBox Grid.Row="0" Grid.Column="1" SelectedValue="{Binding GifFps}" SelectedValuePath="Tag" Width="140" HorizontalAlignment="Left" Margin="0,4">
+                <ComboBox Grid.Row="0" Grid.Column="1" SelectedValue="{Binding GifFps}" SelectedValuePath="Tag" MinWidth="160" HorizontalAlignment="Left" Margin="0,4">
                     <ComboBoxItem Content="10 fps" Tag="{StaticResource Int10}"/>
                     <ComboBoxItem Content="15 fps" Tag="{StaticResource Int15}"/>
                     <ComboBoxItem Content="20 fps" Tag="{StaticResource Int20}"/>
@@ -100,7 +100,7 @@
                 </DockPanel>
 
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="Maximum width" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4"/>
-                <ComboBox Grid.Row="2" Grid.Column="1" SelectedValue="{Binding GifMaxWidth}" SelectedValuePath="Tag" Width="140" HorizontalAlignment="Left" Margin="0,4">
+                <ComboBox Grid.Row="2" Grid.Column="1" SelectedValue="{Binding GifMaxWidth}" SelectedValuePath="Tag" MinWidth="160" HorizontalAlignment="Left" Margin="0,4">
                     <ComboBoxItem Content="Original" Tag="{x:Null}"/>
                     <ComboBoxItem Content="480 px" Tag="{StaticResource Int480}"/>
                     <ComboBoxItem Content="640 px" Tag="{StaticResource Int640}"/>
@@ -112,18 +112,18 @@
             </Grid>
 
             <!-- Section 3: Audio -->
-            <TextBlock Text="Audio" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+            <TextBlock Text="Audio" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <StackPanel Margin="8,0,0,16">
                 <CheckBox Content="Record the microphone" IsChecked="{Binding RecordMicrophone}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,6"/>
                 <DockPanel Margin="24,0,0,6" IsEnabled="{Binding RecordMicrophone}">
-                    <TextBlock Text="Microphone volume" Width="140" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
+                    <TextBlock Text="Microphone volume" Width="180" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
                     <TextBlock Text="{Binding MicrophoneVolume, StringFormat={}{0:P0}}" Width="50" DockPanel.Dock="Right" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
                     <Slider Minimum="0" Maximum="2" Value="{Binding MicrophoneVolume}" Width="140" HorizontalAlignment="Left"/>
                 </DockPanel>
 
                 <CheckBox Content="Record computer audio" IsChecked="{Binding RecordComputerAudio}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4,0,6"/>
                 <DockPanel Margin="24,0,0,6" IsEnabled="{Binding RecordComputerAudio}">
-                    <TextBlock Text="Computer audio volume" Width="140" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
+                    <TextBlock Text="Computer audio volume" Width="180" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
                     <TextBlock Text="{Binding ComputerAudioVolume, StringFormat={}{0:P0}}" Width="50" DockPanel.Dock="Right" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
                     <Slider Minimum="0" Maximum="2" Value="{Binding ComputerAudioVolume}" Width="140" HorizontalAlignment="Left"/>
                 </DockPanel>
@@ -133,12 +133,12 @@
             </StackPanel>
 
             <!-- Section 4: Camera -->
-            <TextBlock Text="Camera" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+            <TextBlock Text="Camera" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <StackPanel Margin="8,0,0,16">
                 <CheckBox Content="Record the camera" IsChecked="{Binding RecordCamera}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,6"/>
                 <Grid Margin="24,0,0,0" IsEnabled="{Binding RecordCamera}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="180"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -148,7 +148,7 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Size" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4"/>
-                    <ComboBox Grid.Row="0" Grid.Column="1" SelectedItem="{Binding CameraBubbleSize}" Width="140" HorizontalAlignment="Left" Margin="0,4">
+                    <ComboBox Grid.Row="0" Grid.Column="1" SelectedItem="{Binding CameraBubbleSize}" MinWidth="160" HorizontalAlignment="Left" Margin="0,4">
                         <core:CameraBubbleSize>Tiny</core:CameraBubbleSize>
                         <core:CameraBubbleSize>Small</core:CameraBubbleSize>
                         <core:CameraBubbleSize>Medium</core:CameraBubbleSize>
@@ -157,7 +157,7 @@
                     </ComboBox>
 
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Shape" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4"/>
-                    <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding CameraBubbleShape}" Width="140" HorizontalAlignment="Left" Margin="0,4">
+                    <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding CameraBubbleShape}" MinWidth="160" HorizontalAlignment="Left" Margin="0,4">
                         <core:CameraBubbleShape>Circle</core:CameraBubbleShape>
                         <core:CameraBubbleShape>Rounded</core:CameraBubbleShape>
                         <core:CameraBubbleShape>Square</core:CameraBubbleShape>
@@ -168,7 +168,7 @@
             </StackPanel>
 
             <!-- Section 5: Cursor & Clicks -->
-            <TextBlock Text="Cursor &amp; Clicks" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+            <TextBlock Text="Cursor &amp; Clicks" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <StackPanel Margin="8,0,0,16">
                 <CheckBox Content="Show the cursor" IsChecked="{Binding ShowCursor}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,6"/>
                 <CheckBox Content="Highlight clicks" IsChecked="{Binding HighlightClicks}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,6"/>
@@ -176,7 +176,7 @@
                 <StackPanel Margin="24,0,0,0" IsEnabled="{Binding HighlightClicks}">
                     <Grid>
                         <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="180"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Grid.RowDefinitions>
@@ -187,21 +187,21 @@
                         </Grid.RowDefinitions>
 
                         <TextBlock Grid.Row="0" Grid.Column="0" Text="Style" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4"/>
-                        <ComboBox Grid.Row="0" Grid.Column="1" SelectedItem="{Binding ClickHighlightStyle}" Width="140" HorizontalAlignment="Left" Margin="0,4">
+                        <ComboBox Grid.Row="0" Grid.Column="1" SelectedItem="{Binding ClickHighlightStyle}" MinWidth="160" HorizontalAlignment="Left" Margin="0,4">
                             <core:CursorHighlightStyle>Ring</core:CursorHighlightStyle>
                             <core:CursorHighlightStyle>Filled</core:CursorHighlightStyle>
                             <core:CursorHighlightStyle>Outline</core:CursorHighlightStyle>
                         </ComboBox>
 
                         <TextBlock Grid.Row="1" Grid.Column="0" Text="Size" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4"/>
-                        <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding ClickHighlightSize}" Width="140" HorizontalAlignment="Left" Margin="0,4">
+                        <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding ClickHighlightSize}" MinWidth="160" HorizontalAlignment="Left" Margin="0,4">
                             <core:CursorHighlightSize>Small</core:CursorHighlightSize>
                             <core:CursorHighlightSize>Medium</core:CursorHighlightSize>
                             <core:CursorHighlightSize>Large</core:CursorHighlightSize>
                         </ComboBox>
 
                         <TextBlock Grid.Row="2" Grid.Column="0" Text="Colour" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4"/>
-                        <ComboBox Grid.Row="2" Grid.Column="1" SelectedItem="{Binding ClickHighlightColor}" Width="140" HorizontalAlignment="Left" Margin="0,4">
+                        <ComboBox Grid.Row="2" Grid.Column="1" SelectedItem="{Binding ClickHighlightColor}" MinWidth="160" HorizontalAlignment="Left" Margin="0,4">
                             <core:CursorHighlightColor>Yellow</core:CursorHighlightColor>
                             <core:CursorHighlightColor>Blue</core:CursorHighlightColor>
                             <core:CursorHighlightColor>Red</core:CursorHighlightColor>
@@ -220,12 +220,12 @@
             </StackPanel>
 
             <!-- Section 6: Keystrokes -->
-            <TextBlock Text="Keystrokes" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+            <TextBlock Text="Keystrokes" Style="{DynamicResource Text.SectionHeader}"/>
             <StackPanel Margin="8,0,0,16">
                 <CheckBox Content="Show keystrokes" IsChecked="{Binding ShowKeystrokes}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,6"/>
                 <Grid Margin="24,0,0,0" IsEnabled="{Binding ShowKeystrokes}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="180"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
@@ -237,13 +237,13 @@
                     </Grid.RowDefinitions>
 
                     <TextBlock Grid.Row="0" Grid.Column="0" Text="Keys to show" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4"/>
-                    <ComboBox Grid.Row="0" Grid.Column="1" SelectedItem="{Binding KeystrokeMode}" Width="160" HorizontalAlignment="Left" Margin="0,4">
+                    <ComboBox Grid.Row="0" Grid.Column="1" SelectedItem="{Binding KeystrokeMode}" MinWidth="160" HorizontalAlignment="Left" Margin="0,4">
                         <core:KeystrokeDisplayMode>AllKeys</core:KeystrokeDisplayMode>
                         <core:KeystrokeDisplayMode>CommandOnly</core:KeystrokeDisplayMode>
                     </ComboBox>
 
                     <TextBlock Grid.Row="1" Grid.Column="0" Text="Position" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4"/>
-                    <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding KeystrokePosition}" Width="160" HorizontalAlignment="Left" Margin="0,4">
+                    <ComboBox Grid.Row="1" Grid.Column="1" SelectedItem="{Binding KeystrokePosition}" MinWidth="160" HorizontalAlignment="Left" Margin="0,4">
                         <core:KeystrokeOverlayPosition>TopLeft</core:KeystrokeOverlayPosition>
                         <core:KeystrokeOverlayPosition>TopCenter</core:KeystrokeOverlayPosition>
                         <core:KeystrokeOverlayPosition>TopRight</core:KeystrokeOverlayPosition>
@@ -253,14 +253,14 @@
                     </ComboBox>
 
                     <TextBlock Grid.Row="2" Grid.Column="0" Text="Size" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4"/>
-                    <ComboBox Grid.Row="2" Grid.Column="1" SelectedItem="{Binding KeystrokeSize}" Width="160" HorizontalAlignment="Left" Margin="0,4">
+                    <ComboBox Grid.Row="2" Grid.Column="1" SelectedItem="{Binding KeystrokeSize}" MinWidth="160" HorizontalAlignment="Left" Margin="0,4">
                         <core:KeystrokeOverlaySize>Small</core:KeystrokeOverlaySize>
                         <core:KeystrokeOverlaySize>Medium</core:KeystrokeOverlaySize>
                         <core:KeystrokeOverlaySize>Large</core:KeystrokeOverlaySize>
                     </ComboBox>
 
                     <TextBlock Grid.Row="3" Grid.Column="0" Text="Appearance" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4"/>
-                    <ComboBox Grid.Row="3" Grid.Column="1" SelectedItem="{Binding KeystrokeAppearance}" Width="160" HorizontalAlignment="Left" Margin="0,4">
+                    <ComboBox Grid.Row="3" Grid.Column="1" SelectedItem="{Binding KeystrokeAppearance}" MinWidth="160" HorizontalAlignment="Left" Margin="0,4">
                         <core:KeystrokeOverlayAppearance>System</core:KeystrokeOverlayAppearance>
                         <core:KeystrokeOverlayAppearance>Light</core:KeystrokeOverlayAppearance>
                         <core:KeystrokeOverlayAppearance>Dark</core:KeystrokeOverlayAppearance>
@@ -271,11 +271,11 @@
             </StackPanel>
 
             <!-- Section 7: While Recording -->
-            <TextBlock Text="While Recording" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+            <TextBlock Text="While Recording" Style="{DynamicResource Text.SectionHeader}"/>
             <StackPanel Margin="8,0,0,16">
                 <DockPanel Margin="0,0,0,6">
-                    <CheckBox Content="Countdown" IsChecked="{Binding CountdownEnabled}" Foreground="{DynamicResource Theme.TextPrimary}" Width="140"/>
-                    <ComboBox SelectedValue="{Binding CountdownSeconds}" SelectedValuePath="Tag" Width="140" HorizontalAlignment="Left" IsEnabled="{Binding CountdownEnabled}">
+                    <CheckBox Content="Countdown" IsChecked="{Binding CountdownEnabled}" Foreground="{DynamicResource Theme.TextPrimary}" Width="180"/>
+                    <ComboBox SelectedValue="{Binding CountdownSeconds}" SelectedValuePath="Tag" MinWidth="160" HorizontalAlignment="Left" IsEnabled="{Binding CountdownEnabled}">
                         <ComboBoxItem Content="3 seconds" Tag="{StaticResource Int3}"/>
                         <ComboBoxItem Content="5 seconds" Tag="{StaticResource Int5}"/>
                         <ComboBoxItem Content="10 seconds" Tag="{StaticResource Int10}"/>
@@ -285,8 +285,8 @@
                 <CheckBox Content="Play sounds" IsChecked="{Binding PlaySounds}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4,0,6"/>
                 <CheckBox Content="Show controls while recording" IsChecked="{Binding ShowRecordingControls}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4,0,6"/>
                 <DockPanel Margin="24,0,0,6" IsEnabled="{Binding ShowRecordingControls}">
-                    <TextBlock Text="Controls position" Width="140" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
-                    <ComboBox SelectedItem="{Binding ControlsPosition}" Width="140" HorizontalAlignment="Left">
+                    <TextBlock Text="Controls position" Width="180" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
+                    <ComboBox SelectedItem="{Binding ControlsPosition}" MinWidth="160" HorizontalAlignment="Left">
                         <core:RecordingControlsPosition>Top</core:RecordingControlsPosition>
                         <core:RecordingControlsPosition>Bottom</core:RecordingControlsPosition>
                     </ComboBox>
@@ -300,8 +300,8 @@
                 <CheckBox Content="Remember last recording area" IsChecked="{Binding RememberLastRecordingArea}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,4,0,6"/>
 
                 <DockPanel Margin="0,6,0,6">
-                    <TextBlock Text="After recording" Width="140" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
-                    <ComboBox SelectedItem="{Binding AfterRecording}" Width="160" HorizontalAlignment="Left">
+                    <TextBlock Text="After recording" Width="180" VerticalAlignment="Center" Foreground="{DynamicResource Theme.TextPrimary}"/>
+                    <ComboBox SelectedItem="{Binding AfterRecording}" MinWidth="160" HorizontalAlignment="Left">
                         <core:AfterRecordingAction>ShowOverlay</core:AfterRecordingAction>
                         <core:AfterRecordingAction>SaveSilently</core:AfterRecordingAction>
                         <core:AfterRecordingAction>OpenEditor</core:AfterRecordingAction>

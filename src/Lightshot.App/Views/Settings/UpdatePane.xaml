@@ -8,8 +8,8 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </UserControl.Resources>
-    <StackPanel Margin="16">
-        <TextBlock Text="Updates" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+    <StackPanel Margin="{DynamicResource Space.Pane}">
+        <TextBlock Text="Updates" Style="{DynamicResource Text.SectionHeader}"/>
 
         <CheckBox Content="Automatically check for updates"
                   IsChecked="{Binding Updates.AutoCheck}"
@@ -17,11 +17,11 @@
                   Foreground="{DynamicResource Theme.TextPrimary}"
                   AutomationProperties.AutomationId="UpdateAutoCheckBox"
                   x:Name="UpdateAutoCheckBox"
-                  Margin="0,0,0,8"/>
+                  Margin="{DynamicResource Space.RowGap}"/>
 
         <TextBlock Text="{Binding Updates.CurrentVersion, StringFormat='Current version: {0}'}"
                    Foreground="{DynamicResource Theme.TextSecondary}"
-                   Margin="0,0,0,8"/>
+                   Margin="{DynamicResource Space.RowGap}"/>
 
         <TextBlock Text="{Binding Updates.StatusText}"
                    Foreground="{DynamicResource Theme.TextSecondary}"
@@ -36,7 +36,7 @@
                     AutomationProperties.AutomationId="UpdateCheckNowButton"
                     x:Name="UpdateCheckNowButton"
                     Click="OnCheckNowClick"
-                    Padding="12,6"
+                    MinWidth="100"
                     Margin="0,0,8,0"/>
 
             <Button Content="Restart to Update"
@@ -44,7 +44,8 @@
                     AutomationProperties.AutomationId="UpdateRestartButton"
                     x:Name="UpdateRestartButton"
                     Click="OnRestartClick"
-                    Padding="12,6"/>
+                    Style="{DynamicResource AccentButtonStyle}"
+                    MinWidth="140"/>
         </StackPanel>
     </StackPanel>
 </UserControl>

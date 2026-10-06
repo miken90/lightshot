@@ -9,11 +9,11 @@
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
     </UserControl.Resources>
-    <StackPanel Margin="16">
-        <TextBlock Text="Startup" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
+    <StackPanel Margin="{DynamicResource Space.Pane}">
+        <TextBlock Text="Startup" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
         <CheckBox Content="Launch Lightshot at login" IsChecked="{Binding LaunchAtLogin}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
 
-        <StackPanel Visibility="{Binding IsStartupDisabledByTaskManager, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16">
+        <StackPanel Visibility="{Binding IsStartupDisabledByTaskManager, Converter={StaticResource BoolToVis}}" Margin="{DynamicResource Space.SectionGap}">
             <TextBlock Text="Startup is turned off in Task Manager or Windows Settings." Foreground="{DynamicResource Theme.Warning}" TextWrapping="Wrap" Margin="0,0,0,4"/>
             <TextBlock>
                 <Hyperlink Click="OnOpenStartupAppsClick" Foreground="{DynamicResource Theme.AccentBlue}">
@@ -22,11 +22,11 @@
             </TextBlock>
         </StackPanel>
 
-        <TextBlock Text="Appearance" FontWeight="SemiBold" FontSize="14" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
-        <StackPanel Margin="8,0,0,16">
-            <RadioButton Content="Match System" GroupName="Appearance" IsChecked="{Binding Appearance, ConverterParameter={x:Static core:AppearancePreference.System}}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,4"/>
-            <RadioButton Content="Light" GroupName="Appearance" IsChecked="{Binding Appearance, ConverterParameter={x:Static core:AppearancePreference.Light}}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,4"/>
-            <RadioButton Content="Dark" GroupName="Appearance" IsChecked="{Binding Appearance, ConverterParameter={x:Static core:AppearancePreference.Dark}}" Foreground="{DynamicResource Theme.TextPrimary}"/>
+        <TextBlock Text="Appearance" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
+        <StackPanel Margin="{DynamicResource Space.SectionGap}">
+            <RadioButton Content="Match System" GroupName="Appearance" IsChecked="{Binding Appearance, ConverterParameter={x:Static core:AppearancePreference.System}}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
+            <RadioButton Content="Light" GroupName="Appearance" IsChecked="{Binding Appearance, ConverterParameter={x:Static core:AppearancePreference.Light}}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
+            <RadioButton Content="Dark" GroupName="Appearance" IsChecked="{Binding Appearance, ConverterParameter={x:Static core:AppearancePreference.Dark}}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
         </StackPanel>
     </StackPanel>
 </UserControl>

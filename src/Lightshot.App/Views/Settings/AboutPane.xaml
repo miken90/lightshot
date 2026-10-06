@@ -5,8 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
              d:DesignHeight="350" d:DesignWidth="450">
-    <StackPanel Margin="16">
-        <TextBlock Text="About Lightshot" FontWeight="SemiBold" FontSize="16" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,4"/>
+    <StackPanel Margin="{DynamicResource Space.Pane}">
+        <TextBlock Text="About Lightshot" Style="{DynamicResource Text.Title}"/>
         <TextBlock Text="Windows Desktop Port (.NET 10 / WPF / SkiaSharp)" Foreground="{DynamicResource Theme.TextSecondary}" Margin="0,0,0,16"/>
 
         <Grid Margin="0,0,0,16">
@@ -35,7 +35,7 @@
         </Grid>
 
         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-            <Button Content="Third-Party Notices" Padding="12,6"/>
+            <Button Content="Third-Party Notices" MinWidth="140"/>
         </StackPanel>
     </StackPanel>
 </UserControl>
