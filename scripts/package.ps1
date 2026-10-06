@@ -40,6 +40,7 @@ try {
         "-r", "win-x64",
         "--self-contained", "true",
         "-p:PublishReadyToRun=true",
+        "-p:Version=$Version",
         "-o", $publishDir
     )
 
@@ -63,9 +64,13 @@ try {
 
         $mainExeName = "Lightshot.App.exe"
         $iconPath = Join-Path $RepoRoot "src\Lightshot.App\Resources\Icons\app.ico"
+        # The packId names the install root %LocalAppData%\<packId>, which Velopack deletes on uninstall,
+        # so it must differ from AppPaths.LocalData (%LocalAppData%\Lightshot), and it must equal
+        # UpdateStager.VelopackPackageId (InstallerSmokeTests.DryRunSucceeds checks it against vpk's own releases.win.json).
         $vpkArgs = @(
             "vpk", "pack",
-            "--packId", "Lightshot",
+            "--packId", "LightshotApp",
+            "--packTitle", "Lightshot",
             "--packVersion", $Version,
             "--packDir", $publishDir,
             "--packAuthors", "Lightshot",

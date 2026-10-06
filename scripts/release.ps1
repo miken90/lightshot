@@ -8,6 +8,7 @@ param(
     [switch]$DryRun,
     [switch]$Publish,
     [string]$KeyPath = "$env:USERPROFILE\.lightshot-release\update-signing-key",
+    [string]$DryRunKeyPath,
     [int]$MaxSetupMB = 113
 )
 
@@ -27,21 +28,35 @@ try {
     if ($DryRun -and $Publish) {
         throw "Cannot specify both -DryRun and -Publish simultaneously."
     }
+    if ($DryRunKeyPath -and $Publish) {
+        throw "Cannot specify -DryRunKeyPath together with -Publish."
+    }
 
     # 1. Key configuration
     $tempKeyDir = $null
     $activeKeyPath = $null
 
     if ($DryRun) {
-        Write-Log "Operating in -DryRun mode: generating temporary throwaway key in temp..."
-        $tempKeyDir = Join-Path $env:TEMP ("lightshot-dryrun-key-" + [guid]::NewGuid().ToString("N"))
-        New-Item -Path $tempKeyDir -ItemType Directory -Force | Out-Null
-        $activeKeyPath = Join-Path $tempKeyDir "throwaway-key"
+        if ($DryRunKeyPath) {
+            if ([IO.Path]::GetFullPath($DryRunKeyPath).Equals([IO.Path]::GetFullPath($KeyPath), [StringComparison]::OrdinalIgnoreCase)) {
+                throw "-DryRunKeyPath must not be the official signing key."
+            }
+            if (-not (Test-Path $DryRunKeyPath)) {
+                throw "Specified -DryRunKeyPath '$DryRunKeyPath' not found."
+            }
+            Write-Log "Operating in -DryRun mode: using specified key at '$DryRunKeyPath'..."
+            $activeKeyPath = $DryRunKeyPath
+        } else {
+            Write-Log "Operating in -DryRun mode: generating temporary throwaway key in temp..."
+            $tempKeyDir = Join-Path $env:TEMP ("lightshot-dryrun-key-" + [guid]::NewGuid().ToString("N"))
+            New-Item -Path $tempKeyDir -ItemType Directory -Force | Out-Null
+            $activeKeyPath = Join-Path $tempKeyDir "throwaway-key"
 
-        $keygenScript = Join-Path $RepoRoot "scripts\keygen.ps1"
-        & $keygenScript -KeyPath $activeKeyPath -Force | Out-Null
-        if ($LASTEXITCODE -ne 0) {
-            throw "Failed to generate throwaway key for dry run."
+            $keygenScript = Join-Path $RepoRoot "scripts\keygen.ps1"
+            & $keygenScript -KeyPath $activeKeyPath -Force | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+                throw "Failed to generate throwaway key for dry run."
+            }
         }
     } else {
         Write-Log "Operating in -Publish mode: using official signing key at '$KeyPath'..."
@@ -79,18 +94,25 @@ try {
         throw "Setup executable size (${setupSizeMB} MB) exceeds maximum allowed limit (${MaxSetupMB} MB)."
     }
 
-    # 4. Generate portable zip archive if publish payload exists
-    $publishDir = Join-Path $RepoRoot "artifacts\publish\app"
-    $portableZip = Join-Path $releaseDir "Lightshot-win-Portable.zip"
-    if (Test-Path $publishDir) {
-        Write-Log "Creating portable zip archive '$portableZip'..."
-        if (Test-Path $portableZip) {
-            Remove-Item -Path $portableZip -Force
-        }
-        Compress-Archive -Path "$publishDir\*" -DestinationPath $portableZip -Force
+    # 4. Locate portable zip archive written by Velopack
+    $portableZip = Get-ChildItem -Path $releaseDir -Filter "*-Portable.zip" | Select-Object -First 1
+    if (-not $portableZip) {
+        throw "No portable zip archive (*-Portable.zip) found in '$releaseDir'."
+    }
+
+    # The exe must carry the release version; the updater compares it with the manifest version.
+    $publishedExe = Join-Path $RepoRoot "artifacts\publish\app\Lightshot.App.exe"
+    $productVersion = (Get-Item $publishedExe).VersionInfo.ProductVersion
+    if (-not $productVersion -or -not $productVersion.StartsWith($Version)) {
+        throw "Lightshot.App.exe ProductVersion '$productVersion' does not start with '$Version'."
     }
 
     # 5. Generate and sign manifest via ReleaseTool
+    $nupkgFile = Get-ChildItem -Path $releaseDir -Filter "*-$Version-full.nupkg" | Select-Object -First 1
+    if (-not $nupkgFile) {
+        throw "No full nupkg for version $Version in '$releaseDir'."
+    }
+
     Write-Log "Generating and signing update manifest via Lightshot.ReleaseTool..."
     $manifestFile = Join-Path $releaseDir "releases.json"
     $sigFile = Join-Path $releaseDir "releases.json.sig"
@@ -103,7 +125,7 @@ try {
         "sign-manifest",
         "--version", $Version,
         "--sequence", $Sequence,
-        "--package", $setupFile.FullName,
+        "--package", $nupkgFile.FullName,
         "--key", $activeKeyPath,
         "--out-manifest", $manifestFile,
         "--out-sig", $sigFile,
@@ -113,6 +135,15 @@ try {
     & $dotnetExe @signArgs
     if ($LASTEXITCODE -ne 0) {
         throw "ReleaseTool sign-manifest failed with exit code $LASTEXITCODE"
+    }
+
+    if ($Publish) {
+        $pinnedSource = Get-Content (Join-Path $RepoRoot "src\Lightshot.Platform.Windows\Updates\PinnedKey.cs") -Raw
+        if ($pinnedSource -notmatch 'PublicKey = "([^"]+)"') { throw "Pinned public key not found in PinnedKey.cs." }
+        $verifyOut = & $dotnetExe run --project $releaseToolProj -- verify-manifest --manifest $manifestFile --sig $sigFile --pubkey $Matches[1]
+        if ($LASTEXITCODE -ne 0 -or -not ($verifyOut -match "Valid manifest: v$([regex]::Escape($Version)) ")) {
+            throw "Manifest does not verify against the pinned key: $verifyOut"
+        }
     }
 
     # 6. Generate SHA256SUMS.txt
@@ -141,17 +172,36 @@ try {
         Remove-Item -Path $tempKeyDir -Recurse -Force -ErrorAction SilentlyContinue
     }
 
-    # 8. Report release assets
+    # 8. Check expected asset list
+    $expectedPatterns = @(
+        "*win-Setup.exe",
+        "*win-Portable.zip",
+        "*-$Version-full.nupkg",
+        "releases.json",
+        "releases.json.sig",
+        "SHA256SUMS.txt",
+        "releases.win.json"
+    )
+    foreach ($pat in $expectedPatterns) {
+        $matchFile = Get-ChildItem -Path $releaseDir -Filter $pat | Select-Object -First 1
+        if (-not $matchFile) {
+            throw "Expected release asset matching pattern '$pat' not found in '$releaseDir'."
+        }
+    }
+
+    # 9. Report release assets
     Write-Host ""
     Write-Host "=================== Release Artifacts ==================="
     Write-Host "  Setup Executable : $($setupFile.Name) (${setupSizeMB} MB)"
-    if (Test-Path $portableZip) {
-        $zipMB = [math]::Round((Get-Item $portableZip).Length / 1MB, 2)
-        Write-Host "  Portable Zip     : Lightshot-win-Portable.zip (${zipMB} MB)"
+    if ($portableZip) {
+        $zipMB = [math]::Round($portableZip.Length / 1MB, 2)
+        Write-Host "  Portable Zip     : $($portableZip.Name) (${zipMB} MB)"
     }
+    Write-Host "  Package (full)   : $($nupkgFile.Name)"
     Write-Host "  Manifest         : releases.json"
     Write-Host "  Signature        : releases.json.sig"
     Write-Host "  Checksums        : SHA256SUMS.txt"
+    Write-Host "  Velopack Feed    : releases.win.json"
     Write-Host "========================================================="
     Write-Host ""
 
@@ -166,7 +216,8 @@ try {
 
         $assets = @(
             $setupFile.FullName,
-            $portableZip,
+            $portableZip.FullName,
+            $nupkgFile.FullName,
             $manifestFile,
             $sigFile,
             $sumsFile
