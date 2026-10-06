@@ -45,52 +45,25 @@
                 <!-- Tool Palette -->
                 <local:ToolPalette x:Name="ToolPaletteControl" Grid.Column="0" VerticalAlignment="Center"/>
 
-                <Separator Grid.Column="1" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="6,4,6,4" Background="#444444"/>
+                <Separator Grid.Column="1" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}" Margin="6,4,6,4"/>
 
                 <!-- Options / Style Bar -->
                 <local:StyleBar x:Name="StyleBarControl" Grid.Column="2" VerticalAlignment="Center" Margin="4,0,4,0"/>
 
                 <!-- Action Buttons: Save As, Copy, Done -->
                 <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
-                    <Button x:Name="SaveAsButton" Content="Save As…" Height="26" Padding="8,2,8,2" Margin="2,0,2,0"
-                            Background="#333333" Foreground="#E0E0E0" BorderThickness="0" Cursor="Hand"
-                            Click="OnSaveAsClick" ToolTip="Save As… (Ctrl+Shift+S)">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="4"/>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
+                    <Button x:Name="SaveAsButton" Content="Save As…" Margin="0,0,8,0"
+                            Click="OnSaveAsClick" ToolTip="Save As… (Ctrl+Shift+S)"/>
 
-                    <Button x:Name="CopyButton" Content="Copy" Height="26" Padding="8,2,8,2" Margin="2,0,2,0"
-                            Background="#333333" Foreground="#E0E0E0" BorderThickness="0" Cursor="Hand"
-                            Click="OnCopyClick" ToolTip="Copy to Clipboard (Ctrl+C)">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="4"/>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
+                    <Button x:Name="CopyButton" Content="Copy" Margin="0,0,8,0"
+                            Click="OnCopyClick" ToolTip="Copy to Clipboard (Ctrl+C)"/>
 
-                    <Button x:Name="PinButton" AutomationProperties.AutomationId="PinButton" Content="Pin" Height="26" Padding="8,2,8,2" Margin="2,0,4,0"
-                            Background="#333333" Foreground="#E0E0E0" BorderThickness="0" Cursor="Hand"
-                            Click="OnPinClick" ToolTip="Pin to Screen">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="4"/>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
+                    <Button x:Name="PinButton" AutomationProperties.AutomationId="PinButton" Content="Pin" Margin="0,0,8,0"
+                            Click="OnPinClick" ToolTip="Pin to Screen"/>
 
-                    <Button x:Name="DoneButton" Content="Done" Height="26" Padding="12,2,12,2" Margin="4,0,2,0"
-                            Background="#007AFF" Foreground="White" BorderThickness="0" Cursor="Hand" FontWeight="SemiBold"
-                            Click="OnDoneClick" ToolTip="Copy and Close (Ctrl+S)">
-                        <Button.Resources>
-                            <Style TargetType="Border">
-                                <Setter Property="CornerRadius" Value="4"/>
-                            </Style>
-                        </Button.Resources>
-                    </Button>
+                    <Button x:Name="DoneButton" Content="Done" Margin="0,0,2,0"
+                            Style="{DynamicResource AccentButtonStyle}"
+                            Click="OnDoneClick" ToolTip="Copy and Close (Ctrl+S)"/>
                 </StackPanel>
             </Grid>
         </Border>

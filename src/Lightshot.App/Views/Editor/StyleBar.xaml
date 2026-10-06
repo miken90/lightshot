@@ -7,22 +7,23 @@
              mc:Ignorable="d">
     <UserControl.Resources>
         <Style x:Key="SegmentButtonStyle" TargetType="RadioButton">
-            <Setter Property="Height" Value="24"/>
-            <Setter Property="Padding" Value="6,2,6,2"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="MinWidth" Value="32"/>
+            <Setter Property="Padding" Value="6,0"/>
             <Setter Property="Margin" Value="1,0,1,0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="#E0E0E0"/>
+            <Setter Property="Foreground" Value="{DynamicResource Theme.TextPrimary}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="Border" CornerRadius="4" Background="{TemplateBinding Background}" Padding="{TemplateBinding Padding}">
+                        <Border x:Name="Border" CornerRadius="4" Background="{TemplateBinding Background}" BorderThickness="{TemplateBinding BorderThickness}" BorderBrush="{TemplateBinding BorderBrush}" Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="Border" Property="Background" Value="#007AFF"/>
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource Theme.AccentBlue}"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                             <MultiTrigger>
@@ -30,8 +31,18 @@
                                     <Condition Property="IsMouseOver" Value="True"/>
                                     <Condition Property="IsChecked" Value="False"/>
                                 </MultiTrigger.Conditions>
-                                <Setter TargetName="Border" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="Border" Property="Background" Value="{DynamicResource Theme.ControlHover}"/>
                             </MultiTrigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Border" Property="BorderThickness" Value="2"/>
+                                <Setter TargetName="Border" Property="BorderBrush" Value="{DynamicResource Theme.AccentBlue}"/>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -42,10 +53,10 @@
     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
         <!-- Color Well Button with Popup -->
         <Grid x:Name="ColorContainer" Margin="4,0,4,0" Visibility="Collapsed">
-            <Button x:Name="ColorButton" Width="24" Height="24" Padding="0" Click="OnColorButtonClick" ToolTip="Color">
+            <Button x:Name="ColorButton" Width="32" Height="32" Padding="0" Click="OnColorButtonClick" ToolTip="Color">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
-                        <Border CornerRadius="12" BorderBrush="#888888" BorderThickness="1">
+                        <Border CornerRadius="16" BorderBrush="{DynamicResource Theme.PanelEdge}" BorderThickness="1">
                             <Ellipse x:Name="ColorSwatch" Width="20" Height="20" Fill="Red"/>
                         </Border>
                     </ControlTemplate>
@@ -58,8 +69,8 @@
 
         <!-- Stroke Width -->
         <StackPanel x:Name="StrokeContainer" Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,4,0" Visibility="Collapsed">
-            <TextBlock Text="Width:" Foreground="#AAAAAA" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="11"/>
-            <ComboBox x:Name="StrokeWidthComboBox" Width="55" Height="24" SelectionChanged="OnStrokeWidthChanged">
+            <TextBlock Text="Width:" Style="{DynamicResource Text.Caption}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+            <ComboBox x:Name="StrokeWidthComboBox" MinWidth="88" SelectionChanged="OnStrokeWidthChanged">
                 <ComboBoxItem Content="1 pt" Tag="1.0"/>
                 <ComboBoxItem Content="2 pt" Tag="2.0"/>
                 <ComboBoxItem Content="3 pt" Tag="3.0"/>
@@ -82,9 +93,9 @@
 
         <!-- Font Size (Text and Step Marker) -->
         <StackPanel x:Name="FontSizeContainer" Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,4,0" Visibility="Collapsed">
-            <TextBlock Text="Size:" Foreground="#AAAAAA" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="11"/>
-            <TextBox x:Name="FontSizeTextBox" Width="44" Height="22" Background="#1E1E1E" Foreground="White"
-                     BorderBrush="#555555" BorderThickness="1" FontSize="11" VerticalContentAlignment="Center"
+            <TextBlock Text="Size:" Style="{DynamicResource Text.Caption}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+            <TextBox x:Name="FontSizeTextBox" Width="56"
+                     VerticalContentAlignment="Center"
                      HorizontalContentAlignment="Center" KeyDown="OnFontSizeKeyDown" LostFocus="OnFontSizeLostFocus"/>
         </StackPanel>
 
@@ -97,7 +108,7 @@
 
             <!-- Intensity Slider -->
             <StackPanel x:Name="IntensityContainer" Orientation="Horizontal" VerticalAlignment="Center" Margin="6,0,4,0">
-                <TextBlock Text="Intensity:" Foreground="#AAAAAA" VerticalAlignment="Center" Margin="0,0,4,0" FontSize="11"/>
+                <TextBlock Text="Intensity:" Style="{DynamicResource Text.Caption}" VerticalAlignment="Center" Margin="0,0,4,0"/>
                 <Slider x:Name="IntensitySlider" Width="70" Minimum="0" Maximum="1" SmallChange="0.05" LargeChange="0.1" 
                         ValueChanged="OnIntensitySliderChanged"/>
             </StackPanel>
@@ -108,7 +119,7 @@
         </StackPanel>
 
         <!-- Reset Crop Button -->
-        <Button x:Name="ResetCropButton" Content="Reset Crop" Height="24" Padding="6,2,6,2" Margin="6,0,2,0"
+        <Button x:Name="ResetCropButton" Content="Reset Crop" MinWidth="80" Margin="6,0,2,0"
                 Click="OnResetCropClick" Visibility="Collapsed" ToolTip="Restore full image dimensions"/>
     </StackPanel>
 </UserControl>

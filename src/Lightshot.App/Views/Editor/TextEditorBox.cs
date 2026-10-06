@@ -27,7 +27,7 @@ public sealed class TextEditorBox : TextBox
         Background = new SolidColorBrush(System.Windows.Media.Color.FromArgb(160, 255, 255, 255));
         BorderThickness = new Thickness(1);
         BorderBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(200, 0, 122, 255));
-        Padding = new Thickness(2);
+        Padding = new Thickness(4);
 
         TextChanged += OnTextChanged;
         LostFocus += OnLostFocus;
