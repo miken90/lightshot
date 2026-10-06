@@ -191,6 +191,8 @@ public class HistoryStoreTests
 
         Assert.Equal(new[] { CaptureSource.Window, CaptureSource.Area }, reloaded.All().Select(r => r.Source));
         Assert.True(File.Exists(newest.FileUrl));
+        Assert.All(reloaded.All(), r => Assert.Equal(DateTimeKind.Utc, r.Timestamp.Kind));
+        Assert.Equal(Instant(10), reloaded.All()[1].Timestamp);
     }
 
     [Fact]

@@ -13,6 +13,7 @@
         Foreground="{DynamicResource Theme.TextPrimary}">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
+        <local:LocalTimeConverter x:Key="LocalTimeConverter"/>
 
         <!-- Fallback brushes when Theme tokens are not yet defined at Application level -->
         <SolidColorBrush x:Key="Theme.Panel" Color="#2B3038"/>
@@ -112,7 +113,7 @@
                                     </StackPanel>
 
                                     <!-- Timestamp -->
-                                    <TextBlock Grid.Row="2" Text="{Binding Timestamp, StringFormat='{}{0:MMM dd, HH:mm}'}" FontSize="10" Foreground="{DynamicResource Theme.TextSecondary}" Margin="0,0,0,4"/>
+                                    <TextBlock Grid.Row="2" Text="{Binding Timestamp, Converter={StaticResource LocalTimeConverter}, StringFormat='{}{0:MMM dd, HH:mm}'}" FontSize="10" Foreground="{DynamicResource Theme.TextSecondary}" Margin="0,0,0,4"/>
 
                                     <!-- Action Buttons -->
                                     <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Bottom">
