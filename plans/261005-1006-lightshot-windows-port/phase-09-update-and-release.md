@@ -1,6 +1,6 @@
 # Phase 9: Update check, packaging and release
 
-Status: in-progress (updater core, release tooling, keygen, and tests implemented; UI and Velopack hooks pending phase 4/5) | Effort: 6d | Priority: P1 | Depends on: phases 1, 4, 5 (runs straight after phase 5)
+Status: done (2026-10-06) | Effort: 6d | Priority: P1 | Depends on: phases 1, 4, 5 (runs straight after phase 5)
 
 ## Overview
 
@@ -18,7 +18,7 @@ Ships the only network feature (update check), the installer and release tooling
 - Builds are unsigned by decision. The README documents SmartScreen "More info -> Run anyway" and SHA256SUMS.
 - Unpackaged execution: display capture uses DDA (borderless); window stills use `PrintWindow(PW_RENDERFULLCONTENT)`; unpackaged WGC window recording border is accepted as documented DEGRADE. Sparse package fallback deleted (requires trusted certificate, violating Q4).
 - `NetworkPolicyTests`: the only code allowed to reference `HttpClient` or sockets is `Lightshot.Platform.Windows.Updates`.
-- Release tooling `tools/Lightshot.ReleaseTool`: generates the manifest, signs it with the private key supplied by file path (never in the repo), verifies round trip. `scripts/release.ps1 -Publish` (refused without the flag) runs `gh release create v<ver> --repo miken90/lightshot` with assets: `Lightshot-win-Setup.exe`, `Lightshot-win-Portable.zip`, nupkg, `releases.json`, `releases.json.sig`, `SHA256SUMS.txt`. Manifest URL constant is `https://github.com/miken90/lightshot/releases/latest/download/releases.json`. The script checks the built artifact itself (version string in the exe, SHA-256, size against `-MaxSetupMB`, expected asset list); never re-runs tests (Boom rule 19). Publishing happens only after the user approves that release. `scripts/release.ps1 -DryRun` uses a throwaway key generated in the temp folder; the real private key is read only with `-Publish`.
+- Release tooling `tools/Lightshot.ReleaseTool`: generates the manifest, signs it with the private key supplied by file path (never in the repo), verifies round trip. `scripts/release.ps1 -Publish` (refused without the flag) runs `gh release create v<ver> --repo miken90/lightshot` with assets: `LightshotApp-win-Setup.exe`, `LightshotApp-win-Portable.zip`, nupkg, `releases.json`, `releases.json.sig`, `SHA256SUMS.txt`. Manifest URL constant is `https://github.com/miken90/lightshot/releases/latest/download/releases.json`. The script checks the built artifact itself (version string in the exe, SHA-256, size against `-MaxSetupMB`, expected asset list); never re-runs tests (Boom rule 19). Publishing happens only after the user approves that release. `scripts/release.ps1 -DryRun` uses a throwaway key generated in the temp folder; the real private key is read only with `-Publish`.
 
 ## Data flow
 

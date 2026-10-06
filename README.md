@@ -104,7 +104,7 @@ powershell.exe -NoProfile -File 'D:\WORKSPACES\PERSONAL\lightshot\scripts\test.p
 
 ## Installation & SmartScreen Notice
 
-Lightshot releases produce unsigned Velopack installers (`Lightshot-win-Setup.exe`) and portable archives (`Lightshot-win-Portable.zip`) by design.
+Lightshot releases produce unsigned Velopack installers (`LightshotApp-win-Setup.exe`) and portable archives (`LightshotApp-win-Portable.zip`) by design.
 
 ### Windows Defender SmartScreen
 When launching the installer on Windows 11:
@@ -114,7 +114,7 @@ When launching the installer on Windows 11:
 
 You can verify binary integrity before running by checking against `SHA256SUMS.txt` provided with each release:
 ```powershell
-Get-FileHash Lightshot-win-Setup.exe -Algorithm SHA256
+Get-FileHash LightshotApp-win-Setup.exe -Algorithm SHA256
 ```
 
 ### Smart App Control (SAC)

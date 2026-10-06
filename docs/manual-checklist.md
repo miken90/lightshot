@@ -274,3 +274,91 @@ This document details the manual verification procedures for acceptance rows in 
 - **Expected Results**:
   - Hotkeys trigger reliably from any foreground application window.
   - Recording pauses, resumes, and restarts according to the configured chords.
+
+# Update and Release Manual Verification Checklist
+
+This section details manual verification procedures for the update and release pipeline (rows M1-M5) that require interactive desktop environments, Windows Sandbox, or visual inspection.
+
+## Row M1: Installed app starts, the hotkey works, uninstall removes the Run value
+- **Scope**: Clean installation, background launch, global hotkey registration, and uninstallation cleanup.
+- **Preconditions**:
+  - Fresh Windows Sandbox instance or throwaway user profile without Lightshot installed.
+  - Built release artifact `LightshotApp-win-Setup.exe`.
+- **Steps**:
+  1. Run `LightshotApp-win-Setup.exe --silent` in the sandbox.
+  2. Verify the application installs to `%LocalAppData%\LightshotApp\current\Lightshot.App.exe`.
+  3. Start the application with `--background`.
+  4. Enable "Launch Lightshot at login" in Settings -> General (or verify HKCU Run key).
+  5. Press `PrintScreen` to verify the capture overlay triggers.
+  6. Signal quit via tray menu or `Local\Lightshot.Quit`.
+  7. Run `%LocalAppData%\LightshotApp\Update.exe --uninstall`.
+  8. When prompted "Also remove your Lightshot settings and capture history?", choose "No".
+- **Expected Results**:
+  - The application launches and operates cleanly from the per-user installation path.
+  - The `HKCU\Software\Microsoft\Windows\CurrentVersion\Run` value is removed immediately on uninstall.
+  - The installation directory `%LocalAppData%\LightshotApp` is deleted.
+  - User data directory `%LocalAppData%\Lightshot` and settings are preserved.
+
+## Row M2: Real upgrade across two versions
+- **Scope**: Two-version upgrade lifecycle, consent timing, dot indicator, notice balloon, and sequence floor advancement.
+- **Preconditions**:
+  - Version 0.1.0 installed in a Windows Sandbox.
+  - Version 0.2.0 release artifacts hosted on a local web server configured as the manifest URL.
+- **Steps**:
+  1. First launch of v0.1.0: verify no update check occurs and no prompts appear (first-launch consent rule).
+  2. Restart Lightshot to simulate the second launch.
+  3. Observe the tray icon indicator: a blue dot appears in the bottom-right corner.
+  4. Observe the system notification balloon: "Lightshot update ready".
+  5. Right-click the tray icon; verify "Restart to Update (0.2.0)" appears above Quit.
+  6. Select "Restart to Update (0.2.0)".
+- **Expected Results**:
+  - Lightshot closes, Velopack applies the staged v0.2.0 package, and the app restarts.
+  - The running version is now 0.2.0.
+  - The update sequence floor advances to v0.2.0's sequence number, preventing replay of v0.1.0.
+
+## Row M3: SmartScreen "More info -> Run anyway" and Smart App Control blocking
+- **Scope**: Windows Defender SmartScreen warning dialog and Smart App Control behavior on unsigned binaries.
+- **Preconditions**:
+  - Standard Windows 11 system with Windows Defender SmartScreen enabled.
+  - Fresh release executable `LightshotApp-win-Setup.exe`.
+- **Steps**:
+  1. Double-click `LightshotApp-win-Setup.exe`.
+  2. Observe the Windows Defender SmartScreen prompt ("Windows protected your PC").
+  3. Click "More info".
+  4. Verify the publisher is listed as "Unknown publisher" and the app name matches.
+  5. Click "Run anyway".
+  6. On a system with Smart App Control (SAC) in enforcement mode: verify SAC blocks execution without "Run anyway".
+- **Expected Results**:
+  - SmartScreen behaves as expected for unsigned open-source binaries.
+  - Clicking "Run anyway" allows the installer to proceed normally.
+  - SHA-256 matches `SHA256SUMS.txt`.
+
+## Row M4: Tray dot and balloon appearance on light and dark taskbars
+- **Scope**: Visual clarity and contrast of the update dot indicator and notification balloon across themes and display scalings.
+- **Preconditions**:
+  - Windows 11 host with taskbar theme toggling (Light / Dark) and display scaling support (100%, 150%, 200%).
+- **Steps**:
+  1. Set Windows taskbar to Dark mode (`SystemUsesLightTheme = 0`).
+  2. Trigger update staged state; inspect the tray icon dot at 100% and 150% scaling.
+  3. Switch Windows taskbar to Light mode (`SystemUsesLightTheme = 1`).
+  4. Inspect the tray icon dot again.
+  5. Trigger `ShowNotice` and inspect the system notification balloon title and text.
+- **Expected Results**:
+  - The blue update dot (`#0A84FF`) is distinctly visible with crisp edges on both dark and light taskbars.
+  - The base glyph is preserved without distortion or scaling artifacts.
+  - Notification balloon displays complete title and body text without truncation.
+
+## Row M5: Uninstall prompt behavior and data retention
+- **Scope**: User prompt options during uninstallation and safety of unfinished recordings.
+- **Preconditions**:
+  - Installed Lightshot instance with existing `%LocalAppData%\Lightshot\Lightshot Recordings\take.mp4`.
+- **Steps**:
+  1. Trigger uninstallation via `%LocalAppData%\LightshotApp\Update.exe --uninstall`.
+  2. When the confirmation prompt appears, let it time out or select "No".
+  3. Verify `%LocalAppData%\Lightshot\Lightshot Recordings\take.mp4` still exists.
+  4. In a separate test run: select "Yes" when scratch recordings exist.
+- **Expected Results**:
+  - The dialog defaults to "No" (safe default).
+  - An unanswered prompt keeps all user data.
+  - Unfinished recordings in `%LocalAppData%\Lightshot\Lightshot Recordings` are preserved even when the user chooses to remove data.
+  - The HKCU Run registry value is deleted regardless of the prompt choice.
