@@ -105,18 +105,41 @@ public sealed class WasapiMicrophone : IDisposable
 
     private void SilencePump()
     {
-        int samplesPerChunk = 960;
-        long chunkDurationHns = 200_000;
-        long timestampHns = 0;
+        long producedSamples = 0;
+        long startTick = Stopwatch.GetTimestamp();
+
         while (_recording)
         {
             if (!_paused)
             {
-                var frames = PcmFrames.CreateSilence(samplesPerChunk, _channels, 48000.0, timestampHns);
-                _onFrames?.Invoke(frames);
-                timestampHns += chunkDurationHns;
+                long nowTick = Stopwatch.GetTimestamp();
+                long pauseTicks = _totalPauseTicks;
+                double elapsedSec = Math.Max(0, (nowTick - startTick - pauseTicks) / (double)Stopwatch.Frequency);
+                long targetSamples = (long)Math.Round(elapsedSec * 48000.0);
+
+                long neededSamples = targetSamples - producedSamples;
+                if (neededSamples >= 480)
+                {
+                    int samplesToEmit = (int)Math.Min(neededSamples, 4800);
+                    long timestampHns = (long)Math.Round((producedSamples / 48000.0) * 10_000_000.0);
+                    var frames = PcmFrames.CreateSilence(samplesToEmit, _channels, 48000.0, timestampHns);
+                    _onFrames?.Invoke(frames);
+                    producedSamples += samplesToEmit;
+                }
             }
-            Thread.Sleep(20);
+            Thread.Sleep(5);
+        }
+
+        long finalNowTick = Stopwatch.GetTimestamp();
+        long finalPauseTicks = _totalPauseTicks;
+        double finalElapsedSec = Math.Max(0, (finalNowTick - startTick - finalPauseTicks) / (double)Stopwatch.Frequency);
+        long finalTargetSamples = (long)Math.Round(finalElapsedSec * 48000.0);
+        long finalRemaining = finalTargetSamples - producedSamples;
+        if (finalRemaining > 0)
+        {
+            long timestampHns = (long)Math.Round((producedSamples / 48000.0) * 10_000_000.0);
+            var frames = PcmFrames.CreateSilence((int)finalRemaining, _channels, 48000.0, timestampHns);
+            _onFrames?.Invoke(frames);
         }
     }
 
