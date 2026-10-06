@@ -175,6 +175,25 @@ public class HistoryStoreTests
     }
 
     [Fact]
+    public void ACaptureAddedAfterAReloadIsTheNewestAndSurvivesAFullStore()
+    {
+        using var dir = new TempDir();
+        {
+            var store = new HistoryStore(dir.Path, retention: 2);
+            store.Add(SolidImage(), CaptureSource.Fullscreen, Instant(0));
+            store.Add(SolidImage(), CaptureSource.Area, Instant(10));
+        }
+
+        // Reloaded timestamps must compare in the same zone as new ones, or on a host east of UTC the
+        // new capture sorts as the oldest and the full store trims it (and its file) straight away.
+        var reloaded = new HistoryStore(dir.Path, retention: 2);
+        var newest = reloaded.Add(SolidImage(), CaptureSource.Window, Instant(20));
+
+        Assert.Equal(new[] { CaptureSource.Window, CaptureSource.Area }, reloaded.All().Select(r => r.Source));
+        Assert.True(File.Exists(newest.FileUrl));
+    }
+
+    [Fact]
     public void AddMediaMovesTheFileInKeepsItsExtensionAndRecordsWhatTheCallerKnows()
     {
         using var dir = new TempDir();

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -110,7 +111,7 @@ public class HistoryStore
         var entry = new StoredEntry
         {
             Id = id,
-            Timestamp = date ?? DateTime.UtcNow,
+            Timestamp = date?.ToUniversalTime() ?? DateTime.UtcNow,
             Source = source,
             Kind = CaptureKind.Screenshot,
             PixelWidth = image.PixelWidth,
@@ -166,7 +167,7 @@ public class HistoryStore
         var entry = new StoredEntry
         {
             Id = id,
-            Timestamp = date ?? DateTime.UtcNow,
+            Timestamp = date?.ToUniversalTime() ?? DateTime.UtcNow,
             Source = source,
             Kind = kind,
             PixelWidth = pixelWidth,
@@ -330,7 +331,11 @@ public class HistoryStore
                     }
                     else
                     {
-                        timestamp = DateTime.Parse(tsProp.GetString()!);
+                        // Keep UTC: new entries are stamped in UTC and DateTime ordering ignores Kind.
+                        timestamp = DateTime.Parse(
+                            tsProp.GetString()!,
+                            CultureInfo.InvariantCulture,
+                            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal);
                     }
 
                     var sourceStr = item.GetProperty("source").GetString()!;
