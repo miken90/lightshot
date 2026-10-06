@@ -63,10 +63,7 @@
             <TextBox x:Name="NameTextBox" 
                      Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
                      Margin="0,10,0,10" 
-                     Padding="6,4" 
-                     Background="{DynamicResource Theme.Surface}" 
-                     Foreground="{DynamicResource Theme.TextPrimary}" 
-                     BorderBrush="{DynamicResource Theme.Border}"/>
+                     Padding="6,4"/>
 
             <!-- Action Buttons Row -->
             <DockPanel LastChildFill="False">
@@ -75,9 +72,7 @@
                         Click="OnTrashClick" 
                         Width="32" Height="30" 
                         DockPanel.Dock="Left" 
-                        Background="{DynamicResource Theme.Surface}" 
-                        Foreground="{DynamicResource Theme.AccentOrange}" 
-                        BorderBrush="{DynamicResource Theme.Border}"
+                        Foreground="{DynamicResource Theme.Warning}" 
                         ToolTip="Move to Trash">
                     <TextBlock Text="&#x1F5D1;" FontSize="13"/>
                 </Button>
@@ -88,9 +83,6 @@
                         Padding="10,4" Height="30" 
                         Margin="6,0,0,0" 
                         DockPanel.Dock="Left" 
-                        Background="{DynamicResource Theme.Surface}" 
-                        Foreground="{DynamicResource Theme.TextPrimary}" 
-                        BorderBrush="{DynamicResource Theme.Border}"
                         ToolTip="Copy to Clipboard">
                     <TextBlock Text="Copy"/>
                 </Button>
@@ -102,9 +94,6 @@
                         Margin="6,0,0,0" 
                         DockPanel.Dock="Left" 
                         Visibility="{Binding CanEdit, Converter={StaticResource BoolToVis}}" 
-                        Background="{DynamicResource Theme.Surface}" 
-                        Foreground="{DynamicResource Theme.TextPrimary}" 
-                        BorderBrush="{DynamicResource Theme.Border}"
                         ToolTip="Edit Video">
                     <TextBlock Text="Edit"/>
                 </Button>

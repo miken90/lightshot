@@ -17,16 +17,6 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVisConverter"/>
 
-        <!-- Fallback brushes when Theme tokens are not yet defined at Application level -->
-        <SolidColorBrush x:Key="Theme.Panel" Color="#2B3038"/>
-        <SolidColorBrush x:Key="Theme.PanelEdge" Color="#33FFFFFF"/>
-        <SolidColorBrush x:Key="Theme.TextPrimary" Color="#FFFFFF"/>
-        <SolidColorBrush x:Key="Theme.TextSecondary" Color="#8C8C8C"/>
-        <SolidColorBrush x:Key="Theme.Glyph" Color="#BFBFBF"/>
-        <SolidColorBrush x:Key="Theme.ControlHover" Color="#26FFFFFF"/>
-        <SolidColorBrush x:Key="Theme.ControlOn" Color="#33FFFFFF"/>
-        <SolidColorBrush x:Key="Theme.AccentBlue" Color="#0A84FF"/>
-
         <Style x:Key="PillButtonStyle" TargetType="Button">
             <Setter Property="Background" Value="#E0E0E0"/>
             <Setter Property="Foreground" Value="#111111"/>

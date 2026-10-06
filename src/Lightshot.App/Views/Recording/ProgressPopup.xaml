@@ -65,17 +65,11 @@
                         Content="Save as Video Instead" 
                         Padding="10,4" Height="28" 
                         Margin="0,0,8,0" 
-                        Visibility="{Binding CanCancelToVideo, Converter={StaticResource BoolToVis}}"
-                        Background="{DynamicResource Theme.Surface}" 
-                        Foreground="{DynamicResource Theme.TextPrimary}" 
-                        BorderBrush="{DynamicResource Theme.Border}"/>
+                        Visibility="{Binding CanCancelToVideo, Converter={StaticResource BoolToVis}}"/>
 
                 <Button Click="OnCancelClick" 
                         Content="Cancel" 
-                        Padding="12,4" Height="28" 
-                        Background="{DynamicResource Theme.Surface}" 
-                        Foreground="{DynamicResource Theme.TextPrimary}" 
-                        BorderBrush="{DynamicResource Theme.Border}"/>
+                        Padding="12,4" Height="28"/>
             </StackPanel>
         </Grid>
     </Border>

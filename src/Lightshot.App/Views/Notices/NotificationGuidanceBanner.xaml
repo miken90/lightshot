@@ -6,7 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="60" d:DesignWidth="450">
     <Border Background="{DynamicResource Theme.Panel}" 
-            BorderBrush="{DynamicResource Theme.AccentOrange}" 
+            BorderBrush="{DynamicResource Theme.Warning}" 
             BorderThickness="1,1,1,1" 
             CornerRadius="6" 
             Padding="12,8"
@@ -20,7 +20,7 @@
             </Grid.ColumnDefinitions>
 
             <!-- Warning icon -->
-            <TextBlock Grid.Column="0" Text="&#x26A0;" FontSize="16" Foreground="{DynamicResource Theme.AccentOrange}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBlock Grid.Column="0" Text="&#x26A0;" FontSize="16" Foreground="{DynamicResource Theme.Warning}" VerticalAlignment="Center" Margin="0,0,10,0"/>
 
             <!-- Message -->
             <TextBlock Grid.Column="1" 
@@ -36,10 +36,7 @@
                     Padding="10,4" 
                     Margin="8,0,4,0" 
                     VerticalAlignment="Center"
-                    Click="OnOpenSettingsClick"
-                    Background="{DynamicResource Theme.Surface}" 
-                    Foreground="{DynamicResource Theme.TextPrimary}" 
-                    BorderBrush="{DynamicResource Theme.Border}"/>
+                    Click="OnOpenSettingsClick"/>
 
             <!-- Dismiss button -->
             <Button Grid.Column="3" 

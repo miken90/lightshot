@@ -9,7 +9,6 @@
         Width="520"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        Background="{DynamicResource Theme.Background}"
         Foreground="{DynamicResource Theme.TextPrimary}">
     <Grid Margin="24">
         <Grid.RowDefinitions>
@@ -29,8 +28,8 @@
             <StackPanel>
                 <!-- Snipping Tool Conflict Banner -->
                 <Border x:Name="SnippingBanner" 
-                        Background="{DynamicResource Theme.WarningBackground}" 
-                        BorderBrush="{DynamicResource Theme.WarningBorder}" 
+                        Background="{DynamicResource Theme.Well}" 
+                        BorderBrush="{DynamicResource Theme.Warning}" 
                         BorderThickness="1" 
                         CornerRadius="4" 
                         Padding="12" 
@@ -39,7 +38,7 @@
                     <StackPanel>
                         <TextBlock Text="Windows Snipping Tool is using the PrintScreen key" 
                                    FontWeight="SemiBold" 
-                                   Foreground="{DynamicResource Theme.WarningText}" 
+                                   Foreground="{DynamicResource Theme.Warning}" 
                                    Margin="0,0,0,4"/>
                         <TextBlock Text="To allow Lightshot to capture directly with PrintScreen, disable the Windows Snipping Tool shortcut in Windows Settings." 
                                    TextWrapping="Wrap" 
@@ -57,15 +56,15 @@
                 <GroupBox Header="Quick Guide" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,16" Padding="12">
                     <StackPanel>
                         <DockPanel Margin="0,4">
-                            <TextBlock Text="1. " FontWeight="Bold" Foreground="{DynamicResource Theme.Accent}" DockPanel.Dock="Left"/>
+                            <TextBlock Text="1. " FontWeight="Bold" Foreground="{DynamicResource Theme.AccentBlue}" DockPanel.Dock="Left"/>
                             <TextBlock Text="Press PrtScn (or custom shortcut) and drag across any region." TextWrapping="Wrap" Foreground="{DynamicResource Theme.TextPrimary}"/>
                         </DockPanel>
                         <DockPanel Margin="0,4">
-                            <TextBlock Text="2. " FontWeight="Bold" Foreground="{DynamicResource Theme.Accent}" DockPanel.Dock="Left"/>
+                            <TextBlock Text="2. " FontWeight="Bold" Foreground="{DynamicResource Theme.AccentBlue}" DockPanel.Dock="Left"/>
                             <TextBlock Text="Use the toolbar to draw arrows, boxes, text, or highlights." TextWrapping="Wrap" Foreground="{DynamicResource Theme.TextPrimary}"/>
                         </DockPanel>
                         <DockPanel Margin="0,4">
-                            <TextBlock Text="3. " FontWeight="Bold" Foreground="{DynamicResource Theme.Accent}" DockPanel.Dock="Left"/>
+                            <TextBlock Text="3. " FontWeight="Bold" Foreground="{DynamicResource Theme.AccentBlue}" DockPanel.Dock="Left"/>
                             <TextBlock Text="Press Ctrl+C to copy or Ctrl+S to save to your Screenshots folder." TextWrapping="Wrap" Foreground="{DynamicResource Theme.TextPrimary}"/>
                         </DockPanel>
                     </StackPanel>

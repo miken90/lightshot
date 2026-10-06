@@ -6,7 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="90" d:DesignWidth="180"
              Height="90" Width="180">
-    <Border Background="{DynamicResource Theme.Surface}" BorderBrush="{DynamicResource Theme.Border}" BorderThickness="1" CornerRadius="6">
+    <Border Background="{DynamicResource Theme.Well}" BorderBrush="{DynamicResource Theme.PanelEdge}" BorderThickness="1" CornerRadius="6">
         <Canvas x:Name="PreviewCanvas" ClipToBounds="True">
             <Ellipse x:Name="HighlightShape" />
             <Polygon x:Name="CursorArrow" Points="0,0 0,16 4,12 8,20 11,18 7,11 12,11" Fill="White" Stroke="Black" StrokeThickness="1"/>

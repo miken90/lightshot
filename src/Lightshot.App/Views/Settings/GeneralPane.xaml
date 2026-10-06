@@ -14,7 +14,7 @@
         <CheckBox Content="Launch Lightshot at login" IsChecked="{Binding LaunchAtLogin}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,0,8"/>
 
         <StackPanel Visibility="{Binding IsStartupDisabledByTaskManager, Converter={StaticResource BoolToVis}}" Margin="0,0,0,16">
-            <TextBlock Text="Startup is turned off in Task Manager or Windows Settings." Foreground="{DynamicResource Theme.AccentOrange}" TextWrapping="Wrap" Margin="0,0,0,4"/>
+            <TextBlock Text="Startup is turned off in Task Manager or Windows Settings." Foreground="{DynamicResource Theme.Warning}" TextWrapping="Wrap" Margin="0,0,0,4"/>
             <TextBlock>
                 <Hyperlink Click="OnOpenStartupAppsClick" Foreground="{DynamicResource Theme.AccentBlue}">
                     Open Startup Apps Settings

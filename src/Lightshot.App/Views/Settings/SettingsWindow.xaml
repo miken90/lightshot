@@ -11,7 +11,6 @@
         MinHeight="400"
         MinWidth="500"
         WindowStartupLocation="CenterScreen"
-        Background="{DynamicResource Theme.Background}"
         Foreground="{DynamicResource Theme.TextPrimary}">
     <Grid>
         <Grid.RowDefinitions>
@@ -46,7 +45,7 @@
             </TabItem>
         </TabControl>
 
-        <Border Grid.Row="1" Padding="12,8" Background="{DynamicResource Theme.Surface}" BorderBrush="{DynamicResource Theme.Border}" BorderThickness="0,1,0,0">
+        <Border Grid.Row="1" Padding="12,8" Background="{DynamicResource Theme.Well}" BorderBrush="{DynamicResource Theme.PanelEdge}" BorderThickness="0,1,0,0">
             <DockPanel LastChildFill="False">
                 <TextBlock Text="Changes are saved automatically." 
                            Foreground="{DynamicResource Theme.TextSecondary}" 

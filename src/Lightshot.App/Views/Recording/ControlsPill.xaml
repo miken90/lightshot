@@ -59,7 +59,7 @@
                 </StackPanel>
 
                 <!-- Muted Warning -->
-                <TextBlock Text="Mic muted?" FontSize="8" Foreground="{DynamicResource Theme.AccentOrange}" 
+                <TextBlock Text="Mic muted?" FontSize="8" Foreground="{DynamicResource Theme.Warning}" 
                            HorizontalAlignment="Center"
                            Visibility="{Binding ShowsMutedWarning, Converter={StaticResource BoolToVis}}"/>
             </StackPanel>
@@ -71,9 +71,6 @@
                     Click="OnPauseResumeClick" 
                     Width="30" Height="30" 
                     Margin="2,0" 
-                    Background="{DynamicResource Theme.Surface}" 
-                    Foreground="{DynamicResource Theme.TextPrimary}" 
-                    BorderBrush="{DynamicResource Theme.Border}"
                     ToolTip="{Binding StatusText}">
                 <TextBlock Text="{Binding PlayPauseIcon}" FontSize="12"/>
             </Button>
@@ -95,9 +92,6 @@
                     Click="OnRestartClick" 
                     Width="30" Height="30" 
                     Margin="2,0" 
-                    Background="{DynamicResource Theme.Surface}" 
-                    Foreground="{DynamicResource Theme.TextPrimary}" 
-                    BorderBrush="{DynamicResource Theme.Border}"
                     ToolTip="Restart Recording">
                 <TextBlock Text="&#x21BA;" FontSize="14"/>
             </Button>
@@ -107,9 +101,6 @@
                     Click="OnDiscardClick" 
                     Width="30" Height="30" 
                     Margin="2,0" 
-                    Background="{DynamicResource Theme.Surface}" 
-                    Foreground="{DynamicResource Theme.TextPrimary}" 
-                    BorderBrush="{DynamicResource Theme.Border}"
                     ToolTip="Discard Recording">
                 <TextBlock Text="&#x1F5D1;" FontSize="12"/>
             </Button>
