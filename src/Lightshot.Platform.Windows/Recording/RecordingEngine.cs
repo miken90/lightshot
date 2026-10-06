@@ -7,7 +7,10 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Lightshot.Core;
+using Lightshot.Platform.Windows.Audio;
+using Lightshot.Platform.Windows.DesktopCover;
 using Lightshot.Platform.Windows.Displays;
+using Lightshot.Platform.Windows.Input;
 using Vortice.Direct3D11;
 using CoreVideoCodec = Lightshot.Core.VideoCodec;
 using EncoderVideoCodec = Lightshot.Platform.Windows.Recording.VideoCodec;
@@ -26,6 +29,7 @@ public sealed class RecordingEngine : IDisposable
     private readonly TakeFinalizer _takeFinalizer;
     private readonly Func<IReadOnlyList<DisplayInfo>> _displayProvider;
     private readonly IInputEventSource? _inputEventSource;
+    private readonly AudioDeviceService _audioDeviceService;
 
     private readonly object _syncLock = new();
 
@@ -38,8 +42,11 @@ public sealed class RecordingEngine : IDisposable
     private PauseClock? _pauseClock;
     private PowerRequest? _powerRequest;
 
+    private DesktopCover.DesktopCover? _desktopCover;
+    private RecordingInputSession? _inputSession;
+    private RecordingAudioSession? _audioSession;
+
     private Thread? _captureThread;
-    private Thread? _audioThread;
     private CancellationTokenSource? _cts;
     private Action<RecordingEvent>? _onEvent;
 
@@ -64,6 +71,7 @@ public sealed class RecordingEngine : IDisposable
     public bool IsPaused => _pauseClock?.IsPaused ?? false;
     public RecordingOptions? ActiveOptions => _activeOptions;
     public string? DestinationPath => _destinationPath;
+    public AudioDeviceService AudioDeviceService => _audioDeviceService;
 
     public TimeSpan Duration
     {
@@ -81,13 +89,15 @@ public sealed class RecordingEngine : IDisposable
         EncoderSelector? encoderSelector = null,
         TakeFinalizer? takeFinalizer = null,
         Func<IReadOnlyList<DisplayInfo>>? displayProvider = null,
-        IInputEventSource? inputEventSource = null)
+        IInputEventSource? inputEventSource = null,
+        AudioDeviceService? audioDeviceService = null)
     {
         _scratchStore = scratchStore ?? new ScratchStore();
         _encoderSelector = encoderSelector ?? new EncoderSelector();
         _takeFinalizer = takeFinalizer ?? new TakeFinalizer(new Mp4Remuxer());
         _displayProvider = displayProvider ?? (() => DisplayTopology.GetDisplays());
         _inputEventSource = inputEventSource;
+        _audioDeviceService = audioDeviceService ?? new AudioDeviceService();
     }
 
     /// <summary>
@@ -144,18 +154,22 @@ public sealed class RecordingEngine : IDisposable
 
             try
             {
+                if (options.HideDesktopIcons)
+                {
+                    _desktopCover = DesktopCover.DesktopCover.Show();
+                }
+
                 _frameSource = new DdaFrameSource(targetDisplay);
                 _pipeline = new VideoProcessorPipeline(_frameSource.Device, _frameSource.Context, cropW, cropH, outputW, outputH, fps);
 
                 if (options.HighlightClicks || options.ShowKeystrokes)
                 {
-                    _compositor = new BurnInCompositor(options, new Point(_cropRect.X, _cropRect.Y), targetDisplay.ScaleFactor, _inputEventSource);
+                    _inputSession = new RecordingInputSession(options, _inputEventSource);
+                    _compositor = new BurnInCompositor(options, new Point(_cropRect.X, _cropRect.Y), targetDisplay.ScaleFactor, _inputSession.EffectiveSource);
                     _intermediateBgra = _pipeline.CreateBgraIntermediateTexture();
                 }
 
-                int audioTrackCount = 0;
-                if (options.Microphone is not InputDeviceSelection.Off) audioTrackCount++;
-                if (options.ComputerAudio) audioTrackCount++;
+                _audioSession = new RecordingAudioSession(_audioDeviceService, options, WriteAudioSample);
 
                 var selectedEncoder = _encoderSelector.SelectEncoder(preferHevc: useHevc);
                 _writer = new MfFragmentedWriter(
@@ -164,9 +178,10 @@ public sealed class RecordingEngine : IDisposable
                     outputW,
                     outputH,
                     fps,
-                    audioTrackCount: audioTrackCount,
+                    audioTrackCount: _audioSession.TrackConfigs.Count,
                     useHevc: useHevc && selectedEncoder.Codec == EncoderVideoCodec.Hevc,
-                    forceSoftware: !selectedEncoder.IsHardware);
+                    forceSoftware: !selectedEncoder.IsHardware,
+                    audioTrackConfigs: _audioSession.TrackConfigs);
 
                 _cadenceDriver = new CadenceDriver<ID3D11Texture2D>(fps);
                 _pauseClock = new PauseClock();
@@ -188,15 +203,7 @@ public sealed class RecordingEngine : IDisposable
                 };
                 _captureThread.Start();
 
-                if (audioTrackCount > 0)
-                {
-                    _audioThread = new Thread(AudioLoop)
-                    {
-                        IsBackground = true,
-                        Name = "LightshotAudioPump"
-                    };
-                    _audioThread.Start();
-                }
+                _audioSession.Start();
 
                 return Task.FromResult<RecordingError?>(null);
             }
@@ -208,46 +215,22 @@ public sealed class RecordingEngine : IDisposable
         }
     }
 
-    public void WriteAudioSample(int streamIndex, byte[] pcmData, long sampleTimeHns, long durationHns)
+    public void WriteAudioSample(int trackIndex, byte[] pcmData, long sampleTimeHns, long durationHns)
     {
         if (!_isRecording || _writer == null) return;
-        _writer.WriteAudioSample(streamIndex, pcmData, sampleTimeHns, durationHns);
-    }
-
-    private void AudioLoop()
-    {
-        if (_writer == null || _cts == null || _pauseClock == null) return;
-
-        int samplesPerChunk = 960; // 20ms at 48000Hz
-        int bytesPerChunk = samplesPerChunk * 2 * 2; // 16-bit stereo
-        byte[] silentPcm = new byte[bytesPerChunk];
-        long chunkDurationHns = 200_000; // 20ms = 200,000 HNS
-        long sampleTimeHns = 0;
-
-        while (!_cts.Token.IsCancellationRequested && _isRecording)
+        int streamIndex = trackIndex;
+        if (!_writer.AudioStreamIndices.Contains(trackIndex))
         {
-            if (_pauseClock.IsPaused)
+            if (trackIndex >= 0 && trackIndex < _writer.AudioStreamIndices.Count)
             {
-                Thread.Sleep(10);
-                continue;
+                streamIndex = _writer.AudioStreamIndices[trackIndex];
             }
-
-            try
+            else
             {
-                for (int track = 0; track < _writer.AudioStreamIndices.Count; track++)
-                {
-                    int streamIndex = _writer.AudioStreamIndices[track];
-                    _writer.WriteAudioSample(streamIndex, silentPcm, sampleTimeHns, chunkDurationHns);
-                }
-                sampleTimeHns += chunkDurationHns;
+                return;
             }
-            catch
-            {
-                // Audio write failure
-            }
-
-            Thread.Sleep(20);
         }
+        _writer.WriteAudioSample(streamIndex, pcmData, sampleTimeHns, durationHns);
     }
 
     private void CaptureLoop()
@@ -339,6 +322,7 @@ public sealed class RecordingEngine : IDisposable
 
             long nowHns = QpcClock.ToHns(QpcClock.NowTicks - _startQpc);
             _pauseClock.Pause(nowHns);
+            _audioSession?.Pause();
             RecordingSounds.Play(RecordingCue.Pause, true);
         }
         return Task.CompletedTask;
@@ -355,6 +339,7 @@ public sealed class RecordingEngine : IDisposable
 
             long nowHns = QpcClock.ToHns(QpcClock.NowTicks - _startQpc);
             _pauseClock.Resume(nowHns);
+            _audioSession?.Resume();
         }
         return Task.CompletedTask;
     }
@@ -374,7 +359,7 @@ public sealed class RecordingEngine : IDisposable
 
             _cts?.Cancel();
             try { _captureThread?.Join(3000); } catch { }
-            try { _audioThread?.Join(1000); } catch { }
+            _audioSession?.Stop();
 
             // Flush final cadence frames up to stop timestamp
             if (_cadenceDriver != null && _pauseClock != null && _pipeline != null && _frameSource != null)
@@ -429,7 +414,6 @@ public sealed class RecordingEngine : IDisposable
 
             _cts?.Cancel();
             try { _captureThread?.Join(1000); } catch { }
-            try { _audioThread?.Join(500); } catch { }
 
             string? takePath = _takePath;
             CleanupResources();
@@ -447,7 +431,15 @@ public sealed class RecordingEngine : IDisposable
         _cts?.Dispose();
         _cts = null;
         _captureThread = null;
-        _audioThread = null;
+
+        _audioSession?.Dispose();
+        _audioSession = null;
+
+        _inputSession?.Dispose();
+        _inputSession = null;
+
+        _desktopCover?.Dispose();
+        _desktopCover = null;
 
         _writer?.Dispose();
         _writer = null;

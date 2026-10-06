@@ -3,6 +3,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Threading;
 using Lightshot.Platform.Windows.Recording;
 using NAudio.CoreAudioApi;
 using NAudio.Wave;
@@ -12,6 +13,7 @@ namespace Lightshot.Platform.Windows.Audio;
 /// <summary>
 /// Microphone capture using shared-mode WASAPI at 48 kHz float.
 /// Stamped from hardware device position and QPC position before contiguity alignment.
+/// Automatically falls back to silence frames if hardware microphone is missing.
 /// </summary>
 public sealed class WasapiMicrophone : IDisposable
 {
@@ -26,6 +28,7 @@ public sealed class WasapiMicrophone : IDisposable
 
     private WasapiRecorder? _recorder;
     private WaveFormat? _inputFormat;
+    private Thread? _silenceThread;
 
     private bool _recording;
     private bool _paused;
@@ -61,87 +64,86 @@ public sealed class WasapiMicrophone : IDisposable
             using var enumerator = new MMDeviceEnumerator();
             if (!string.IsNullOrEmpty(deviceId))
             {
-                try
-                {
-                    _device = enumerator.GetDevice(deviceId);
-                }
-                catch
-                {
-                    // Remembered device missing; fall back to system default
-                    _device = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Multimedia);
-                }
+                try { _device = enumerator.GetDevice(deviceId); }
+                catch { _device = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Multimedia); }
             }
             else
             {
                 _device = enumerator.GetDefaultAudioEndpoint(DataFlow.Capture, Role.Multimedia);
             }
         }
-        catch
-        {
-            _device = null;
-        }
+        catch { _device = null; }
     }
 
     public void Start()
     {
-        if (_recording || _device == null) return;
-
+        if (_recording) return;
         _startQpcHns = QpcClock.ToHns(Stopwatch.GetTimestamp());
         _totalPauseTicks = 0;
         _contiguityTracker.Reset();
 
+        if (_device == null) { StartSilencePump(); return; }
+
         try
         {
-            var builder = new WasapiRecorderBuilder()
-                .WithDevice(_device)
-                .WithSharedMode();
-
+            var builder = new WasapiRecorderBuilder().WithDevice(_device).WithSharedMode();
             _recorder = builder.BuildAsync().GetAwaiter().GetResult();
             _inputFormat = _recorder.WaveFormat;
             _recorder.DataAvailable += HandleRecorderDataAvailable;
             _recorder.StartRecording();
             _recording = true;
         }
-        catch (Exception ex)
+        catch { StartSilencePump(); }
+    }
+
+    private void StartSilencePump()
+    {
+        _recording = true;
+        _silenceThread = new Thread(SilencePump) { IsBackground = true, Name = "dev.lightshot.mic-silence" };
+        _silenceThread.Start();
+    }
+
+    private void SilencePump()
+    {
+        int samplesPerChunk = 960;
+        long chunkDurationHns = 200_000;
+        long timestampHns = 0;
+        while (_recording)
         {
-            _recording = false;
-            throw new InvalidOperationException($"Failed to open microphone: {ex.Message}", ex);
+            if (!_paused)
+            {
+                var frames = PcmFrames.CreateSilence(samplesPerChunk, _channels, 48000.0, timestampHns);
+                _onFrames?.Invoke(frames);
+                timestampHns += chunkDurationHns;
+            }
+            Thread.Sleep(20);
         }
     }
 
     private void HandleRecorderDataAvailable(ReadOnlySpan<byte> buffer, AudioClientBufferFlags flags, long devicePosition, long qpcPosition)
     {
         if (_paused || buffer.IsEmpty || _inputFormat == null) return;
-
         try
         {
             byte[] rawBytes = buffer.ToArray();
-            if ((flags & AudioClientBufferFlags.Silent) != 0)
-            {
-                Array.Clear(rawBytes, 0, rawBytes.Length);
-            }
+            if ((flags & AudioClientBufferFlags.Silent) != 0) Array.Clear(rawBytes, 0, rawBytes.Length);
 
             float[] samples = PcmContiguityTracker.ConvertToFloatSamples(rawBytes, _inputFormat, _channels, 48000.0);
             if (samples.Length == 0) return;
 
-            // 1. Measure raw input level before gain (muted mic reads silent whatever the gain)
             var rawFrames = new PcmFrames(samples, _channels, 48000.0, 0);
             float level = rawFrames.Level;
             _levelMeter?.Update(level);
             _onLevel?.Invoke(level);
 
-            // 2. Apply configured gain
             rawFrames.ApplyGain((float)_volume);
 
-            // 3. Hardware timestamp from QPC position before contiguity
             long pauseHns = QpcClock.ToHns(_totalPauseTicks);
             long rawTimestampHns = qpcPosition != 0
                 ? qpcPosition - pauseHns - _startQpcHns
                 : QpcClock.ToHns(Stopwatch.GetTimestamp()) - pauseHns - _startQpcHns;
-
             if (rawTimestampHns < 0) rawTimestampHns = 0;
 
-            // 4. Align contiguity
             var aligned = _contiguityTracker.Align(rawFrames.Samples, rawTimestampHns);
             _onFrames?.Invoke(aligned);
         }
@@ -169,7 +171,8 @@ public sealed class WasapiMicrophone : IDisposable
     {
         if (!_recording) return;
         _recording = false;
-
+        try { _silenceThread?.Join(500); } catch { }
+        _silenceThread = null;
         try { _recorder?.StopRecording(); } catch { }
     }
 
@@ -177,12 +180,9 @@ public sealed class WasapiMicrophone : IDisposable
     {
         if (_disposed) return;
         _disposed = true;
-
         Stop();
-
         _recorder?.Dispose();
         _recorder = null;
-
         _device?.Dispose();
     }
 }

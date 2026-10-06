@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using Lightshot.Platform.Windows.Audio;
 using Vortice.Direct3D11;
 using Vortice.MediaFoundation;
 
@@ -39,7 +40,8 @@ public sealed class MfFragmentedWriter : IDisposable
         int audioTrackCount = 2,
         bool useHevc = false,
         int bitRate = 12_000_000,
-        bool forceSoftware = false)
+        bool forceSoftware = false,
+        IReadOnlyList<AudioTrackConfig>? audioTrackConfigs = null)
     {
         _outputPath = outputPath;
         _width = width;
@@ -81,10 +83,20 @@ public sealed class MfFragmentedWriter : IDisposable
         MediaFactory.MFSetAttributeRatio(vInType, MediaTypeAttributeKeys.PixelAspectRatio, 1, 1);
         _writer.SetInputMediaType(_videoStreamIndex, vInType, null);
 
-        // 2. Audio Streams Configuration (AAC 48kHz stereo, 128kbps)
-        for (int i = 0; i < audioTrackCount; i++)
+        // 2. Audio Streams Configuration (AAC 48kHz, 96kbps mono or 160kbps stereo)
+        if (audioTrackConfigs != null && audioTrackConfigs.Count > 0)
         {
-            _audioStreamIndices.Add(ConfigureAudioStream(48000, 2, 128_000));
+            foreach (var cfg in audioTrackConfigs)
+            {
+                _audioStreamIndices.Add(ConfigureAudioStream(cfg.SampleRate, cfg.Channels, cfg.Bitrate));
+            }
+        }
+        else
+        {
+            for (int i = 0; i < audioTrackCount; i++)
+            {
+                _audioStreamIndices.Add(ConfigureAudioStream(48000, 2, 160_000));
+            }
         }
 
         _writer.BeginWriting();

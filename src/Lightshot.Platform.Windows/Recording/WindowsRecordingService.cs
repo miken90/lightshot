@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Lightshot.Core;
+using Lightshot.Platform.Windows.Audio;
 
 namespace Lightshot.Platform.Windows.Recording;
 
@@ -15,14 +16,18 @@ namespace Lightshot.Platform.Windows.Recording;
 public sealed class WindowsRecordingService : IRecordingService, IDisposable
 {
     private readonly RecordingEngine _engine;
+    private readonly AudioDeviceService _audioDeviceService;
     private bool _disposed;
 
     public bool RequestWaitsForAnswer => false;
     public RecordingEngine Engine => _engine;
+    public AudioDeviceService AudioDeviceService => _audioDeviceService;
+    public IAudioInputService AudioInputService => _audioDeviceService;
 
-    public WindowsRecordingService(RecordingEngine? engine = null)
+    public WindowsRecordingService(RecordingEngine? engine = null, AudioDeviceService? audioDeviceService = null)
     {
-        _engine = engine ?? new RecordingEngine();
+        _audioDeviceService = audioDeviceService ?? engine?.AudioDeviceService ?? new AudioDeviceService();
+        _engine = engine ?? new RecordingEngine(audioDeviceService: _audioDeviceService);
     }
 
     public Task<CaptureAuthorizationStatus> AuthorizationStatusAsync()
@@ -76,5 +81,6 @@ public sealed class WindowsRecordingService : IRecordingService, IDisposable
         if (_disposed) return;
         _disposed = true;
         _engine.Dispose();
+        _audioDeviceService.Dispose();
     }
 }
