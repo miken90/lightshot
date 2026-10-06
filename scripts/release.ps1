@@ -222,10 +222,6 @@ try {
             $sigFile,
             $sumsFile
         )
-        $nupkg = Get-ChildItem -Path $releaseDir -Filter "*.nupkg" | Select-Object -First 1
-        if ($nupkg) {
-            $assets += $nupkg.FullName
-        }
 
         $ghArgs = @(
             "release", "create", "v$Version",
