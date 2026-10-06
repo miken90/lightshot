@@ -21,6 +21,7 @@ public class TrayStubTests
             UseShellExecute = false,
             CreateNoWindow = true
         };
+        psi.EnvironmentVariables["LIGHTSHOT_DISABLE_ONBOARDING"] = "1";
 
         string? dotnetRoot = Environment.GetEnvironmentVariable("DOTNET_ROOT");
         if (!string.IsNullOrEmpty(dotnetRoot))

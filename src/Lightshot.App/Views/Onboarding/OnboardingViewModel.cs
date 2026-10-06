@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Lightshot.Core;
 using Lightshot.Platform.Windows.Hotkeys;
+using Lightshot.Platform.Windows.Settings;
 
 namespace Lightshot.App.Views.Onboarding;
 
@@ -16,7 +17,7 @@ namespace Lightshot.App.Views.Onboarding;
 /// </summary>
 public class OnboardingViewModel : INotifyPropertyChanged
 {
-    private const string OnboardedKey = "app.onboarded";
+    private const string OnboardedKey = SettingsKeys.AppOnboarded;
     public const string KeyboardSettingsUri = "ms-settings:easeofaccess-keyboard";
 
     private readonly ISettingsStore _store;

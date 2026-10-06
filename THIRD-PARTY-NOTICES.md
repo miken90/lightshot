@@ -71,3 +71,14 @@ This project incorporates third-party open source software and assets.
 - Source: https://www.surina.net/soundtouch/
 - License: LGPL 2.1 (dynamically linked)
 - Copyright (c) Olli Parviainen.
+
+## 15. Upstream Lightshot / LightshotKit macOS Architecture Reference
+- Source: https://github.com/vietle/lightshot
+- License: MIT License
+- Copyright (c) 2026 Viet Le.
+
+## 16. Application Icon
+- Artwork: `src/Lightshot.App/Resources/Icons/app.ico`, `app.svg`
+- Status: Original artwork created from scratch for this project (see `cc-art-261006-0030-lightshot-app-icon.md`).
+- License: MIT License
+- Copyright (c) 2026 Lightshot Contributors.

@@ -8,4 +8,9 @@ public partial class GeneralPane : UserControl
     {
         InitializeComponent();
     }
+
+    private void OnOpenStartupAppsClick(object sender, System.Windows.RoutedEventArgs e)
+    {
+        (DataContext as SettingsViewModel)?.OpenStartupSettings();
+    }
 }

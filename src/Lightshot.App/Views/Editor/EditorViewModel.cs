@@ -30,7 +30,7 @@ public enum EditorTool
 
 public class EditorViewModel : INotifyPropertyChanged
 {
-    public const string ArrowStyleDefaultsKey = "editor.lastArrowStyle";
+    public const string ArrowStyleDefaultsKey = Lightshot.Platform.Windows.Settings.SettingsKeys.EditorLastArrowStyle;
     public const double DefaultWindowWidth = 1180.0;
     public const double DefaultWindowHeight = 800.0;
     public const double WorkAreaWidthCapRatio = 0.90;

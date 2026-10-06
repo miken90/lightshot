@@ -19,7 +19,11 @@ public partial class HistoryWindow : Window
     {
         InitializeComponent();
         Loaded += OnLoaded;
-        Activated += (s, e) => UpdateVisibility();
+        Activated += (s, e) =>
+        {
+            _viewModel?.Refresh();
+            UpdateVisibility();
+        };
     }
 
     public HistoryWindow(HistoryViewModel viewModel) : this()

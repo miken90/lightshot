@@ -137,6 +137,19 @@ public partial class CardWindow : Window, ICardWindow
         if (_isClosing) return;
         _isClosing = true;
 
+        if (!Dispatcher.CheckAccess())
+        {
+            try
+            {
+                Dispatcher.Invoke(() => CloseCard(animated));
+            }
+            catch
+            {
+                // Window or dispatcher shutting down
+            }
+            return;
+        }
+
         if (animated)
         {
             var anim = new DoubleAnimation(1.0, 0.0, TimeSpan.FromMilliseconds(150));

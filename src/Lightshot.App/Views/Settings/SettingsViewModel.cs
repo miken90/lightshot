@@ -7,6 +7,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using Lightshot.Core;
+using Lightshot.Platform.Windows.Settings;
+using Lightshot.Platform.Windows.Startup;
+using Lightshot.Platform.Windows.Windows;
 
 namespace Lightshot.App.Views.Settings;
 
@@ -16,29 +19,6 @@ namespace Lightshot.App.Views.Settings;
 /// </summary>
 public class SettingsViewModel : INotifyPropertyChanged
 {
-    // Settings keys from APP §5; switch to SettingsKeys once P5a completes.
-    private static class SettingKeys
-    {
-        public const string Format = "save.format";
-        public const string Quality = "save.jpegQuality";
-        public const string Location = "save.location";
-        public const string Pattern = "save.filenamePattern";
-        public const string Hotkeys = "capture.hotkeys";
-        public const string OpenInEditor = "capture.openInEditor";
-        public const string IncludeCursor = "capture.includeCursor";
-        public const string AdjustAreaBeforeCapture = "capture.adjustAreaBeforeCapture";
-        public const string CaptureDelay = "capture.delay";
-        public const string HistoryRetention = "history.retention";
-        public const string RecordingDefaults = "recording.defaults";
-        public const string RememberLastRecordingArea = "recording.rememberLastArea";
-        public const string LastRecordingRegion = "recording.lastRegion";
-        public const string Appearance = "app.appearance";
-        public const string OcrKeepsLineBreaks = "ocr.keepLineBreaks";
-        public const string HideDesktopIcons = "app.hideDesktopIcons";
-        public const string QuickAccess = "quickAccess.settings";
-        public const string Onboarded = "app.onboarded";
-    }
-
     private readonly ISettingsStore _store;
     private readonly Func<HotkeyBindings, IReadOnlyList<CaptureAction>>? _applyHotkeys;
     private readonly Action<int>? _applyRetention;
@@ -299,8 +279,16 @@ public class SettingsViewModel : INotifyPropertyChanged
             {
                 _store.LaunchAtLogin = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(IsStartupDisabledByTaskManager));
             }
         }
+    }
+
+    public bool IsStartupDisabledByTaskManager => Lightshot.Platform.Windows.Startup.LaunchAtLogin.IsDisabledByTaskManager();
+
+    public void OpenStartupSettings()
+    {
+        Explorer.OpenSettingsUri(Explorer.StartupAppsUri);
     }
 
     public bool OcrKeepsLineBreaks

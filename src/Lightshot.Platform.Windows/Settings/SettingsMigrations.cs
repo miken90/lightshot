@@ -256,5 +256,11 @@ public static class SettingsMigrations
             else
                 obj[SettingsKeys.QuickAccessSettings] = JsonSerializer.SerializeToNode(new QuickAccessSettings());
         }
+
+        // 18. app.onboarded
+        if (!obj.ContainsKey(SettingsKeys.AppOnboarded))
+        {
+            obj[SettingsKeys.AppOnboarded] = SettingsKeys.DefaultAppOnboarded;
+        }
     }
 }

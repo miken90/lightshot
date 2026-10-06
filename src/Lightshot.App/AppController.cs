@@ -2,12 +2,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
+using Lightshot.App.Theming;
 using Lightshot.App.Views.Editor;
+using Lightshot.App.Views.History;
 using Lightshot.App.Views.Notices;
+using Lightshot.App.Views.Onboarding;
+using Lightshot.App.Views.Pin;
+using Lightshot.App.Views.QuickAccess;
+using Lightshot.App.Views.Settings;
 using Lightshot.Core;
 using Lightshot.Platform.Windows.Capture;
 using Lightshot.Platform.Windows.Clipboard;
@@ -25,7 +32,8 @@ namespace Lightshot.App;
 
 /// <summary>
 /// Main application controller composing Core AppCoordinator with Windows platform implementations:
-/// capture service, overlay host, hotkeys, tray, window presenter, sinks, settings store, and editor.
+/// capture service, overlay host, hotkeys, tray, window presenter, sinks, settings store, editor,
+/// Quick Access cards, PinBoard, History, and Settings.
 /// </summary>
 public sealed class AppController : ICaptureUI, IDisposable
 {
@@ -42,14 +50,23 @@ public sealed class AppController : ICaptureUI, IDisposable
     private readonly WindowsOverlayController _overlay;
     private readonly WindowsHotkeyService _hotkeys;
     private readonly TrayIcon _trayIcon;
+    private readonly HistoryStore _historyStore;
+    private readonly PinBoard _pinBoard;
+    private readonly QuickAccessHost _quickAccessHost;
     private readonly AppCoordinator _coordinator;
 
     private EditorWindow? _activeEditorWindow;
+    private HistoryWindow? _historyWindow;
+    private SettingsWindow? _settingsWindow;
+    private OnboardingWindow? _onboardingWindow;
     private bool _disposed;
 
     public AppCoordinator Coordinator => _coordinator;
     public TrayIcon Tray => _trayIcon;
     public ISettingsStore Settings => _settingsStore;
+    public HistoryStore History => _historyStore;
+    public PinBoard PinBoard => _pinBoard;
+    public QuickAccessHost QuickAccessHost => _quickAccessHost;
 
     public AppController(
         ShellThread? shellThread = null,
@@ -61,7 +78,10 @@ public sealed class AppController : ICaptureUI, IDisposable
         IImageSink? imageSink = null,
         IImageSource? imageSource = null,
         IImageRenderer? renderer = null,
-        IImageCodec? codec = null)
+        IImageCodec? codec = null,
+        HistoryStore? historyStore = null,
+        PinBoard? pinBoard = null,
+        QuickAccessHost? quickAccessHost = null)
     {
         _shellThread = shellThread ?? new ShellThread("LightshotShellThread");
         _topology = topology ?? new DisplayTopology();
@@ -79,13 +99,29 @@ public sealed class AppController : ICaptureUI, IDisposable
         _hotkeys = hotkeys ?? new WindowsHotkeyService(_shellThread);
         _trayIcon = new TrayIcon("Lightshot");
 
+        _historyStore = historyStore ?? new HistoryStore(
+            AppPaths.History,
+            _settingsStore.HistoryRetention,
+            new SkiaThumbnailer());
+
+        _pinBoard = pinBoard ?? new PinBoard();
+
+        _quickAccessHost = quickAccessHost ?? new QuickAccessHost(
+            actions: new QuickAccessActions(
+                Copy: image => CopyImage(image),
+                Save: image => SaveImage(image),
+                SaveAs: image => SaveAsImage(image),
+                Annotate: image => OpenEditor(image),
+                Pin: image => PinImage(image)),
+            settings: () => _settingsStore.QuickAccess);
+
         _coordinator = new AppCoordinator(
             _captureService,
             _overlay,
             _imageSource,
             _imageSink,
             _settingsStore,
-            history: null,
+            history: _historyStore,
             recordingService: null,
             mediaSink: null,
             gifEncoder: null,
@@ -100,14 +136,24 @@ public sealed class AppController : ICaptureUI, IDisposable
 
     public void Initialize()
     {
+        // Apply initial appearance theme and update tray icon
+        ThemeService.Instance.Apply(_settingsStore.Appearance);
+        _trayIcon.UpdateTheme(ThemeService.GetSystemUsesLightTheme());
+
+        // Subscribe to setting change notifications
+        if (_settingsStore is JsonSettingsStore jsonStore)
+        {
+            jsonStore.SettingChanged += OnSettingChanged;
+        }
+
         var displays = DisplayTopology.GetDisplays();
         _trayIcon.Displays = displays.Select(d => new DisplayMenuItem(d.DisplayId, d.DeviceName + (d.IsPrimary ? " (Primary)" : ""))).ToList();
 
         _trayIcon.OnCaptureAction = action => TriggerCaptureAction(action);
         _trayIcon.OnFullscreenDisplayCapture = displayId => _ = _coordinator.CaptureFullscreenAsync(displayId);
         _trayIcon.OnOpenFile = () => _coordinator.OpenFile();
-        _trayIcon.OnHistory = () => { /* History dialog in Phase 5 */ };
-        _trayIcon.OnSettings = () => { /* Settings dialog in Phase 5 */ };
+        _trayIcon.OnHistory = () => ShowHistoryWindow();
+        _trayIcon.OnSettings = () => ShowSettingsWindow();
         _trayIcon.OnQuit = () =>
         {
             Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
@@ -119,9 +165,26 @@ public sealed class AppController : ICaptureUI, IDisposable
         RegisterHotkeys();
     }
 
-    public void RegisterHotkeys()
+    private void OnSettingChanged(object? sender, string key)
     {
-        var bindings = _settingsStore.Hotkeys ?? HotkeyBindings.Defaults;
+        switch (key)
+        {
+            case SettingsKeys.AppAppearance:
+                ThemeService.Instance.Apply(_settingsStore.Appearance);
+                _trayIcon.UpdateTheme(ThemeService.GetSystemUsesLightTheme());
+                break;
+            case SettingsKeys.CaptureHotkeys:
+                RegisterHotkeys();
+                break;
+            case SettingsKeys.HistoryRetention:
+                _historyStore.SetRetention(_settingsStore.HistoryRetention);
+                break;
+        }
+    }
+
+    public IReadOnlyList<CaptureAction> RegisterHotkeys(HotkeyBindings? customBindings = null)
+    {
+        var bindings = customBindings ?? _settingsStore.Hotkeys ?? HotkeyBindings.Defaults;
         var assignments = new Dictionary<CaptureAction, HotkeyBinding>(bindings.Assignments);
 
         // Spec step 1: Defaults PrintScreen = Area, Ctrl+PrintScreen = Fullscreen
@@ -135,8 +198,9 @@ public sealed class AppController : ICaptureUI, IDisposable
         }
 
         var activeBindings = new HotkeyBindings(assignments);
-        _hotkeys.Register(activeBindings, action => TriggerCaptureAction(action));
+        var unregisterable = _hotkeys.Register(activeBindings, action => TriggerCaptureAction(action));
         _trayIcon.Bindings = activeBindings;
+        return unregisterable;
     }
 
     public void TriggerCaptureAction(CaptureAction action)
@@ -170,6 +234,56 @@ public sealed class AppController : ICaptureUI, IDisposable
         return ofd.ShowDialog() == true ? ofd.FileName : null;
     }
 
+    public void CopyImage(CapturedImage image)
+    {
+        var doc = new AnnotationDocument(image);
+        var rendered = _renderer.Render(doc);
+        _clipboardSink.CopyToClipboard(rendered);
+    }
+
+    public bool SaveImage(CapturedImage image)
+    {
+        var doc = new AnnotationDocument(image);
+        var rendered = _renderer.Render(doc);
+        var path = _settingsStore.DefaultDestination();
+        _imageSink.Write(rendered, path, _settingsStore.DefaultFormat);
+        return true;
+    }
+
+    public bool SaveAsImage(CapturedImage image)
+    {
+        var sfd = new Microsoft.Win32.SaveFileDialog
+        {
+            Filter = "PNG Image (*.png)|*.png|JPEG Image (*.jpg;*.jpeg)|*.jpg;*.jpeg|Bitmap Image (*.bmp)|*.bmp",
+            DefaultExt = ".png",
+            FileName = new FilenameFormatter(_settingsStore.FilenamePattern).Filename(DateTime.Now) + ".png"
+        };
+        if (sfd.ShowDialog() == true)
+        {
+            var doc = new AnnotationDocument(image);
+            var rendered = _renderer.Render(doc);
+            string ext = Path.GetExtension(sfd.FileName).ToLowerInvariant();
+            double quality = _settingsStore.DefaultFormat is ImageFormat.Jpeg jpeg ? jpeg.Quality : 0.9;
+            ImageFormat format = ext switch
+            {
+                ".jpg" or ".jpeg" => new ImageFormat.Jpeg(quality),
+                _ => new ImageFormat.Png()
+            };
+            _imageSink.Write(rendered, sfd.FileName, format);
+            return true;
+        }
+        return false;
+    }
+
+    public PinWindow PinImage(CapturedImage image)
+    {
+        return _pinBoard.Pin(
+            image,
+            copyAction: () => CopyImage(image),
+            saveAction: () => SaveImage(image),
+            saveAsAction: () => SaveAsImage(image));
+    }
+
     public void OpenEditor(CapturedImage image)
     {
         var dispatcher = Application.Current?.Dispatcher;
@@ -182,6 +296,11 @@ public sealed class AppController : ICaptureUI, IDisposable
         var doc = new AnnotationDocument(image);
         var vm = new EditorViewModel(doc, _imageSink, _renderer, _imageSource, _settingsStore);
         var window = new EditorWindow(vm);
+
+        window.OnPin = img =>
+        {
+            PinImage(img);
+        };
 
         window.Closed += (s, e) =>
         {
@@ -200,8 +319,86 @@ public sealed class AppController : ICaptureUI, IDisposable
 
     public void PresentQuickAccess(CapturedImage image)
     {
-        // Spec step 12: Route PresentQuickAccess to the editor until Phase 5 provides Quick Access cards.
-        OpenEditor(image);
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher != null && !dispatcher.CheckAccess())
+        {
+            dispatcher.BeginInvoke(new Action(() => PresentQuickAccess(image)));
+            return;
+        }
+
+        _quickAccessHost.Present(image);
+    }
+
+    public void ShowHistoryWindow()
+    {
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher != null && !dispatcher.CheckAccess())
+        {
+            dispatcher.BeginInvoke(new Action(ShowHistoryWindow));
+            return;
+        }
+
+        if (_historyWindow == null || !_historyWindow.IsLoaded)
+        {
+            var vm = new HistoryViewModel(
+                _historyStore,
+                onReopen: image => OpenEditor(image),
+                onCopy: image => CopyImage(image),
+                settingsStore: _settingsStore);
+            _historyWindow = new HistoryWindow(vm);
+            _historyWindow.Closed += (s, e) => _historyWindow = null;
+        }
+
+        _historyWindow.Show();
+        _historyWindow.Activate();
+    }
+
+    public void ShowSettingsWindow()
+    {
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher != null && !dispatcher.CheckAccess())
+        {
+            dispatcher.BeginInvoke(new Action(ShowSettingsWindow));
+            return;
+        }
+
+        if (_settingsWindow == null || !_settingsWindow.IsLoaded)
+        {
+            var vm = new SettingsViewModel(
+                _settingsStore,
+                applyHotkeys: bindings => RegisterHotkeys(bindings),
+                applyRetention: ret => _historyStore.SetRetention(ret),
+                applyAppearance: pref =>
+                {
+                    ThemeService.Instance.Apply(pref);
+                    _trayIcon.UpdateTheme(ThemeService.GetSystemUsesLightTheme());
+                });
+            _settingsWindow = new SettingsWindow(vm);
+            _settingsWindow.Closed += (s, e) => _settingsWindow = null;
+        }
+
+        _settingsWindow.Show();
+        _settingsWindow.Activate();
+    }
+
+    public void ShowOnboarding()
+    {
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher != null && !dispatcher.CheckAccess())
+        {
+            dispatcher.BeginInvoke(new Action(ShowOnboarding));
+            return;
+        }
+
+        if (_onboardingWindow == null || !_onboardingWindow.IsLoaded)
+        {
+            var vm = new OnboardingViewModel(_settingsStore);
+            _onboardingWindow = new OnboardingWindow(vm);
+            _onboardingWindow.Closed += (s, e) => _onboardingWindow = null;
+        }
+
+        _onboardingWindow.Show();
+        _onboardingWindow.Activate();
     }
 
     public void PresentCaptureFailure(CaptureError error)
@@ -280,6 +477,37 @@ public sealed class AppController : ICaptureUI, IDisposable
         if (_disposed) return;
         _disposed = true;
 
+        var dispatcher = System.Windows.Application.Current?.Dispatcher;
+        if (dispatcher != null && !dispatcher.HasShutdownStarted && !dispatcher.CheckAccess())
+        {
+            try
+            {
+                dispatcher.Invoke(DisposeCore);
+                return;
+            }
+            catch
+            {
+                // Dispatcher may have aborted or shut down
+            }
+        }
+
+        DisposeCore();
+    }
+
+    private void DisposeCore()
+    {
+        if (_settingsStore is JsonSettingsStore jsonStore)
+        {
+            jsonStore.SettingChanged -= OnSettingChanged;
+        }
+
+        try { _historyWindow?.Close(); } catch { }
+        try { _settingsWindow?.Close(); } catch { }
+        try { _onboardingWindow?.Close(); } catch { }
+        try { _activeEditorWindow?.Close(); } catch { }
+
+        _quickAccessHost.Dispose();
+        _pinBoard.Dispose();
         _trayIcon.Dispose();
         _hotkeys.Dispose();
         _overlay.Dispose();

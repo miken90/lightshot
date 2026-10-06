@@ -7,6 +7,7 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using Lightshot.Core;
+using Lightshot.Platform.Windows.Settings;
 
 namespace Lightshot.App.Views.History;
 
@@ -15,11 +16,6 @@ namespace Lightshot.App.Views.History;
 /// </summary>
 public class HistoryViewModel : INotifyPropertyChanged
 {
-    private static class SettingsKeys
-    {
-        public const string HistoryRetention = "history.retention";
-    }
-
     private readonly HistoryStore _store;
     private readonly IRecycleBin _recycleBin;
     private readonly IExplorerService _explorerService;

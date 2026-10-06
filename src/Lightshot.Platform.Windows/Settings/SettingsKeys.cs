@@ -30,6 +30,7 @@ public static class SettingsKeys
     public const string OcrKeepLineBreaks = "ocr.keepLineBreaks";
     public const string AppHideDesktopIcons = "app.hideDesktopIcons";
     public const string QuickAccessSettings = "quickAccess.settings";
+    public const string AppOnboarded = "app.onboarded";
 
     // Phase 4 custom setting preserved for editor state
     public const string EditorLastArrowStyle = "editor.lastArrowStyle";
@@ -48,6 +49,7 @@ public static class SettingsKeys
     public const string DefaultAppearance = "system";
     public const bool DefaultOcrKeepLineBreaks = true;
     public const bool DefaultHideDesktopIcons = false;
+    public const bool DefaultAppOnboarded = false;
 
     /// <summary>
     /// Enumeration of all primary keys from APP §5.
@@ -70,6 +72,7 @@ public static class SettingsKeys
         AppAppearance,
         OcrKeepLineBreaks,
         AppHideDesktopIcons,
-        QuickAccessSettings
+        QuickAccessSettings,
+        AppOnboarded
     ];
 }

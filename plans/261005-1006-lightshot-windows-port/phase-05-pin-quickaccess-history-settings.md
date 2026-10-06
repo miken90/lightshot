@@ -1,6 +1,6 @@
 # Phase 5: Pin, Quick Access, history, settings, onboarding, light/dark, launch at login
 
-Status: pending | Effort: 14d | Priority: P1 | Depends on: phase 4
+Status: done | Effort: 14d | Priority: P1 | Depends on: phase 4
 
 ## Overview
 

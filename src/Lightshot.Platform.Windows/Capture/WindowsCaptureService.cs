@@ -39,31 +39,44 @@ public class WindowsCaptureService : ICaptureService
 
     public Task<Result<CapturedImage, CaptureError>> CaptureFullscreenAsync(uint? displayId = null)
     {
-        _topology.Refresh();
-        var display = displayId.HasValue
-            ? _topology.GetDisplay(displayId.Value)
-            : _topology.PrimaryDisplay;
-
-        if (display == null)
+        DesktopCover.DesktopCover? cover = null;
+        try
         {
-            return Task.FromResult(Result<CapturedImage, CaptureError>.Failure(new CaptureError.NoDisplayAvailable()));
-        }
+            if (_settings != null)
+            {
+                cover = DesktopCover.DesktopCover.CreateIfEnabled(_settings);
+            }
 
-        var captureResult = DdaDisplayCapture.CaptureDisplay(display);
-        if (!captureResult.IsSuccess)
+            _topology.Refresh();
+            var display = displayId.HasValue
+                ? _topology.GetDisplay(displayId.Value)
+                : _topology.PrimaryDisplay;
+
+            if (display == null)
+            {
+                return Task.FromResult(Result<CapturedImage, CaptureError>.Failure(new CaptureError.NoDisplayAvailable()));
+            }
+
+            var captureResult = DdaDisplayCapture.CaptureDisplay(display);
+            if (!captureResult.IsSuccess)
+            {
+                return Task.FromResult(captureResult);
+            }
+
+            var image = captureResult.Value;
+            if (_settings?.IncludeCursor == true && image.Data.Length >= image.PixelWidth * image.PixelHeight * 4)
+            {
+                byte[] pixelCopy = image.Data.ToArray();
+                CursorCompositor.CompositeCursor(pixelCopy, image.PixelWidth, image.PixelHeight, display.Bounds);
+                image = new CapturedImage(image.PixelWidth, image.PixelHeight, pixelCopy);
+            }
+
+            return Task.FromResult(Result<CapturedImage, CaptureError>.Success(image));
+        }
+        finally
         {
-            return Task.FromResult(captureResult);
+            cover?.Dispose();
         }
-
-        var image = captureResult.Value;
-        if (_settings?.IncludeCursor == true && image.Data.Length >= image.PixelWidth * image.PixelHeight * 4)
-        {
-            byte[] pixelCopy = image.Data.ToArray();
-            CursorCompositor.CompositeCursor(pixelCopy, image.PixelWidth, image.PixelHeight, display.Bounds);
-            image = new CapturedImage(image.PixelWidth, image.PixelHeight, pixelCopy);
-        }
-
-        return Task.FromResult(Result<CapturedImage, CaptureError>.Success(image));
     }
 
     public async Task<Result<CapturedImage, CaptureError>> CaptureRegionAsync(CaptureRegion region)
@@ -88,41 +101,54 @@ public class WindowsCaptureService : ICaptureService
 
     public Task<Result<FrozenScreen, CaptureError>> FreezeScreenAsync()
     {
-        _topology.Refresh();
-        var displays = _topology.Displays;
-        if (displays.Count == 0)
+        DesktopCover.DesktopCover? cover = null;
+        try
         {
-            return Task.FromResult(Result<FrozenScreen, CaptureError>.Failure(new CaptureError.NoDisplayAvailable()));
-        }
-
-        var frozenDisplays = new List<FrozenDisplay>(displays.Count);
-        bool includeCursor = _settings?.IncludeCursor == true;
-
-        foreach (var d in displays)
-        {
-            var captureResult = DdaDisplayCapture.CaptureDisplay(d);
-            if (!captureResult.IsSuccess)
+            if (_settings != null)
             {
-                return Task.FromResult(Result<FrozenScreen, CaptureError>.Failure(captureResult.Error));
+                cover = DesktopCover.DesktopCover.CreateIfEnabled(_settings);
             }
 
-            var image = captureResult.Value;
-            if (includeCursor && image.Data.Length >= image.PixelWidth * image.PixelHeight * 4)
+            _topology.Refresh();
+            var displays = _topology.Displays;
+            if (displays.Count == 0)
             {
-                byte[] pixelCopy = image.Data.ToArray();
-                CursorCompositor.CompositeCursor(pixelCopy, image.PixelWidth, image.PixelHeight, d.Bounds);
-                image = new CapturedImage(image.PixelWidth, image.PixelHeight, pixelCopy);
+                return Task.FromResult(Result<FrozenScreen, CaptureError>.Failure(new CaptureError.NoDisplayAvailable()));
             }
 
-            frozenDisplays.Add(new FrozenDisplay(d.DisplayId, d.Bounds, image));
+            var frozenDisplays = new List<FrozenDisplay>(displays.Count);
+            bool includeCursor = _settings?.IncludeCursor == true;
+
+            foreach (var d in displays)
+            {
+                var captureResult = DdaDisplayCapture.CaptureDisplay(d);
+                if (!captureResult.IsSuccess)
+                {
+                    return Task.FromResult(Result<FrozenScreen, CaptureError>.Failure(captureResult.Error));
+                }
+
+                var image = captureResult.Value;
+                if (includeCursor && image.Data.Length >= image.PixelWidth * image.PixelHeight * 4)
+                {
+                    byte[] pixelCopy = image.Data.ToArray();
+                    CursorCompositor.CompositeCursor(pixelCopy, image.PixelWidth, image.PixelHeight, d.Bounds);
+                    image = new CapturedImage(image.PixelWidth, image.PixelHeight, pixelCopy);
+                }
+
+                frozenDisplays.Add(new FrozenDisplay(d.DisplayId, d.Bounds, image));
+            }
+
+            // Enumerate windows in desktop z-order
+            _lastWindowCandidates = WindowEnumerator.EnumerateWindows();
+            var frozenWindows = _lastWindowCandidates.Select(c => new FrozenWindow(c.Id, c.Bounds, null)).ToList();
+
+            var frozenScreen = new FrozenScreen(frozenDisplays, frozenWindows);
+            return Task.FromResult(Result<FrozenScreen, CaptureError>.Success(frozenScreen));
         }
-
-        // Enumerate windows in desktop z-order
-        _lastWindowCandidates = WindowEnumerator.EnumerateWindows();
-        var frozenWindows = _lastWindowCandidates.Select(c => new FrozenWindow(c.Id, c.Bounds, null)).ToList();
-
-        var frozenScreen = new FrozenScreen(frozenDisplays, frozenWindows);
-        return Task.FromResult(Result<FrozenScreen, CaptureError>.Success(frozenScreen));
+        finally
+        {
+            cover?.Dispose();
+        }
     }
 
     public Task<IReadOnlyDictionary<uint, CapturedImage>> FreezeWindowImagesAsync()

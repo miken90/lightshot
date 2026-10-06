@@ -69,7 +69,14 @@ public class PinBoard : IDisposable
         {
             try
             {
-                win.Close();
+                if (win is System.Windows.Window w && !w.Dispatcher.CheckAccess())
+                {
+                    w.Dispatcher.Invoke(w.Close);
+                }
+                else
+                {
+                    win.Close();
+                }
             }
             catch
             {

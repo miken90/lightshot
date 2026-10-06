@@ -62,6 +62,7 @@ try {
         }
 
         $mainExeName = "Lightshot.App.exe"
+        $iconPath = Join-Path $RepoRoot "src\Lightshot.App\Resources\Icons\app.ico"
         $vpkArgs = @(
             "vpk", "pack",
             "--packId", "Lightshot",
@@ -69,6 +70,7 @@ try {
             "--packDir", $publishDir,
             "--packAuthors", "Lightshot",
             "--mainExe", $mainExeName,
+            "--icon", $iconPath,
             "--runtime", "win-x64",
             "-o", $releaseDir
         )

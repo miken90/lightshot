@@ -1,4 +1,11 @@
+using System;
+using System.IO;
+using System.Linq;
+using System.Threading;
 using System.Windows;
+using Lightshot.Platform.Windows.Files;
+using Lightshot.Platform.Windows.Settings;
+using Lightshot.Platform.Windows.Windows;
 using Velopack;
 
 namespace Lightshot.App;
@@ -13,6 +20,10 @@ public static class Program
     public static int Main(string[] args)
     {
         VelopackApp.Build().Run();
+
+        // Ensure directories exist and settings file migrations are run at startup
+        AppPaths.EnsureDirectoriesCreated();
+        SettingsMigrations.MigrateFile(AppPaths.SettingsFile);
 
         // 1. Startup OS gate check (Build >= 22621)
         if (!OsGate.CheckCurrentOs())
@@ -70,11 +81,17 @@ public static class Program
             quitEvent,
             (state, timedOut) =>
             {
-                controller.Dispose();
                 app.Dispatcher.BeginInvoke(new Action(() =>
                 {
-                    waitHandle?.Unregister(null);
-                    app.Shutdown(0);
+                    try
+                    {
+                        controller.Dispose();
+                    }
+                    finally
+                    {
+                        waitHandle?.Unregister(null);
+                        app.Shutdown(0);
+                    }
                 }));
             },
             null,
@@ -93,9 +110,36 @@ public static class Program
             -1,
             false);
 
-        // Trigger area capture if started with --area or --capture-area
+        // Configure Quick Access routing if requested via command-line
+        if (args.Contains("--quick-access", StringComparer.OrdinalIgnoreCase))
+        {
+            controller.Settings.OpenInEditor = false;
+        }
+        else if (args.Contains("--area", StringComparer.OrdinalIgnoreCase) ||
+                 args.Contains("--capture-area", StringComparer.OrdinalIgnoreCase))
+        {
+            controller.Settings.OpenInEditor = true;
+        }
+
+        // Onboarding window on first launch only; suppressed during automated tests
+        bool disableOnboarding =
+            args.Contains("--no-onboarding", StringComparer.OrdinalIgnoreCase) ||
+            args.Contains("--area", StringComparer.OrdinalIgnoreCase) ||
+            args.Contains("--capture-area", StringComparer.OrdinalIgnoreCase) ||
+            args.Contains("--quick-access", StringComparer.OrdinalIgnoreCase) ||
+            string.Equals(Environment.GetEnvironmentVariable("LIGHTSHOT_DISABLE_ONBOARDING"), "1", StringComparison.OrdinalIgnoreCase) ||
+            string.Equals(Environment.GetEnvironmentVariable("LIGHTSHOT_TEST_MODE"), "1", StringComparison.OrdinalIgnoreCase);
+
+        bool isOnboarded = controller.Settings.GetSetting(SettingsKeys.AppOnboarded) == "true";
+        if (!isOnboarded && !disableOnboarding)
+        {
+            controller.ShowOnboarding();
+        }
+
+        // Trigger area capture if started with --area, --capture-area, or --quick-access
         if (args.Contains("--area", StringComparer.OrdinalIgnoreCase) ||
-            args.Contains("--capture-area", StringComparer.OrdinalIgnoreCase))
+            args.Contains("--capture-area", StringComparer.OrdinalIgnoreCase) ||
+            args.Contains("--quick-access", StringComparer.OrdinalIgnoreCase))
         {
             app.Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.Send, new Action(() => controller.TriggerAreaCapture()));
         }

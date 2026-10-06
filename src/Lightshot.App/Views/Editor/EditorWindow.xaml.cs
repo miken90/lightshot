@@ -28,6 +28,7 @@ public partial class EditorWindow : Window
     public ICommand DeleteCommand { get; }
     public ICommand SendBackwardCommand { get; }
     public ICommand BringForwardCommand { get; }
+    public Action<CapturedImage>? OnPin { get; set; }
 
     public EditorViewModel? ViewModel => _viewModel;
 
@@ -251,6 +252,16 @@ public partial class EditorWindow : Window
     private void OnCopyClick(object sender, RoutedEventArgs e)
     {
         _viewModel?.Copy();
+    }
+
+    private void OnPinClick(object sender, RoutedEventArgs e)
+    {
+        if (_viewModel == null) return;
+        var renderer = new Lightshot.Rendering.DocumentRenderer();
+        var rendered = renderer.Render(_viewModel.Document);
+        var image = new CapturedImage(rendered.PixelWidth, rendered.PixelHeight, rendered.Data);
+        OnPin?.Invoke(image);
+        Close();
     }
 
     private void OnDoneClick(object sender, RoutedEventArgs e)

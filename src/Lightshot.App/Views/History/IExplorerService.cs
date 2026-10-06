@@ -1,14 +1,13 @@
 // MIT License, Copyright (c) 2026 Viet Le
 
 using System;
-using System.Diagnostics;
 using System.IO;
+using Lightshot.Platform.Windows.Windows;
 
 namespace Lightshot.App.Views.History;
 
 /// <summary>
 /// Interface for revealing files in Windows Explorer.
-/// P5a implements Windows/Explorer.cs in parallel.
 /// </summary>
 public interface IExplorerService
 {
@@ -16,7 +15,7 @@ public interface IExplorerService
 }
 
 /// <summary>
-/// Default implementation of IExplorerService launching explorer.exe /select,path.
+/// Default implementation of IExplorerService adapting over P5a's Explorer service.
 /// </summary>
 public class DefaultExplorerService : IExplorerService
 {
@@ -26,13 +25,7 @@ public class DefaultExplorerService : IExplorerService
 
         try
         {
-            var psi = new ProcessStartInfo
-            {
-                FileName = "explorer.exe",
-                Arguments = $"/select,\"{filePath}\"",
-                UseShellExecute = true
-            };
-            Process.Start(psi);
+            Explorer.Reveal(filePath);
         }
         catch
         {

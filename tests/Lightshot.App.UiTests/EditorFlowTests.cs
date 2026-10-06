@@ -35,6 +35,8 @@ public class EditorFlowTests
             catch { }
         }
 
+        ResetSettingsFile();
+
         // 2. Clear clipboard
         ClearClipboard();
 
@@ -434,5 +436,22 @@ public class EditorFlowTests
             return true;
         }, IntPtr.Zero);
         return found;
+    }
+
+    private static void ResetSettingsFile()
+    {
+        try
+        {
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string settingsPath = Path.Combine(appData, "Lightshot", "settings.json");
+            if (File.Exists(settingsPath))
+            {
+                string json = File.ReadAllText(settingsPath);
+                json = json.Replace("\"openInEditor\": false", "\"openInEditor\": true");
+                json = json.Replace("\"openInEditor\":false", "\"openInEditor\":true");
+                File.WriteAllText(settingsPath, json);
+            }
+        }
+        catch { }
     }
 }
