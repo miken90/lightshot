@@ -336,8 +336,9 @@ public class RecordingFlowTests
                 Assert.True(File.Exists(deliveredFile));
                 Assert.True(Mp4Remuxer.HasMoovBeforeMdat(deliveredFile));
 
-                var meta = await new MfMediaMetadata().VideoMetadataAsync(deliveredFile);
-                Assert.NotNull(meta);
+                var metaNullable = await new MfMediaMetadata().VideoMetadataAsync(deliveredFile);
+                Assert.NotNull(metaNullable);
+                var meta = metaNullable.Value;
                 Assert.True(meta.PixelWidth > 0 && meta.PixelWidth % 2 == 0);
                 Assert.True(meta.PixelHeight > 0 && meta.PixelHeight % 2 == 0);
 
@@ -521,12 +522,10 @@ public class RecordingFlowTests
 
         using (var svc = new WindowsRecordingService(new RecordingEngine(scratchStore: store)))
         {
-            var options = new RecordingOptions
-            {
-                Region = new CaptureRegion.RectRegion(new Lightshot.Core.Rect(0, 0, 800, 600)),
-                Output = RecordingOutputKind.Video,
-                HideDesktopIcons = true
-            };
+            var options = new RecordingOptions(
+                new CaptureRegion.RectRegion(new Lightshot.Core.Rect(0, 0, 800, 600)),
+                new RecordingOutput.Video(VideoSettings.Standard),
+                hideDesktopIcons: true);
 
             var err = await svc.StartAsync(options, Path.Combine(tmp, "out.mp4"), _ => { });
             Assert.NotNull(err);
@@ -581,13 +580,11 @@ public class RecordingFlowTests
 
             using (var svc = new WindowsRecordingService(new RecordingEngine(scratchStore: new ScratchStore(testTemp))))
             {
-                var options = new RecordingOptions
-                {
-                    Region = new CaptureRegion.RectRegion(new Lightshot.Core.Rect(0, 0, 640, 480)),
-                    Output = RecordingOutputKind.Video,
-                    RecordComputerAudio = false,
-                    RecordMicrophone = false
-                };
+                var options = new RecordingOptions(
+                    new CaptureRegion.RectRegion(new Lightshot.Core.Rect(0, 0, 640, 480)),
+                    new RecordingOutput.Video(VideoSettings.Standard),
+                    computerAudio: false,
+                    microphone: InputDeviceSelection.Off.Instance);
 
                 var startErr = await svc.StartAsync(options, genOutput, _ => { });
                 Assert.Null(startErr);

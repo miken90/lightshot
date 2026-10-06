@@ -176,7 +176,7 @@ public class PostRecordingOverlayViewModelTests
     {
         var clock = new FakeClock();
         var sink = new FakeMediaSink();
-        var recording = new PendingRecording(@"C:\Temp\sample.mp4", RecordingOutputKind.Video, 5.0, suggestedName: "custom_take");
+        var recording = new PendingRecording(@"C:\Temp\sample.mp4", RecordingOutputKind.Video, 5.0, SuggestedName: "custom_take");
 
         string? copiedName = null;
         bool deleted = false;

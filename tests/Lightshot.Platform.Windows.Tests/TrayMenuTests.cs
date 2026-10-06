@@ -86,7 +86,7 @@ public class TrayMenuTests
         };
         var bindings = new Lightshot.Core.HotkeyBindings(assignments);
 
-        IntPtr hMenu = TrayMenu.CreateMenuHandle(null, bindings, null);
+        IntPtr hMenu = TrayMenu.CreateMenuHandle(bindings: bindings);
         Assert.NotEqual(IntPtr.Zero, hMenu);
 
         try
