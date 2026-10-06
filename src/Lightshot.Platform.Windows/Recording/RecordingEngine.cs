@@ -218,18 +218,8 @@ public sealed class RecordingEngine : IDisposable
     public void WriteAudioSample(int trackIndex, byte[] pcmData, long sampleTimeHns, long durationHns)
     {
         if (!_isRecording || _writer == null) return;
-        int streamIndex = trackIndex;
-        if (!_writer.AudioStreamIndices.Contains(trackIndex))
-        {
-            if (trackIndex >= 0 && trackIndex < _writer.AudioStreamIndices.Count)
-            {
-                streamIndex = _writer.AudioStreamIndices[trackIndex];
-            }
-            else
-            {
-                return;
-            }
-        }
+        if (trackIndex < 0 || trackIndex >= _writer.AudioStreamIndices.Count) return;
+        int streamIndex = _writer.AudioStreamIndices[trackIndex];
         _writer.WriteAudioSample(streamIndex, pcmData, sampleTimeHns, durationHns);
     }
 
