@@ -21,11 +21,13 @@ public sealed class ManifestVerifier
 {
     private readonly string? _defaultPublicKey;
     private readonly Action<string>? _logger;
+    private readonly string? _runningVersion;
 
-    public ManifestVerifier(string? defaultPublicKey = null, Action<string>? logger = null)
+    public ManifestVerifier(string? defaultPublicKey = null, Action<string>? logger = null, string? runningVersion = null)
     {
         _defaultPublicKey = defaultPublicKey ?? PinnedKey.PublicKey;
         _logger = logger;
+        _runningVersion = runningVersion;
     }
 
     public ManifestVerificationResult Verify(
@@ -137,6 +139,20 @@ public sealed class ManifestVerifier
         if (manifest.Sequence <= currentSequence)
         {
             return LogAndFail($"Manifest sequence {manifest.Sequence} is not greater than current sequence {currentSequence} (downgrade or replay rejected).");
+        }
+
+        // 4. Reject a version that is not newer than the running app (spec: version must be greater than running).
+        if (_runningVersion != null)
+        {
+            if (!Velopack.SemanticVersion.TryParse(manifest.Version, out var offered) ||
+                !Velopack.SemanticVersion.TryParse(_runningVersion, out var running))
+            {
+                return LogAndFail($"Manifest version '{manifest.Version}' or running version '{_runningVersion}' is not a semantic version.");
+            }
+            if (offered.CompareTo(running) <= 0)
+            {
+                return LogAndFail($"Manifest version {manifest.Version} is not newer than running version {_runningVersion} (downgrade rejected).");
+            }
         }
 
         return ManifestVerificationResult.Success(manifest);

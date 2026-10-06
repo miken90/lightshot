@@ -160,4 +160,30 @@ public class ManifestVerifierTests
         var resultBadSize = verifier.Verify(badSizeJson, badSizeSig, currentSequence: 10);
         Assert.False(resultBadSize.IsValid);
     }
+
+    [Fact]
+    [Unit]
+    public void RejectsVersionNotNewerThanRunning()
+    {
+        var (privKey, pubKey) = GenerateTestKeys();
+        var verifier = new ManifestVerifier(pubKey, null, runningVersion: "1.2.0");
+
+        // Case 1: Same version as running (1.2.0), higher sequence (11 > 10)
+        var (jsonSame, sigSame) = CreateAndSignManifest(privKey, sequence: 11, version: "1.2.0");
+        var resultSame = verifier.Verify(jsonSame, sigSame, currentSequence: 10);
+        Assert.False(resultSame.IsValid);
+        Assert.Contains("not newer", resultSame.ErrorReason, StringComparison.OrdinalIgnoreCase);
+
+        // Case 2: Older version (1.1.9), higher sequence (11 > 10)
+        var (jsonOlder, sigOlder) = CreateAndSignManifest(privKey, sequence: 11, version: "1.1.9");
+        var resultOlder = verifier.Verify(jsonOlder, sigOlder, currentSequence: 10);
+        Assert.False(resultOlder.IsValid);
+        Assert.Contains("not newer", resultOlder.ErrorReason, StringComparison.OrdinalIgnoreCase);
+
+        // Case 3: Newer version (1.3.0), higher sequence (11 > 10)
+        var (jsonNewer, sigNewer) = CreateAndSignManifest(privKey, sequence: 11, version: "1.3.0");
+        var resultNewer = verifier.Verify(jsonNewer, sigNewer, currentSequence: 10);
+        Assert.True(resultNewer.IsValid, resultNewer.ErrorReason);
+        Assert.Equal("1.3.0", resultNewer.Manifest!.Version);
+    }
 }
