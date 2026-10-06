@@ -4,6 +4,7 @@ using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
+using Lightshot.Core;
 using Lightshot.Platform.Windows.Settings;
 using Lightshot.Platform.Windows.Updates;
 
