@@ -17,3 +17,11 @@ SetWindowLongW
 GetWindowLongPtrW
 SetWindowLongPtrW
 SHFileOperationW
+IDesktopWallpaper
+DesktopWallpaper
+DESKTOP_WALLPAPER_POSITION
+IFileOperation
+FileOperation
+IShellItem
+SHCreateItemFromParsingName
+DwmFlush
