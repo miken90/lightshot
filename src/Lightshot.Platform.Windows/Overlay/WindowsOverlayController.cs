@@ -52,10 +52,15 @@ public sealed class WindowsOverlayController : IOverlayController, IDisposable
         }).Unwrap();
     }
 
-    public Task<RecordingChoice?> SelectRecordingAsync(CaptureRegion? initial, RecordingDefaults defaults)
+    public async Task<RecordingChoice?> SelectRecordingAsync(CaptureRegion? initial, RecordingDefaults defaults)
     {
-        // Recording selection overlay belongs to Phase 7
-        return Task.FromResult<RecordingChoice?>(null);
+        ObjectDisposedException.ThrowIf(_disposed, this);
+
+        return await _shellThread.InvokeAsync(async () =>
+        {
+            using var coordinator = new RecordingChromeCoordinator();
+            return await coordinator.ShowSelectionAsync(initial, defaults);
+        }).Unwrap();
     }
 
     public void Dispose()

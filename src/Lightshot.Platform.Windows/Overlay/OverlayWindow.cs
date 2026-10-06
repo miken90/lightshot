@@ -12,7 +12,8 @@ namespace Lightshot.Platform.Windows.Overlay;
 public enum OverlayMode
 {
     Region,
-    Window
+    Window,
+    Recording
 }
 
 /// <summary>
@@ -167,6 +168,12 @@ public sealed class OverlayWindow : IDisposable
                     SelectionPainter.Paint(
                         hdc, clientW, clientH, MonitorBounds,
                         CurrentSelection, ShowsControls, Backdrop);
+                }
+                else if (Mode == OverlayMode.Recording)
+                {
+                    RecordingSelectionPainter.Paint(
+                        hdc, clientW, clientH, MonitorBounds,
+                        CurrentSelection, ShowsControls, Backdrop, HoveredWindow);
                 }
                 else
                 {
@@ -385,7 +392,7 @@ public sealed class OverlayWindow : IDisposable
             case 0x26: // VK_UP
             case 0x27: // VK_RIGHT
             case 0x28: // VK_DOWN
-                if (Mode == OverlayMode.Region && IsAdjustable && _editable.HasSelection)
+                if ((Mode == OverlayMode.Region || Mode == OverlayMode.Recording) && IsAdjustable && _editable.HasSelection)
                 {
                     bool shift = (GetKeyState(0x10 /* VK_SHIFT */) & 0x8000) != 0;
                     double dx = (vk == 0x25 ? -1.0 : (vk == 0x27 ? 1.0 : 0.0));
@@ -411,7 +418,7 @@ public sealed class OverlayWindow : IDisposable
     private void SetCustomCursor()
     {
         IntPtr hCursor;
-        if (Mode == OverlayMode.Region && IsAdjustable && _editable.HasSelection && ShowsControls && !IsDragging)
+        if ((Mode == OverlayMode.Region || Mode == OverlayMode.Recording) && IsAdjustable && _editable.HasSelection && ShowsControls && !IsDragging)
         {
             GetCursorPos(out var pt);
             var gPt = new Point(pt.x, pt.y);
