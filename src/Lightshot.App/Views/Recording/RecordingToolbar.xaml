@@ -27,6 +27,7 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
                     <TextBox Grid.Column="0" 
@@ -53,7 +54,18 @@
                             Style="{DynamicResource Button.Icon}"
                             Margin="6,0,0,0" 
                             Click="OnFullscreenClick"
+                            AutomationProperties.Name="Fullscreen"
                             ToolTip="Fullscreen"/>
+
+                    <!-- Cancels the recording selection, the same as Esc -->
+                    <Button Grid.Column="4"
+                            Content="&#xE711;"
+                            Style="{DynamicResource Button.Icon}"
+                            Margin="4,0,0,0"
+                            Click="OnCloseClick"
+                            AutomationProperties.AutomationId="RecordingToolbarCloseButton"
+                            AutomationProperties.Name="Cancel Recording"
+                            ToolTip="Cancel (Esc)"/>
                 </Grid>
 
                 <!-- Row 2: Toggles (Mic, Computer Audio, Clicks, Keystrokes) -->

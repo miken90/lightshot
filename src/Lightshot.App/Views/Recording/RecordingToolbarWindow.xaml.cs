@@ -77,12 +77,20 @@ public partial class RecordingToolbarWindow : Window
             window.Close();
         };
 
+        void Cancel()
+        {
+            tcs.TrySetResult(null);
+            window.Close();
+        }
+
+        // The close button and Esc cancel the same way: no choice, so the caller tears the flow down.
+        window.Toolbar.CloseRequested += (_, _) => Cancel();
+
         window.PreviewKeyDown += (_, e) =>
         {
             if (e.Key == Key.Escape)
             {
-                tcs.TrySetResult(null);
-                window.Close();
+                Cancel();
                 e.Handled = true;
             }
         };

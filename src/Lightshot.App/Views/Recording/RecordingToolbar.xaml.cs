@@ -1,3 +1,4 @@
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -9,6 +10,9 @@ public partial class RecordingToolbar : UserControl
 {
     public RecordingToolbarViewModel? ViewModel => DataContext as RecordingToolbarViewModel;
 
+    /// <summary>Raised by the close button; the host cancels the flow as it does for Esc.</summary>
+    public event EventHandler? CloseRequested;
+
     public RecordingToolbar()
     {
         InitializeComponent();
@@ -17,6 +21,11 @@ public partial class RecordingToolbar : UserControl
     private void OnFullscreenClick(object sender, RoutedEventArgs e)
     {
         ViewModel?.SetFullscreen(DisplayTopology.GetDisplays());
+    }
+
+    private void OnCloseClick(object sender, RoutedEventArgs e)
+    {
+        CloseRequested?.Invoke(this, EventArgs.Empty);
     }
 
     private void OnRecordGifClick(object sender, RoutedEventArgs e)
