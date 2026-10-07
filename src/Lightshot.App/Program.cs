@@ -1,10 +1,12 @@
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Windows;
 using Lightshot.Core;
 using Lightshot.Platform.Windows.Files;
+using Lightshot.Platform.Windows.Logging;
 using Lightshot.Platform.Windows.Settings;
 using Lightshot.Platform.Windows.Windows;
 using Velopack;
@@ -29,6 +31,7 @@ public static class Program
         // Ensure directories exist and settings file migrations are run at startup
         AppPaths.EnsureDirectoriesCreated();
         SettingsMigrations.MigrateFile(AppPaths.SettingsFile);
+        Trace.Listeners.Add(new FileTraceListener(AppPaths.Logs));
 
         // 1. Startup OS gate check (Build >= 22621)
         if (!OsGate.CheckCurrentOs())
@@ -95,6 +98,7 @@ public static class Program
                     finally
                     {
                         waitHandle?.Unregister(null);
+                        Trace.Flush();
                         app.Shutdown(0);
                     }
                 }));
@@ -160,6 +164,7 @@ public static class Program
         // Apply on quit (spec consent rule); runs after the UI has stopped.
         controller.ApplyPendingUpdateOnExit();
         controller.Dispose();
+        Trace.Flush();
         return exitCode;
     }
 }
