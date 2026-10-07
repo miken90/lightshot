@@ -68,16 +68,25 @@ public record Style
     public double FontSize { get; set; }
     public RGBAColor? Fill { get; set; }
 
+    private double _cornerRadius;
+    public double CornerRadius
+    {
+        get => _cornerRadius;
+        set => _cornerRadius = Math.Max(0, value);
+    }
+
     public Style(
         RGBAColor? color = null,
         double strokeWidth = 6.0,
         double fontSize = 20.0,
-        RGBAColor? fill = null)
+        RGBAColor? fill = null,
+        double cornerRadius = 0)
     {
         Color = color ?? RGBAColor.RedColor;
         StrokeWidth = strokeWidth;
         FontSize = fontSize;
         Fill = fill;
+        CornerRadius = cornerRadius;
     }
 
     public static Style Default => new();

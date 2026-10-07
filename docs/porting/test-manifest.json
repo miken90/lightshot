@@ -3782,6 +3782,42 @@
       "csharpMethod": "ImageFillCoversTheCanvas",
       "targetProject": "Lightshot.Rendering.Tests",
       "tier": "Render"
+    },
+    {
+      "className": "ShapeFieldsTests",
+      "csharpMethod": "FlagsMatchSpec",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "ShapeFieldsTests",
+      "csharpMethod": "StyleCornerRadiusClampsToZero",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CropConstraintTests",
+      "csharpMethod": "FitInsideCentresLargestRect",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CropConstraintTests",
+      "csharpMethod": "ConstrainPreservesAspectAndClampsToBounds",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "RoundedRectangleRenderTests",
+      "csharpMethod": "ZeroRadiusIsByteIdenticalToRegularRectangle",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "RoundedRectangleRenderTests",
+      "csharpMethod": "RoundedRectangleRendersFillAndStroke",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
     }
   ]
 }

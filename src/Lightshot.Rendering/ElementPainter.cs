@@ -77,6 +77,9 @@ public static class ElementPainter
             (float)(s.MaxX - frame.MinX),
             (float)(s.MaxY - frame.MinY));
 
+        bool isRounded = style.CornerRadius > 0;
+        float rr = isRounded ? (float)Math.Min(style.CornerRadius, Math.Min(r.Width, r.Height) / 2.0) : 0f;
+
         if (style.Fill != null)
         {
             using var fillPaint = new SKPaint
@@ -85,7 +88,14 @@ public static class ElementPainter
                 Style = SKPaintStyle.Fill,
                 IsAntialias = true
             };
-            canvas.DrawRect(r, fillPaint);
+            if (isRounded)
+            {
+                canvas.DrawRoundRect(r, rr, rr, fillPaint);
+            }
+            else
+            {
+                canvas.DrawRect(r, fillPaint);
+            }
         }
 
         if (style.StrokeWidth > 0)
@@ -99,7 +109,14 @@ public static class ElementPainter
                 StrokeJoin = SKStrokeJoin.Round,
                 IsAntialias = true
             };
-            canvas.DrawRect(r, strokePaint);
+            if (isRounded)
+            {
+                canvas.DrawRoundRect(r, rr, rr, strokePaint);
+            }
+            else
+            {
+                canvas.DrawRect(r, strokePaint);
+            }
         }
     }
 

@@ -17,7 +17,9 @@ public enum StyleFields
     StrokeWidth = 1 << 1,
     FontSize = 1 << 2,
     ArrowStyle = 1 << 3,
-    Redaction = 1 << 4
+    Redaction = 1 << 4,
+    Fill = 1 << 5,
+    CornerRadius = 1 << 6
 }
 
 public static class StyleFieldsExtensions
@@ -34,6 +36,13 @@ public static class StyleFieldsExtensions
         AnnotationElement.Kind.Highlight => StyleFields.Color,
         AnnotationElement.Kind.Redaction => StyleFields.Redaction,
         AnnotationElement.Kind.Focus => StyleFields.None,
+        _ => StyleFields.None
+    };
+
+    public static StyleFields ShapeFields(AnnotationElement.Kind? kind) => kind switch
+    {
+        AnnotationElement.Kind.Rectangle => StyleFields.Fill | StyleFields.CornerRadius,
+        AnnotationElement.Kind.Ellipse => StyleFields.Fill,
         _ => StyleFields.None
     };
 }
