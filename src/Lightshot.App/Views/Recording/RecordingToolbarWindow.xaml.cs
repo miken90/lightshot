@@ -23,6 +23,14 @@ public partial class RecordingToolbarWindow : Window
         RecordingDefaults d,
         IReadOnlyList<AudioInputDevice> inputs,
         bool banner,
+        ISettingsStore settings) => Open(region, d, inputs, banner, settings).Result;
+
+    /// <summary>Shows the toolbar on the monitor of <paramref name="region"/>; the task completes with the user's choice.</summary>
+    public static (RecordingToolbarWindow Window, Task<RecordingChoice?> Result) Open(
+        CaptureRegion region,
+        RecordingDefaults d,
+        IReadOnlyList<AudioInputDevice> inputs,
+        bool banner,
         ISettingsStore settings)
     {
         var tcs = new TaskCompletionSource<RecordingChoice?>();
@@ -86,9 +94,8 @@ public partial class RecordingToolbarWindow : Window
 
         void UpdatePosition()
         {
-            var workArea = SystemParameters.WorkArea;
-            window.Left = workArea.Left + (workArea.Width - window.ActualWidth) / 2;
-            window.Top = workArea.Bottom - window.ActualHeight - 24;
+            // The monitor being recorded, not the primary
+            WindowPlacement.PlaceAnchoredOnRecordedDisplay(window, region, PlacementAnchor.BottomCenter, 24);
         }
 
         window.SizeChanged += (_, _) => UpdatePosition();
@@ -101,6 +108,6 @@ public partial class RecordingToolbarWindow : Window
         };
 
         window.Show();
-        return tcs.Task;
+        return (window, tcs.Task);
     }
 }

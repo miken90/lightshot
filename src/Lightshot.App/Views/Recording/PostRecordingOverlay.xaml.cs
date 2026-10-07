@@ -2,12 +2,16 @@ using System;
 using System.IO;
 using System.Windows;
 using System.Windows.Input;
+using Lightshot.Core;
 
 namespace Lightshot.App.Views.Recording;
 
 public partial class PostRecordingOverlay : Window
 {
     private System.Windows.Point? _dragStart;
+
+    /// <summary>The region of the take that produced the recording; decides the monitor the overlay opens on.</summary>
+    public CaptureRegion? RecordedRegion { get; set; }
 
     public PostRecordingOverlayViewModel? ViewModel => DataContext as PostRecordingOverlayViewModel;
 
@@ -42,13 +46,9 @@ public partial class PostRecordingOverlay : Window
 
     private void PositionInBottomRight()
     {
-        var screenWidth = SystemParameters.WorkArea.Width;
-        var screenHeight = SystemParameters.WorkArea.Height;
-        var screenLeft = SystemParameters.WorkArea.Left;
-        var screenTop = SystemParameters.WorkArea.Top;
-
-        Left = screenLeft + screenWidth - Width - 16;
-        Top = screenTop + screenHeight - ActualHeight - 16;
+        // The monitor of the take that produced this recording; the primary when none is known
+        WindowPlacement.PlaceAnchoredOnRecordedDisplay(
+            this, RecordedRegion ?? new CaptureRegion.DisplayRegion(0), PlacementAnchor.BottomRight, 16);
     }
 
     private void OnMediaEnded(object sender, RoutedEventArgs e)

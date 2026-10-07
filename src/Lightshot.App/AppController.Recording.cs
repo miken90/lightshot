@@ -27,6 +27,7 @@ public sealed partial class AppController
     private ControlsPillViewModel? _pillVm;
     private DispatcherTimer? _recordingTimer;
     private bool _frameShown;
+    private CaptureRegion? _lastRecordedRegion;
     private ProgressPopup? _gifPopup;
     private ProgressPopup? _prepPopup;
 
@@ -73,6 +74,7 @@ public sealed partial class AppController
             {
                 case RecordingSession.State.Recording or RecordingSession.State.Paused:
                     bool paused = session.CurrentState is RecordingSession.State.Paused;
+                    if (session.Options?.Region is { } takeRegion) _lastRecordedRegion = takeRegion;
                     if (!_frameShown)
                     {
                         _shellThread.InvokeAsync(() => Chrome().ShowFrame(session.Options!.Region, d.DimScreenWhileRecording, paused));
@@ -96,7 +98,7 @@ public sealed partial class AppController
 
                         _pill = new ControlsPill(_pillVm);
                         _pill.Show();
-                        _pill.PositionPill(d.ControlsPosition == RecordingControlsPosition.Top);
+                        _pill.PositionPill(d.ControlsPosition == RecordingControlsPosition.Top, session.Options!.Region);
                     }
 
                     if (_pillVm != null)
@@ -184,7 +186,7 @@ public sealed partial class AppController
                 onEditor: name => _coordinator.OpenPendingRecordingInEditor(name),
                 onCopy: name => _coordinator.CopyPendingRecordingFile(name),
                 onDelete: () => _coordinator.DeletePendingRecording());
-            new PostRecordingOverlay(vm).Show();
+            new PostRecordingOverlay(vm) { RecordedRegion = _lastRecordedRegion }.Show();
         });
     }
 
@@ -220,7 +222,7 @@ public sealed partial class AppController
         {
             var vm = new ProgressPopupViewModel("Converting to GIF");
             vm.Cancelled += (_, _) => cancel();
-            _gifPopup = new ProgressPopup(vm);
+            _gifPopup = new ProgressPopup(vm) { RecordedRegion = _lastRecordedRegion };
             _gifPopup.Show();
         });
     }
@@ -254,7 +256,7 @@ public sealed partial class AppController
         {
             var vm = new ProgressPopupViewModel("Preparing recording");
             vm.Cancelled += (_, _) => cancel();
-            _prepPopup = new ProgressPopup(vm);
+            _prepPopup = new ProgressPopup(vm) { RecordedRegion = _lastRecordedRegion };
             _prepPopup.Show();
         });
     }

@@ -2,6 +2,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using Lightshot.Core;
 using Lightshot.Platform.Windows.Interop;
 
 namespace Lightshot.App.Views.Recording;
@@ -55,13 +56,10 @@ public partial class ControlsPill : Window
         return IntPtr.Zero;
     }
 
-    public void PositionPill(bool top)
+    public void PositionPill(bool top, CaptureRegion region)
     {
-        var screenWidth = SystemParameters.PrimaryScreenWidth;
-        var screenHeight = SystemParameters.PrimaryScreenHeight;
-
-        Left = (screenWidth - ActualWidth) / 2.0;
-        Top = top ? 24 : (screenHeight - ActualHeight - 48);
+        WindowPlacement.PlaceAnchoredOnRecordedDisplay(
+            this, region, top ? PlacementAnchor.TopCenter : PlacementAnchor.BottomCenter, 24);
     }
 
     private void OnPauseResumeClick(object sender, RoutedEventArgs e)
