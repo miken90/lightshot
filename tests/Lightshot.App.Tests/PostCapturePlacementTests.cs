@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Lightshot.App.Views.Editor;
 using Lightshot.App.Views.QuickAccess;
+using Lightshot.App.Views.VideoEditor;
 using Lightshot.Core;
 using Lightshot.Platform.Windows.Displays;
 using Lightshot.TestSupport;
@@ -154,6 +155,22 @@ public class PostCapturePlacementTests
             var physical = ToPhysical(frame, windowScale);
 
             AssertInside(physical, display.WorkArea, $"Editor on {display.DeviceName}");
+            Assert.Equal(display.WorkArea.Center.X, physical.Center.X, 3);
+            Assert.Equal(display.WorkArea.Center.Y, physical.Center.Y, 3);
+        }
+    }
+
+    [Theory]
+    [Unit]
+    [MemberData(nameof(TopologyCases))]
+    public void VideoEditorOpensCentredInsideTheWorkAreaOfItsMonitor(string topology)
+    {
+        var (displays, windowScale) = Topology(topology);
+        foreach (var display in displays)
+        {
+            var physical = ToPhysical(VideoEditorWindow.CalculateFrame(display.WorkArea, windowScale), windowScale);
+
+            AssertInside(physical, display.WorkArea, $"Video editor on {display.DeviceName}");
             Assert.Equal(display.WorkArea.Center.X, physical.Center.X, 3);
             Assert.Equal(display.WorkArea.Center.Y, physical.Center.Y, 3);
         }

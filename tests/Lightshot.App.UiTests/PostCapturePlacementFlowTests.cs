@@ -9,6 +9,7 @@ using System.Windows.Interop;
 using System.Windows.Threading;
 using Lightshot.App.Views.Editor;
 using Lightshot.App.Views.QuickAccess;
+using Lightshot.App.Views.VideoEditor;
 using Lightshot.Core;
 using Lightshot.Platform.Windows.Displays;
 using Lightshot.Platform.Windows.Interop;
@@ -21,7 +22,7 @@ using Rect = Lightshot.Core.Rect;
 namespace Lightshot.App.UiTests;
 
 /// <summary>
-/// Opens the real card and editor windows with the pointer at the centre of every attached
+/// Opens the real card, editor and video editor windows with the pointer at the centre of every attached
 /// monitor (always the primary) and checks their on-screen rects against that monitor's work area.
 /// </summary>
 public class PostCapturePlacementFlowTests
@@ -41,6 +42,9 @@ public class PostCapturePlacementFlowTests
 
     [DllImport("user32.dll")]
     private static extern bool GetWindowRect(IntPtr hwnd, out RECT rect);
+
+    [DllImport("user32.dll")]
+    private static extern bool SetCursorPos(int x, int y);
 
     [DllImport("dwmapi.dll")]
     private static extern int DwmGetWindowAttribute(IntPtr hwnd, int attribute, out RECT value, int size);
@@ -87,9 +91,10 @@ public class PostCapturePlacementFlowTests
 
     [Fact]
     [Desktop]
-    public void CardAndEditorOpenInsideTheWorkAreaOfEveryMonitor()
+    public void PostCaptureWindowsOpenInsideTheWorkAreaOfEveryMonitor()
     {
         ExceptionDispatchInfo? captured = null;
+        var originalCursor = DisplayTopology.GetCursorPosition();
         var thread = new Thread(() =>
         {
             try
@@ -129,11 +134,33 @@ public class PostCapturePlacementFlowTests
                         editor.Close();
                         Pump(100);
                     }
+
+                    // The video editor places itself on the pointer's monitor when constructed.
+                    SetCursorPos((int)center.X, (int)center.Y);
+                    var videoEditor = new VideoEditorWindow();
+                    try
+                    {
+                        videoEditor.ShowActivated = false;
+                        videoEditor.Show();
+                        Pump(400);
+                        var videoFrame = VisibleFrame(new WindowInteropHelper(videoEditor).Handle);
+                        _output.WriteLine($"  video  {videoFrame}");
+                        AssertInside(videoFrame, display.WorkArea, $"Video editor on {display.DeviceName}");
+                    }
+                    finally
+                    {
+                        videoEditor.Close();
+                        Pump(100);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 captured = ExceptionDispatchInfo.Capture(ex);
+            }
+            finally
+            {
+                SetCursorPos((int)originalCursor.X, (int)originalCursor.Y);
             }
         });
         thread.SetApartmentState(ApartmentState.STA);

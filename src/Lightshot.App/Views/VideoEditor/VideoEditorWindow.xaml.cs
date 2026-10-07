@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Windows;
+using Lightshot.App.Views.Editor;
+using Lightshot.Platform.Windows.Displays;
 using Microsoft.Win32;
 
 namespace Lightshot.App.Views.VideoEditor;
@@ -9,11 +11,26 @@ public partial class VideoEditorWindow : Window
 {
     public VideoEditorViewModel? ViewModel => DataContext as VideoEditorViewModel;
 
+    private const double DefaultWindowWidth = 1000;
+    private const double DefaultWindowHeight = 700;
+
     public VideoEditorWindow()
     {
         InitializeComponent();
+        // Every caller shows the editor right after constructing it, from the monitor the pointer is on.
+        WindowPlacement.PlaceOnDisplayAt(this, DisplayTopology.GetCursorPosition(), CalculateWindowSize);
         Loaded += OnLoaded;
     }
+
+    /// <summary>
+    /// The default size, capped like the image editor so a short secondary keeps a margin around it.
+    /// </summary>
+    public static (double Width, double Height) CalculateWindowSize(double workAreaWidth, double workAreaHeight) =>
+        (Math.Min(DefaultWindowWidth, workAreaWidth * EditorViewModel.WorkAreaWidthCapRatio),
+         Math.Min(DefaultWindowHeight, workAreaHeight * EditorViewModel.WorkAreaHeightCapRatio));
+
+    public static Lightshot.Core.Rect CalculateFrame(Lightshot.Core.Rect workAreaPhysical, double windowScale) =>
+        WindowPlacement.CalculateFrame(workAreaPhysical, windowScale, CalculateWindowSize);
 
     public VideoEditorWindow(VideoEditorViewModel viewModel) : this()
     {
