@@ -3818,6 +3818,36 @@
       "csharpMethod": "RoundedRectangleRendersFillAndStroke",
       "targetProject": "Lightshot.Rendering.Tests",
       "tier": "Render"
+    },
+    {
+      "className": "LoupeGeometryTests",
+      "csharpMethod": "LoupeOffsetsBottomRightByDefault",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "LoupeGeometryTests",
+      "csharpMethod": "LoupeFlipsLeftNearRightScreenEdge",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "LoupeGeometryTests",
+      "csharpMethod": "LoupeFlipsAboveNearBottomScreenEdge",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "LoupeGeometryTests",
+      "csharpMethod": "LoupeClampsToMonitorBoundsInCorner",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "LoupeColourTests",
+      "csharpMethod": "SampledPixelFormatsToUppercaseHex",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
     }
   ]
 }
