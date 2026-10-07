@@ -1,6 +1,7 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Lightshot.Platform.Windows.Displays;
 
 namespace Lightshot.App.Views.Recording;
 
@@ -15,9 +16,7 @@ public partial class RecordingToolbar : UserControl
 
     private void OnFullscreenClick(object sender, RoutedEventArgs e)
     {
-        var screenWidth = (int)SystemParameters.PrimaryScreenWidth;
-        var screenHeight = (int)SystemParameters.PrimaryScreenHeight;
-        ViewModel?.SetFullscreen(screenWidth, screenHeight);
+        ViewModel?.SetFullscreen(DisplayTopology.GetDisplays());
     }
 
     private void OnRecordGifClick(object sender, RoutedEventArgs e)

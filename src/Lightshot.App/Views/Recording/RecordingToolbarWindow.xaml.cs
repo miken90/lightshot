@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using Lightshot.Core;
+using Lightshot.Platform.Windows.Displays;
+using Lightshot.Platform.Windows.Recording;
 
 namespace Lightshot.App.Views.Recording;
 
@@ -30,7 +32,8 @@ public partial class RecordingToolbarWindow : Window
         {
             CaptureRegion.RectRegion r => r.Rect,
             CaptureRegion.WindowRegion w => w.Frame,
-            _ => new Lightshot.Core.Rect(0, 0, SystemParameters.PrimaryScreenWidth, SystemParameters.PrimaryScreenHeight)
+            // A display region shows that display's physical bounds, as the engine will capture them.
+            _ => RecordingDisplayResolver.Resolve(DisplayTopology.GetDisplays(), region).GlobalRect
         };
 
         var vm = new RecordingToolbarViewModel(d, inputs, null, (int)rect.Width, (int)rect.Height);

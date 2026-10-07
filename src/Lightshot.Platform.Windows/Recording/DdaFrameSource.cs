@@ -53,6 +53,12 @@ public sealed class DdaFrameSource : IDisposable
     public int Height => _initialHeight;
     public ID3D11Texture2D? LastFrame => _lastDesktopTexture;
 
+    /// <summary>
+    /// GDI device name of the DXGI output being duplicated. Equals Display.DeviceName unless the
+    /// lookup fell back to the first output.
+    /// </summary>
+    public string? OutputDeviceName => _output1?.Description.DeviceName;
+
     public DdaFrameSource(DisplayInfo display, ID3D11Device? existingDevice = null, ID3D11DeviceContext? existingContext = null)
     {
         _display = display ?? throw new ArgumentNullException(nameof(display));

@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using Lightshot.Core;
+using Lightshot.Platform.Windows.Displays;
 using Lightshot.Platform.Windows.Recording;
 
 namespace Lightshot.App.Views.Recording;
@@ -288,12 +289,18 @@ public class RecordingToolbarViewModel : INotifyPropertyChanged
         }
     }
 
-    public void SetFullscreen(int width, int height)
+    /// <summary>
+    /// Fills the display the current region is on (largest overlap, else primary), in physical
+    /// virtual-screen pixels, so Fullscreen stays on a secondary monitor and is not scaled by DPI.
+    /// </summary>
+    public void SetFullscreen(IReadOnlyList<DisplayInfo> displays)
     {
-        RegionX = 0;
-        RegionY = 0;
-        RegionWidth = width;
-        RegionHeight = height;
+        var current = new Rect(RegionX, RegionY, RegionWidth, RegionHeight);
+        var bounds = RecordingDisplayResolver.Resolve(displays, current).Display.Bounds;
+        RegionX = bounds.X;
+        RegionY = bounds.Y;
+        RegionWidth = (int)Math.Round(bounds.Width);
+        RegionHeight = (int)Math.Round(bounds.Height);
     }
 
     public void ToggleMicrophone() => MicrophoneEnabled = !MicrophoneEnabled;

@@ -137,6 +137,12 @@ public static class RecordingSelectionPainter
     private const uint DT_VCENTER = 0x0004;
     private const uint DT_SINGLELINE = 0x0020;
 
+    // Same tint and strength as the screenshot overlay (SelectionPainter) and upstream's
+    // OverlayCanvas.dim (black at 45%): 110/255 is about 43%. It only reads as a dim when a frozen
+    // backdrop is painted underneath; without one the tint is drawn over black.
+    internal const uint DimColor = 0x101018; // BGR
+    internal const byte DimAlpha = 110;
+
     /// <summary>
     /// Paints the recording selection on the window device context.
     /// </summary>
@@ -169,7 +175,7 @@ public static class RecordingSelectionPainter
         IntPtr dimBmp = CreateCompatibleBitmap(hdc, clientWidth, clientHeight);
         IntPtr oldDimBmp = SelectObject(dimDc, dimBmp);
 
-        IntPtr hBrushDim = CreateSolidBrush(0x101018); // Dark tint in BGR
+        IntPtr hBrushDim = CreateSolidBrush(DimColor);
         IntPtr hBrushRed = CreateSolidBrush(0x0000FF); // Red border in BGR
         IntPtr hBrushWhite = CreateSolidBrush(0xFFFFFF);
         IntPtr hBrushBadge = CreateSolidBrush(0x222222);
@@ -219,7 +225,7 @@ public static class RecordingSelectionPainter
             {
                 BlendOp = 0, // AC_SRC_OVER
                 BlendFlags = 0,
-                SourceConstantAlpha = 110, // ~43% dimming
+                SourceConstantAlpha = DimAlpha,
                 AlphaFormat = 0
             };
 

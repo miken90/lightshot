@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Lightshot.Core;
 using Lightshot.Platform.Windows.Displays;
 using Lightshot.Platform.Windows.Interop;
+using Lightshot.Platform.Windows.Recording;
 using Rect = Lightshot.Core.Rect;
 
 namespace Lightshot.Platform.Windows.Overlay;
@@ -24,10 +25,18 @@ public sealed class RecordingChromeCoordinator : IDisposable
     private RecordingFrameWindow? _frameWindow;
     private CountdownWindow? _countdownWindow;
     private TaskCompletionSource<RecordingChoice?>? _selectionTcs;
+    private readonly Func<IReadOnlyList<DisplayInfo>> _displays;
     private bool _disposed;
+
+    /// <param name="displays">Display source for the frame; defaults to the live topology.</param>
+    public RecordingChromeCoordinator(Func<IReadOnlyList<DisplayInfo>>? displays = null)
+    {
+        _displays = displays ?? DisplayTopology.GetDisplays;
+    }
 
     public RecordingFrameWindow? FrameWindow => _frameWindow;
     public CountdownWindow? CountdownWindow => _countdownWindow;
+    public IReadOnlyList<OverlayWindow> SelectionWindows => _overlayWindows;
 
     // =========================================================================
     // 1. Selection API: show selection -> RecordingChoice
@@ -48,7 +57,7 @@ public sealed class RecordingChromeCoordinator : IDisposable
 
         _selectionTcs = new TaskCompletionSource<RecordingChoice?>(TaskCreationOptions.RunContinuationsAsynchronously);
 
-        var displays = DisplayTopology.GetDisplays();
+        var displays = _displays();
         var primary = System.Linq.Enumerable.FirstOrDefault(displays, d => d.IsPrimary) ?? (displays.Count > 0 ? displays[0] : null);
         Rect primaryBounds = primary?.Bounds ?? new Rect(0, 0, 1920, 1080);
 
@@ -167,20 +176,27 @@ public sealed class RecordingChromeCoordinator : IDisposable
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
-        var displays = DisplayTopology.GetDisplays();
-        var bestDisplay = System.Linq.Enumerable.FirstOrDefault(displays, d => d.IsPrimary) ?? (displays.Count > 0 ? displays[0] : null);
-
-        if (region is CaptureRegion.RectRegion r)
+        // The coordinator outlives one recording, so a frame window made for an earlier take can sit
+        // on another display; its hole would then fall outside it and the new display gets no frame.
+        var bounds = FrameBoundsFor(_displays(), region);
+        if (_frameWindow != null && bounds.HasValue && _frameWindow.WindowBounds != bounds.Value)
         {
-            bestDisplay = DisplayMath.FindLargestOverlap(displays, r.Rect) ?? bestDisplay;
-        }
-        else if (region is CaptureRegion.WindowRegion w)
-        {
-            bestDisplay = DisplayMath.FindLargestOverlap(displays, w.Frame) ?? bestDisplay;
+            _frameWindow.Dispose();
+            _frameWindow = null;
         }
 
-        _frameWindow ??= new RecordingFrameWindow(bestDisplay?.Bounds);
+        _frameWindow ??= new RecordingFrameWindow(bounds);
         _frameWindow.Show(region, dimsOutside, isPaused);
+    }
+
+    /// <summary>
+    /// Bounds of the display the frame belongs on: the one the recording engine captures
+    /// (largest overlap for a rect or window, the display itself for a display region).
+    /// </summary>
+    public static Rect? FrameBoundsFor(IReadOnlyList<DisplayInfo> displays, CaptureRegion region)
+    {
+        if (displays.Count == 0) return null;
+        return RecordingDisplayResolver.Resolve(displays, region).Display.Bounds;
     }
 
     /// <summary>

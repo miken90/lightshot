@@ -168,8 +168,12 @@ This document details the manual verification procedures for acceptance rows in 
   4. Click "Record Video" and observe the 3-2-1 countdown.
   5. While recording is active, inspect the recording frame border (3 px red border pulsing when active, solid when paused) and surrounding screen dimming if enabled in settings.
   6. Inspect `ControlsPill` floating near the top/bottom of screen.
+  7. Repeat steps 1-5 with the area on each secondary monitor.
 - **Expected Results**:
   - Toolbar, countdown, frame, and pill render cleanly with proper themes and zero visual artifacts.
+  - Toolbar icons show Segoe Fluent Icons glyphs, not empty boxes.
+  - During selection every monitor shows its frozen screen under the same ~43% dim as the screenshot overlay, not a near-black fill.
+  - On a secondary monitor the frame surrounds the area on that monitor and the video shows that monitor.
   - Border pulses smoothly during active recording and becomes steady upon pause.
 
 ## Row 2: Tray menu clicks, timer tooltip, and live red-dot swap
