@@ -15,9 +15,10 @@ public interface ICardWindow
     Rect Frame { get; set; }
 
     /// <summary>
-    /// Device pixels per DIP that WPF applies to this window's Left/Top/Width/Height.
+    /// Moves the window onto the monitor that holds <paramref name="physicalWorkArea"/> and returns the
+    /// device pixels per DIP that WPF then applies to its Left/Top/Width/Height.
     /// </summary>
-    double DeviceScale { get; }
+    double MoveOntoDisplay(Rect physicalWorkArea);
     void ShowCard(Rect initialFrame, Rect targetFrame, bool animate);
     void CloseCard(bool animated = true);
     event EventHandler? Closed;

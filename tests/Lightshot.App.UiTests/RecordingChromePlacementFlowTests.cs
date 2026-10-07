@@ -23,7 +23,7 @@ namespace Lightshot.App.UiTests;
 /// <summary>
 /// Opens the real recording toolbar, controls pill and post-recording overlay for a region on every attached
 /// monitor and checks their on-screen rects against that monitor's work area, then moves to the next monitor
-/// the way a later take would.
+/// the way a later take would. The media viewer opened from the overlay follows the recording too.
 /// </summary>
 public class RecordingChromePlacementFlowTests
 {
@@ -93,7 +93,14 @@ public class RecordingChromePlacementFlowTests
     [Desktop]
     public void RecordingChromeOpensInsideTheWorkAreaOfTheRecordedMonitor()
     {
+        if (CleanDpiHost.IsShimmed)
+        {
+            CleanDpiHost.Run(_output, typeof(RecordingChromePlacementFlowTests), nameof(RecordingChromeOpensInsideTheWorkAreaOfTheRecordedMonitor));
+            return;
+        }
+
         ExceptionDispatchInfo? captured = null;
+        var originalCursor = DisplayTopology.GetCursorPosition();
         var settingsPath = Path.Combine(Path.GetTempPath(), "Lightshot_ChromeTest_" + Guid.NewGuid().ToString("N") + ".json");
         var thread = new Thread(() =>
         {
@@ -117,6 +124,7 @@ public class RecordingChromePlacementFlowTests
                         var toolbarFrame = VisibleFrame(new WindowInteropHelper(toolbar).Handle);
                         _output.WriteLine($"  toolbar {toolbarFrame}");
                         AssertInside(toolbarFrame, display.WorkArea, $"Toolbar on {display.DeviceName}");
+                        MonitorScaleAssert.RendersAtScaleOf(toolbar, display, $"Toolbar on {display.DeviceName}");
                     }
                     finally
                     {
@@ -136,6 +144,7 @@ public class RecordingChromePlacementFlowTests
                             var pillFrame = VisibleFrame(new WindowInteropHelper(pill).Handle);
                             _output.WriteLine($"  pill(top={top}) {pillFrame}");
                             AssertInside(pillFrame, display.WorkArea, $"Pill on {display.DeviceName}");
+                            MonitorScaleAssert.RendersAtScaleOf(pill, display, $"Pill on {display.DeviceName}");
                         }
                         finally
                         {
@@ -155,10 +164,32 @@ public class RecordingChromePlacementFlowTests
                         var overlayFrame = VisibleFrame(new WindowInteropHelper(overlay).Handle);
                         _output.WriteLine($"  overlay {overlayFrame}");
                         AssertInside(overlayFrame, display.WorkArea, $"Post-recording overlay on {display.DeviceName}");
+                        MonitorScaleAssert.RendersAtScaleOf(overlay, display, $"Post-recording overlay on {display.DeviceName}");
                     }
                     finally
                     {
                         overlay.Close();
+                        Pump(100);
+                    }
+
+                    // The viewer follows the recording, not the pointer resting on the primary.
+                    var primaryCentre = displays.First(d => d.IsPrimary).Bounds.Center;
+                    SetCursorPos((int)primaryCentre.X, (int)primaryCentre.Y);
+                    var viewer = new MediaViewerWindow("missing.mp4", region);
+                    try
+                    {
+                        viewer.ShowActivated = false;
+                        viewer.Show();
+                        Pump(400);
+                        var viewerFrame = VisibleFrame(new WindowInteropHelper(viewer).Handle);
+                        _output.WriteLine($"  viewer  {viewerFrame}");
+                        AssertInside(viewerFrame, display.WorkArea, $"Media viewer on {display.DeviceName}");
+                        var viewerDip = MediaViewerWindow.CalculateFrame(display.WorkArea, display.ScaleFactor);
+                        MonitorScaleAssert.RendersAtScaleOf(viewer, display, viewerDip.Width, viewerDip.Height, $"Media viewer on {display.DeviceName}");
+                    }
+                    finally
+                    {
+                        viewer.Close();
                         Pump(100);
                     }
                 }
@@ -170,6 +201,7 @@ public class RecordingChromePlacementFlowTests
             finally
             {
                 try { File.Delete(settingsPath); } catch { }
+                SetCursorPos((int)originalCursor.X, (int)originalCursor.Y);
             }
         });
         thread.SetApartmentState(ApartmentState.STA);

@@ -3,9 +3,9 @@
 using System;
 using System.Windows;
 using System.Windows.Interop;
-using System.Windows.Media;
 using Lightshot.Core;
 using Lightshot.Platform.Windows.Displays;
+using Lightshot.Platform.Windows.Interop;
 using Lightshot.Platform.Windows.Recording;
 
 namespace Lightshot.App.Views;
@@ -26,6 +26,33 @@ public enum PlacementAnchor
 public static class WindowPlacement
 {
     /// <summary>
+    /// Moves <paramref name="window"/>'s HWND (created if needed, shown or not) onto the monitor that holds
+    /// <paramref name="physicalWorkArea"/> and returns the device pixels per DIP WPF then applies to its
+    /// Left/Top/Width/Height. A per-monitor aware WPF window takes the scale of the monitor it is on, so
+    /// DIP placement for another monitor is only right once the HWND is there.
+    /// </summary>
+    public static double MoveOntoDisplay(Window window, Lightshot.Core.Rect physicalWorkArea)
+    {
+        var hwnd = new WindowInteropHelper(window).EnsureHandle();
+        if (Win32Window.GetWindowRect(hwnd, out var rect))
+        {
+            // Centred on the work area, so the monitor that holds most of the window is the target.
+            var center = physicalWorkArea.Center;
+            Win32Window.SetWindowPos(
+                hwnd,
+                IntPtr.Zero,
+                (int)Math.Round(center.X - rect.Width / 2.0),
+                (int)Math.Round(center.Y - rect.Height / 2.0),
+                0,
+                0,
+                Win32Window.SWP_NOSIZE | Win32Window.SWP_NOZORDER | Win32Window.SWP_NOACTIVATE);
+        }
+        // A hidden window's visual tree keeps its old scale until it is shown, but WPF already maps
+        // Left/Top/Width/Height with the DPI of the monitor the HWND is now on.
+        return Dpi.ScaleFactorFromDpi(Dpi.GetWindowDpi(hwnd));
+    }
+
+    /// <summary>
     /// Sizes and centres <paramref name="window"/> before it is shown. <paramref name="sizeForWorkArea"/>
     /// maps the target work area (DIP width, height) to the window's size in DIPs.
     /// </summary>
@@ -40,9 +67,7 @@ public static class WindowPlacement
             if (display == null) return;
 
             window.WindowStartupLocation = WindowStartupLocation.Manual;
-            // The created HWND's scale, not the target monitor's, maps this window's DIPs.
-            new WindowInteropHelper(window).EnsureHandle();
-            var frame = CalculateFrame(display.WorkArea, VisualTreeHelper.GetDpi(window).DpiScaleX, sizeForWorkArea);
+            var frame = CalculateFrame(display.WorkArea, MoveOntoDisplay(window, display.WorkArea), sizeForWorkArea);
             window.MinWidth = Math.Min(window.MinWidth, frame.Width);
             window.MinHeight = Math.Min(window.MinHeight, frame.Height);
             window.Width = frame.Width;
@@ -66,9 +91,8 @@ public static class WindowPlacement
         try
         {
             var workArea = RecordingDisplayResolver.Resolve(DisplayTopology.GetDisplays(), region).Display.WorkArea;
-            new WindowInteropHelper(window).EnsureHandle();
             var frame = CalculateAnchoredFrame(
-                workArea, VisualTreeHelper.GetDpi(window).DpiScaleX, window.ActualWidth, window.ActualHeight, anchor, marginDip);
+                workArea, MoveOntoDisplay(window, workArea), window.ActualWidth, window.ActualHeight, anchor, marginDip);
             window.Left = frame.X;
             window.Top = frame.Y;
         }

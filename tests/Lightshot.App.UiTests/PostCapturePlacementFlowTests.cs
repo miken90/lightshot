@@ -9,6 +9,7 @@ using System.Windows.Interop;
 using System.Windows.Threading;
 using Lightshot.App.Views.Editor;
 using Lightshot.App.Views.QuickAccess;
+using Lightshot.App.Views.Recording;
 using Lightshot.App.Views.VideoEditor;
 using Lightshot.Core;
 using Lightshot.Platform.Windows.Displays;
@@ -23,7 +24,8 @@ namespace Lightshot.App.UiTests;
 
 /// <summary>
 /// Opens the real card, editor and video editor windows with the pointer at the centre of every attached
-/// monitor (always the primary) and checks their on-screen rects against that monitor's work area.
+/// monitor (always the primary) and checks their on-screen rects against that monitor's work area and
+/// their device-pixel size against that monitor's scale.
 /// </summary>
 public class PostCapturePlacementFlowTests
 {
@@ -93,6 +95,12 @@ public class PostCapturePlacementFlowTests
     [Desktop]
     public void PostCaptureWindowsOpenInsideTheWorkAreaOfEveryMonitor()
     {
+        if (CleanDpiHost.IsShimmed)
+        {
+            CleanDpiHost.Run(_output, typeof(PostCapturePlacementFlowTests), nameof(PostCaptureWindowsOpenInsideTheWorkAreaOfEveryMonitor));
+            return;
+        }
+
         ExceptionDispatchInfo? captured = null;
         var originalCursor = DisplayTopology.GetCursorPosition();
         var thread = new Thread(() =>
@@ -114,6 +122,8 @@ public class PostCapturePlacementFlowTests
                         var cardFrame = VisibleFrame(new WindowInteropHelper(card).Handle);
                         _output.WriteLine($"  card   {cardFrame}");
                         AssertInside(cardFrame, display.WorkArea, $"Card on {display.DeviceName}");
+                        var cardSize = QuickAccessLayout.CardSize(1200, 800);
+                        MonitorScaleAssert.RendersAtScaleOf(card, display, cardSize.Width, cardSize.Height, $"Card on {display.DeviceName}");
                         host.CloseAll();
                         Pump(100);
                     }
@@ -128,6 +138,8 @@ public class PostCapturePlacementFlowTests
                         var editorFrame = VisibleFrame(new WindowInteropHelper(editor).Handle);
                         _output.WriteLine($"  editor {editorFrame}");
                         AssertInside(editorFrame, display.WorkArea, $"Editor on {display.DeviceName}");
+                        var editorDip = EditorWindow.CalculateFrame(display.WorkArea, display.ScaleFactor);
+                        MonitorScaleAssert.RendersAtScaleOf(editor, display, editorDip.Width, editorDip.Height, $"Editor on {display.DeviceName}");
                     }
                     finally
                     {
@@ -146,6 +158,8 @@ public class PostCapturePlacementFlowTests
                         var videoFrame = VisibleFrame(new WindowInteropHelper(videoEditor).Handle);
                         _output.WriteLine($"  video  {videoFrame}");
                         AssertInside(videoFrame, display.WorkArea, $"Video editor on {display.DeviceName}");
+                        var videoDip = VideoEditorWindow.CalculateFrame(display.WorkArea, display.ScaleFactor);
+                        MonitorScaleAssert.RendersAtScaleOf(videoEditor, display, videoDip.Width, videoDip.Height, $"Video editor on {display.DeviceName}");
                     }
                     finally
                     {

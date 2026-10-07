@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Lightshot.App.Views.Editor;
 using Lightshot.App.Views.QuickAccess;
+using Lightshot.App.Views.Recording;
 using Lightshot.App.Views.VideoEditor;
 using Lightshot.Core;
 using Lightshot.Platform.Windows.Displays;
@@ -17,8 +18,9 @@ namespace Lightshot.App.Tests;
 
 /// <summary>
 /// The Quick Access card and the editor open inside the work area of the capture's monitor on
-/// mixed-DPI desktops. WPF maps every window's DIPs to device pixels with the window's own scale
-/// (the primary's at creation), so the expected physical frame is the DIP frame times that scale.
+/// mixed-DPI desktops. A window is moved onto its target monitor before it is placed, and WPF then
+/// maps its DIPs to device pixels with that monitor's scale, so the expected physical frame is the
+/// DIP frame times the target monitor's scale.
 /// </summary>
 public class PostCapturePlacementTests
 {
@@ -29,31 +31,30 @@ public class PostCapturePlacementTests
         return new DisplayInfo(id, $@"\\.\DISPLAY{id}", (IntPtr)id, bounds, workArea, scale, dpi, dpi, primary, 0);
     }
 
-    // (displays, the device scale WPF gives new windows: the primary's)
-    private static (IReadOnlyList<DisplayInfo> Displays, double WindowScale) Topology(string name) => name switch
+    private static IReadOnlyList<DisplayInfo> Topology(string name) => name switch
     {
         // The reporting desktop: 150% primary, 100% secondaries to the right and at a negative X.
-        "150-primary-100-right-and-left" => (new[]
+        "150-primary-100-right-and-left" => new[]
         {
             Display(1, new Rect(0, 0, 2560, 1600), 1.5, true, 72),
             Display(5, new Rect(2560, 0, 2532, 1170), 1.0, false),
             Display(2, new Rect(-1920, 0, 1920, 1080), 1.0, false),
-        }, 1.5),
-        "100-primary-150-right" => (new[]
+        },
+        "100-primary-150-right" => new[]
         {
             Display(1, new Rect(0, 0, 1920, 1080), 1.0, true),
             Display(2, new Rect(1920, 0, 3840, 2160), 1.5, false),
-        }, 1.0),
-        "100-primary-150-above-negative-y" => (new[]
+        },
+        "100-primary-150-above-negative-y" => new[]
         {
             Display(1, new Rect(0, 0, 1920, 1080), 1.0, true),
             Display(2, new Rect(-960, -2160, 3840, 2160), 1.5, false),
-        }, 1.0),
-        "150-primary-100-above-left-negative-xy" => (new[]
+        },
+        "150-primary-100-above-left-negative-xy" => new[]
         {
             Display(1, new Rect(0, 0, 2880, 1800), 1.5, true),
             Display(2, new Rect(-1280, -1024, 1280, 1024), 1.0, false),
-        }, 1.5),
+        },
         _ => throw new ArgumentOutOfRangeException(nameof(name)),
     };
 
@@ -94,21 +95,38 @@ public class PostCapturePlacementTests
             $"{what} at {physical} is not inside work area {workArea}.");
     }
 
+    // Takes the scale of the monitor it is moved onto, as a per-monitor aware WPF window does.
     private sealed class ScaledCardWindow : ICardWindow
     {
-        public ScaledCardWindow(Guid id, CardViewModel viewModel, double scale)
+        private readonly IReadOnlyList<DisplayInfo> _displays;
+
+        public ScaledCardWindow(Guid id, CardViewModel viewModel, IReadOnlyList<DisplayInfo> displays, double creationScale)
         {
             Id = id;
             ViewModel = viewModel;
-            DeviceScale = scale;
+            _displays = displays;
+            DeviceScale = creationScale;
         }
 
         public Guid Id { get; }
         public CardViewModel ViewModel { get; }
         public Rect Frame { get; set; }
-        public double DeviceScale { get; }
+        public double DeviceScale { get; private set; }
+
+        public double MoveOntoDisplay(Rect physicalWorkArea)
+        {
+            DeviceScale = _displays.Single(d => d.WorkArea == physicalWorkArea).ScaleFactor;
+            return DeviceScale;
+        }
+
         public event EventHandler? Closed;
-        public void ShowCard(Rect initialFrame, Rect targetFrame, bool animate) => Frame = targetFrame;
+        public Rect InitialFrame { get; private set; }
+
+        public void ShowCard(Rect initialFrame, Rect targetFrame, bool animate)
+        {
+            InitialFrame = initialFrame;
+            Frame = targetFrame;
+        }
         public void CloseCard(bool animated = true) => Closed?.Invoke(this, EventArgs.Empty);
     }
 
@@ -117,7 +135,8 @@ public class PostCapturePlacementTests
     [MemberData(nameof(CardCases))]
     public void CardOpensInsideTheWorkAreaOfThePointerMonitor(string topology, QuickAccessSide side)
     {
-        var (displays, windowScale) = Topology(topology);
+        var displays = Topology(topology);
+        double creationScale = displays.Single(d => d.IsPrimary).ScaleFactor;
         foreach (var display in displays)
         {
             var windows = new List<ScaledCardWindow>();
@@ -127,7 +146,7 @@ public class PostCapturePlacementTests
                 pointerProvider: () => display.Bounds.Center,
                 windowFactory: (id, img, vm) =>
                 {
-                    var w = new ScaledCardWindow(id, vm, windowScale);
+                    var w = new ScaledCardWindow(id, vm, displays, creationScale);
                     windows.Add(w);
                     return w;
                 },
@@ -136,9 +155,14 @@ public class PostCapturePlacementTests
             host.Present(new CapturedImage(1200, 800, new byte[16]));
             host.Present(new CapturedImage(400, 900, new byte[16]));
 
+            Assert.Equal(2, windows.Count);
             foreach (var w in windows)
             {
-                AssertInside(ToPhysical(w.Frame, windowScale), display.WorkArea, $"Card on {display.DeviceName}");
+                Assert.Equal(display.ScaleFactor, w.DeviceScale);
+                AssertInside(ToPhysical(w.Frame, w.DeviceScale), display.WorkArea, $"Card on {display.DeviceName}");
+                // A slide-in that starts on another monitor shows the card there first, at that monitor's scale.
+                var start = ToPhysical(w.InitialFrame, w.DeviceScale);
+                Assert.DoesNotContain(displays, d => d.DisplayId != display.DisplayId && d.Bounds.Intersection(start) != null);
             }
         }
     }
@@ -148,11 +172,10 @@ public class PostCapturePlacementTests
     [MemberData(nameof(TopologyCases))]
     public void EditorOpensCentredInsideTheWorkAreaOfItsMonitor(string topology)
     {
-        var (displays, windowScale) = Topology(topology);
-        foreach (var display in displays)
+        foreach (var display in Topology(topology))
         {
-            var frame = EditorWindow.CalculateFrame(display.WorkArea, windowScale);
-            var physical = ToPhysical(frame, windowScale);
+            var frame = EditorWindow.CalculateFrame(display.WorkArea, display.ScaleFactor);
+            var physical = ToPhysical(frame, display.ScaleFactor);
 
             AssertInside(physical, display.WorkArea, $"Editor on {display.DeviceName}");
             Assert.Equal(display.WorkArea.Center.X, physical.Center.X, 3);
@@ -165,10 +188,9 @@ public class PostCapturePlacementTests
     [MemberData(nameof(TopologyCases))]
     public void VideoEditorOpensCentredInsideTheWorkAreaOfItsMonitor(string topology)
     {
-        var (displays, windowScale) = Topology(topology);
-        foreach (var display in displays)
+        foreach (var display in Topology(topology))
         {
-            var physical = ToPhysical(VideoEditorWindow.CalculateFrame(display.WorkArea, windowScale), windowScale);
+            var physical = ToPhysical(VideoEditorWindow.CalculateFrame(display.WorkArea, display.ScaleFactor), display.ScaleFactor);
 
             AssertInside(physical, display.WorkArea, $"Video editor on {display.DeviceName}");
             Assert.Equal(display.WorkArea.Center.X, physical.Center.X, 3);
@@ -180,10 +202,41 @@ public class PostCapturePlacementTests
     [Unit]
     public void PointerOnASecondaryPicksThatMonitorNotThePrimary()
     {
-        var (displays, _) = Topology("150-primary-100-right-and-left");
+        var displays = Topology("150-primary-100-right-and-left");
 
         Assert.Equal(5u, DisplayMath.FindDisplayAt(displays, new Point(3000, 600))!.DisplayId);
         Assert.Equal(2u, DisplayMath.FindDisplayAt(displays, new Point(-5, 1079))!.DisplayId);
         Assert.Equal(1u, DisplayMath.FindDisplayAt(displays, new Point(2559, 0))!.DisplayId);
+    }
+
+    [Theory]
+    [Unit]
+    [MemberData(nameof(TopologyCases))]
+    public void MediaViewerOpensCentredInsideTheWorkAreaOfTheRecordedMonitor(string topology)
+    {
+        var displays = Topology(topology);
+        var primaryCentre = displays.Single(d => d.IsPrimary).WorkArea.Center;
+        foreach (var display in displays)
+        {
+            // A take on this monitor while the pointer rests on the primary
+            var region = new CaptureRegion.RectRegion(new Rect(display.Bounds.X + 10, display.Bounds.Y + 10, 400, 300));
+            var target = MediaViewerWindow.ResolveTargetPoint(displays, region, primaryCentre);
+            Assert.Equal(display.DisplayId, DisplayMath.FindDisplayAt(displays, target)!.DisplayId);
+
+            var physical = ToPhysical(MediaViewerWindow.CalculateFrame(display.WorkArea, display.ScaleFactor), display.ScaleFactor);
+            AssertInside(physical, display.WorkArea, $"Media viewer on {display.DeviceName}");
+            Assert.Equal(display.WorkArea.Center.X, physical.Center.X, 3);
+            Assert.Equal(display.WorkArea.Center.Y, physical.Center.Y, 3);
+        }
+    }
+
+    [Fact]
+    [Unit]
+    public void MediaViewerWithoutARecordedRegionFollowsThePointer()
+    {
+        var displays = Topology("150-primary-100-right-and-left");
+        var pointer = new Point(-100, 500);
+
+        Assert.Equal(pointer, MediaViewerWindow.ResolveTargetPoint(displays, null, pointer));
     }
 }

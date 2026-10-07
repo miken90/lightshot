@@ -38,6 +38,12 @@ public class QuickAccessHost : IDisposable
     private readonly QuickAccessStack _stack = new();
     private readonly Dictionary<Guid, CardEntry> _cards = new();
     private Rect? _activeWorkArea;
+    // The physical work area the current stack opened on; every card of the stack is moved there.
+    private Rect? _activeDisplayWorkArea;
+
+    // Monitors that touch the left and right edges of that work area: a card must not slide in from them,
+    // or it first shows on that monitor at its scale and lands on its own monitor at the wrong size.
+    private (bool Left, bool Right) _neighbours;
     private bool _disposed;
 
     public IReadOnlyList<QuickAccessStack.Card> StackCards => _stack.Cards;
@@ -104,7 +110,11 @@ public class QuickAccessHost : IDisposable
         var window = _windowFactory(id, image, viewModel);
         if (startsStack)
         {
-            _activeWorkArea = ResolveWorkArea(window.DeviceScale);
+            _activeWorkArea = ResolveWorkArea(window);
+        }
+        else if (_activeDisplayWorkArea is Rect displayWorkArea)
+        {
+            window.MoveOntoDisplay(displayWorkArea);
         }
         if (window is CardWindow cardWin)
         {
@@ -165,6 +175,8 @@ public class QuickAccessHost : IDisposable
         if (_stack.Cards.Count == 0)
         {
             _activeWorkArea = null;
+            _activeDisplayWorkArea = null;
+            _neighbours = default;
         }
         else
         {
@@ -185,7 +197,7 @@ public class QuickAccessHost : IDisposable
     {
         if (_stack.Cards.Count == 0) return;
 
-        Rect workArea = _activeWorkArea ?? ResolveWorkArea(_cards.Values.First().Window.DeviceScale);
+        Rect workArea = _activeWorkArea ?? ResolveWorkArea(_cards.Values.First().Window);
         var currentSettings = _settings();
         var anchor = currentSettings.Side == QuickAccessSide.Left
             ? ScreenAnchor.BottomLeft
@@ -210,7 +222,13 @@ public class QuickAccessHost : IDisposable
 
             if (id == enteringId)
             {
-                double offset = (targetFrame.Width + QuickAccessLayout.Margin) * (currentSettings.Side == QuickAccessSide.Left ? -1 : 1);
+                bool left = currentSettings.Side == QuickAccessSide.Left;
+                if (left ? _neighbours.Left : _neighbours.Right)
+                {
+                    entry.Window.ShowCard(targetFrame, targetFrame, animate: false);
+                    continue;
+                }
+                double offset = (targetFrame.Width + QuickAccessLayout.Margin) * (left ? -1 : 1);
                 var initialFrame = new Rect(targetFrame.MinX + offset, targetFrame.MinY, targetFrame.Width, targetFrame.Height);
                 entry.Window.ShowCard(initialFrame, targetFrame, animate: true);
             }
@@ -244,12 +262,11 @@ public class QuickAccessHost : IDisposable
     }
 
     /// <summary>
-    /// The work area of the monitor under the pointer, in the DIPs of a card window whose WPF device
-    /// scale is <paramref name="windowScale"/>. WPF maps a window's DIPs to device pixels with that one
-    /// scale across the whole virtual desktop, so dividing by the monitor's own scale instead puts cards
-    /// off-screen on a mixed-DPI desktop (a 100% secondary beside a 150% primary).
+    /// The work area of the monitor under the pointer, in the DIPs of <paramref name="window"/>. The
+    /// window is moved onto that monitor first: WPF scales a window by the monitor it is on, so DIPs
+    /// computed while it still sits on the primary are wrong on a monitor with another scale.
     /// </summary>
-    public Rect ResolveWorkArea(double windowScale)
+    public Rect ResolveWorkArea(ICardWindow window)
     {
         Point pointer = _pointerProvider?.Invoke() ?? DisplayTopology.GetCursorPosition();
         if (_workAreaProvider != null)
@@ -263,7 +280,10 @@ public class QuickAccessHost : IDisposable
             var targetDisplay = DisplayMath.FindDisplayAt(displays, pointer);
             if (targetDisplay != null)
             {
-                return DisplayMath.PhysicalToDip(targetDisplay.WorkArea, windowScale);
+                _activeDisplayWorkArea = targetDisplay.WorkArea;
+                _neighbours = (HasNeighbourAt(displays, targetDisplay, targetDisplay.WorkArea.MinX - 1),
+                               HasNeighbourAt(displays, targetDisplay, targetDisplay.WorkArea.MaxX));
+                return DisplayMath.PhysicalToDip(targetDisplay.WorkArea, window.MoveOntoDisplay(targetDisplay.WorkArea));
             }
         }
         catch
@@ -273,6 +293,12 @@ public class QuickAccessHost : IDisposable
 
         var wa = SystemParameters.WorkArea;
         return new Rect(wa.Left, wa.Top, wa.Width, wa.Height);
+    }
+
+    private static bool HasNeighbourAt(IReadOnlyList<DisplayInfo> displays, DisplayInfo display, double x)
+    {
+        var strip = new Rect(x, display.WorkArea.MinY, 1, display.WorkArea.Height);
+        return displays.Any(d => d.DisplayId != display.DisplayId && d.Bounds.Intersection(strip) != null);
     }
 
     public void Dispose()

@@ -121,7 +121,7 @@ public partial class PostRecordingOverlay : Window
         {
             if (ViewModel != null && File.Exists(ViewModel.FilePath))
             {
-                var viewer = new MediaViewerWindow(ViewModel.FilePath);
+                var viewer = new MediaViewerWindow(ViewModel.FilePath, RecordedRegion);
                 viewer.Owner = this;
                 viewer.ShowDialog();
                 e.Handled = true;

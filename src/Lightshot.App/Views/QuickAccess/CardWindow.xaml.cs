@@ -50,15 +50,7 @@ public partial class CardWindow : Window, ICardWindow
         }
     }
 
-    public double DeviceScale
-    {
-        get
-        {
-            // Read from the created HWND: that scale, not the target monitor's, maps this window's DIPs.
-            new WindowInteropHelper(this).EnsureHandle();
-            return VisualTreeHelper.GetDpi(this).DpiScaleX;
-        }
-    }
+    public double MoveOntoDisplay(Rect physicalWorkArea) => WindowPlacement.MoveOntoDisplay(this, physicalWorkArea);
 
     public Action<Guid, bool>? HoverChanged { get; set; }
     public Action<Guid>? RequestClose { get; set; }

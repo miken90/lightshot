@@ -64,7 +64,7 @@ public class QuickAccessHostTests
         public Guid Id { get; }
         public CardViewModel ViewModel { get; }
         public Rect Frame { get; set; }
-        public double DeviceScale => 1.0;
+        public double MoveOntoDisplay(Rect physicalWorkArea) => 1.0;
         public bool IsShown { get; private set; }
         public bool IsClosed { get; private set; }
 
