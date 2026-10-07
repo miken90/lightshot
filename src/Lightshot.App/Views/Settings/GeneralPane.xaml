@@ -4,10 +4,12 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:core="clr-namespace:Lightshot.Core;assembly=Lightshot.Core"
+             xmlns:local="clr-namespace:Lightshot.App.Views.Settings"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="400">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <local:EnumMatchConverter x:Key="EnumMatch"/>
     </UserControl.Resources>
     <StackPanel Margin="{DynamicResource Space.Pane}">
         <TextBlock Text="Startup" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
@@ -24,9 +26,9 @@
 
         <TextBlock Text="Appearance" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
         <StackPanel Margin="{DynamicResource Space.SectionGap}">
-            <RadioButton Content="Match System" GroupName="Appearance" IsChecked="{Binding Appearance, ConverterParameter={x:Static core:AppearancePreference.System}}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
-            <RadioButton Content="Light" GroupName="Appearance" IsChecked="{Binding Appearance, ConverterParameter={x:Static core:AppearancePreference.Light}}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
-            <RadioButton Content="Dark" GroupName="Appearance" IsChecked="{Binding Appearance, ConverterParameter={x:Static core:AppearancePreference.Dark}}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
+            <RadioButton Content="Match System" GroupName="Appearance" IsChecked="{Binding Appearance, Converter={StaticResource EnumMatch}, ConverterParameter={x:Static core:AppearancePreference.System}}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
+            <RadioButton Content="Light" GroupName="Appearance" IsChecked="{Binding Appearance, Converter={StaticResource EnumMatch}, ConverterParameter={x:Static core:AppearancePreference.Light}}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
+            <RadioButton Content="Dark" GroupName="Appearance" IsChecked="{Binding Appearance, Converter={StaticResource EnumMatch}, ConverterParameter={x:Static core:AppearancePreference.Dark}}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
         </StackPanel>
     </StackPanel>
 </UserControl>
