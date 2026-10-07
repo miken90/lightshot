@@ -16,27 +16,44 @@ try {
     Update-EnvironmentPath
     $artifactsDir = Join-Path $RepoRoot "artifacts"
     $pidFile = Join-Path $artifactsDir "run.pid"
+    $exePath = Join-Path $RepoRoot "src\Lightshot.App\bin\$Configuration\net10.0-windows10.0.22621.0\Lightshot.App.exe"
+
+    # Only the build output of this repo counts as ours: an installed Lightshot shares the
+    # process name and the unscoped quit event, and must never be quit or killed from here.
+    function Get-DevProcess {
+        param([string]$ExePath, [string]$PidFile)
+        $candidates = @()
+        if (Test-Path $PidFile) {
+            $lines = Get-Content $PidFile -ErrorAction SilentlyContinue
+            $parsed = 0
+            if ($lines -and [int]::TryParse(([string]$lines[0]).Trim(), [ref]$parsed)) {
+                $p = Get-Process -Id $parsed -ErrorAction SilentlyContinue
+                if ($p) { $candidates += $p }
+            }
+        }
+        $candidates += @(Get-Process -Name "Lightshot.App" -ErrorAction SilentlyContinue)
+        foreach ($p in $candidates) {
+            $path = $null
+            try { $path = $p.Path } catch { $path = $null }
+            if ($path -and ([string]::Compare([System.IO.Path]::GetFullPath($path), [System.IO.Path]::GetFullPath($ExePath), $true) -eq 0)) {
+                return $p
+            }
+        }
+        return $null
+    }
 
     if ($Stop) {
         Write-Log "Stopping Lightshot..."
-        $targetPid = $null
-
-        if (Test-Path $pidFile) {
-            $lines = Get-Content $pidFile -ErrorAction SilentlyContinue
-            if ($lines -and $lines.Count -gt 0) {
-                $parsedPid = 0
-                if ([int]::TryParse($lines[0].Trim(), [ref]$parsedPid)) {
-                    $targetPid = $parsedPid
-                }
+        $dev = Get-DevProcess $exePath $pidFile
+        if (-not $dev) {
+            Write-Log "No dev instance of Lightshot is running."
+            if (Test-Path $pidFile) {
+                Remove-Item -Path $pidFile -Force -ErrorAction SilentlyContinue
             }
+            exit 0
         }
 
-        if (-not $targetPid) {
-            $procs = Get-Process -Name "Lightshot.App" -ErrorAction SilentlyContinue
-            if ($procs) {
-                $targetPid = $procs[0].Id
-            }
-        }
+        $targetPid = $dev.Id
 
         # 1. Signal named event Local\Lightshot.Quit
         $signaled = $false
@@ -89,7 +106,6 @@ try {
 
     # Normal launch flow
     Write-Log "Checking for existing Lightshot instance..."
-    $alreadyRunningPid = $null
 
     # Check named mutex
     $mutexRunning = $false
@@ -101,29 +117,14 @@ try {
         $mutexRunning = $false
     }
 
-    # Check pid file
-    if (Test-Path $pidFile) {
-        $lines = Get-Content $pidFile -ErrorAction SilentlyContinue
-        if ($lines -and $lines.Count -gt 0) {
-            $candidatePid = 0
-            if ([int]::TryParse($lines[0].Trim(), [ref]$candidatePid)) {
-                $candidateProc = Get-Process -Id $candidatePid -ErrorAction SilentlyContinue
-                if ($candidateProc -and -not $candidateProc.HasExited) {
-                    $alreadyRunningPid = $candidatePid
-                }
-            }
-        }
+    $dev = Get-DevProcess $exePath $pidFile
+    if ($dev) {
+        Write-Log "Lightshot dev build is already running (PID: $($dev.Id)). Refusing to start a second instance." "WARN"
+        exit 1
     }
 
-    if (-not $alreadyRunningPid -and $mutexRunning) {
-        $runningProcs = Get-Process -Name "Lightshot.App" -ErrorAction SilentlyContinue
-        if ($runningProcs) {
-            $alreadyRunningPid = $runningProcs[0].Id
-        }
-    }
-
-    if ($alreadyRunningPid) {
-        Write-Log "Lightshot is already running (PID: $alreadyRunningPid). Refusing to start a second instance." "WARN"
+    if ($mutexRunning) {
+        Write-Log "Another Lightshot (probably the installed app) is running. Quit it from its tray icon first." "WARN"
         exit 1
     }
 
@@ -134,7 +135,6 @@ try {
         throw "build.ps1 failed with exit code $LASTEXITCODE"
     }
 
-    $exePath = Join-Path $RepoRoot "src\Lightshot.App\bin\$Configuration\net10.0-windows10.0.22621.0\Lightshot.App.exe"
     if (-not (Test-Path $exePath)) {
         throw "Application executable not found at '$exePath'."
     }
