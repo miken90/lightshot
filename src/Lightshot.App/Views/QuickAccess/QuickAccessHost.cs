@@ -34,6 +34,7 @@ public class QuickAccessHost : IDisposable
     private readonly Func<IReadOnlyList<DisplayInfo>>? _displaysProvider;
     private readonly Func<Guid, CapturedImage, CardViewModel, ICardWindow> _windowFactory;
     private readonly IClock _clock;
+    private readonly IImageCodec? _codec;
 
     private readonly QuickAccessStack _stack = new();
     private readonly Dictionary<Guid, CardEntry> _cards = new();
@@ -56,14 +57,16 @@ public class QuickAccessHost : IDisposable
         Func<Point, Rect>? workAreaProvider = null,
         Func<Guid, CapturedImage, CardViewModel, ICardWindow>? windowFactory = null,
         IClock? clock = null,
-        Func<IReadOnlyList<DisplayInfo>>? displaysProvider = null)
+        Func<IReadOnlyList<DisplayInfo>>? displaysProvider = null,
+        IImageCodec? codec = null)
     {
         _actions = actions ?? new QuickAccessActions();
         _settings = settings ?? (() => new QuickAccessSettings());
         _pointerProvider = pointerProvider;
         _workAreaProvider = workAreaProvider;
         _displaysProvider = displaysProvider;
-        _windowFactory = windowFactory ?? ((id, img, vm) => new CardWindow(id, img, vm, _settings));
+        _codec = codec;
+        _windowFactory = windowFactory ?? ((id, img, vm) => new CardWindow(id, img, vm, _settings, _codec));
         _clock = clock ?? SystemClock.Instance;
 
         try

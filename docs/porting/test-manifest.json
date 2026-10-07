@@ -3608,6 +3608,18 @@
       "csharpMethod": "RecordingEntriesSurviveTheLegacyPurge",
       "targetProject": "Lightshot.Rendering.Tests",
       "tier": "Render"
+    },
+    {
+      "className": "DragOutFileTests",
+      "csharpMethod": "CardDragFileIsPng",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "DragOutFileTests",
+      "csharpMethod": "EditorDragPayloadIsPng",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
     }
   ]
 }

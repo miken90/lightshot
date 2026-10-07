@@ -124,7 +124,8 @@ public sealed partial class AppController : ICaptureUI, IDisposable
                 SaveAs: image => SaveAsImage(image),
                 Annotate: image => OpenEditor(image),
                 Pin: image => PinImage(image)),
-            settings: () => _settingsStore.QuickAccess);
+            settings: () => _settingsStore.QuickAccess,
+            codec: _codec);
 
         // One scratch root for engine takes, coordinator outputs and recovery, so a crash leaves files recovery can see.
         _scratchStore = new ScratchStore(Path.Combine(AppPaths.LocalData, "Lightshot Recordings"));

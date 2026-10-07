@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Lightshot.Core;
 using Lightshot.Platform.Windows.Interop;
+using Lightshot.Rendering;
 using Rect = Lightshot.Core.Rect;
 
 namespace Lightshot.App.Views.QuickAccess;
@@ -31,6 +32,7 @@ public partial class CardWindow : Window, ICardWindow
     private readonly CapturedImage _image;
     private readonly CardViewModel _viewModel;
     private readonly Func<QuickAccessSettings> _settings;
+    private readonly IImageCodec _codec;
     private System.Windows.Point? _mouseDownPoint;
     private string? _dragFilePath;
     private bool _isClosing;
@@ -59,12 +61,14 @@ public partial class CardWindow : Window, ICardWindow
         Guid id,
         CapturedImage image,
         CardViewModel viewModel,
-        Func<QuickAccessSettings>? settings = null)
+        Func<QuickAccessSettings>? settings = null,
+        IImageCodec? codec = null)
     {
         _id = id;
         _image = image;
         _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
         _settings = settings ?? (() => new QuickAccessSettings());
+        _codec = codec ?? new SkiaImageCodec();
 
         DataContext = _viewModel;
 
@@ -212,10 +216,11 @@ public partial class CardWindow : Window, ICardWindow
         {
             if (_dragFilePath == null || !File.Exists(_dragFilePath))
             {
-                string dir = Path.Combine(Path.GetTempPath(), "Lightshot Drag", _id.ToString());
-                Directory.CreateDirectory(dir);
-                _dragFilePath = Path.Combine(dir, $"{_id}.png");
-                File.WriteAllBytes(_dragFilePath, _image.Data.ToArray());
+                _dragFilePath = DragOutFile.WritePng(
+                    Path.Combine(Path.GetTempPath(), "Lightshot Drag", _id.ToString()),
+                    _id,
+                    _image,
+                    _codec);
             }
 
             var dataObj = new DataObject();
