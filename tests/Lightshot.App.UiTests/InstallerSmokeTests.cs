@@ -132,6 +132,7 @@ public class InstallerSmokeTests : IClassFixture<DryRunReleaseFixture>
         // (2) Every line of SHA256SUMS.txt matches recomputed hash
         string sumsPath = Path.Combine(_fixture.ReleaseDir, "SHA256SUMS.txt");
         Assert.True(File.Exists(sumsPath), $"SHA256SUMS.txt missing at {sumsPath}");
+        Assert.DoesNotContain((byte)'\r', File.ReadAllBytes(sumsPath));
         string[] sumLines = File.ReadAllLines(sumsPath).Where(l => !string.IsNullOrWhiteSpace(l)).ToArray();
 
         var sumFileNames = new System.Collections.Generic.List<string>();
@@ -253,90 +254,110 @@ public class InstallerSmokeTests : IClassFixture<DryRunReleaseFixture>
     [Desktop]
     public async Task InstallLaunchUninstall()
     {
-        var setupFiles = Directory.GetFiles(_fixture.ReleaseDir, "*-win-Setup.exe");
-        Assert.Single(setupFiles);
-        string setupExe = setupFiles[0];
-
-        // 1. Run Setup.exe --silent
-        var setupPsi = new ProcessStartInfo
-        {
-            FileName = setupExe,
-            Arguments = "--silent",
-            UseShellExecute = false
-        };
-        using (var setupProc = Process.Start(setupPsi))
-        {
-            Assert.NotNull(setupProc);
-            await setupProc.WaitForExitAsync(TestContext.Current.CancellationToken);
-            Assert.Equal(0, setupProc.ExitCode);
-        }
-
+        // This test installs and uninstalls the real per-user Velopack app. Refuse to touch a
+        // machine that already has Lightshot installed, and require an explicit opt-in.
         string localAppData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
         string installRoot = Path.Combine(localAppData, "LightshotApp");
-        string installedExe = Path.Combine(installRoot, "current", "Lightshot.App.exe");
-        string updateExe = Path.Combine(installRoot, "Update.exe");
+        if (Environment.GetEnvironmentVariable("LIGHTSHOT_ALLOW_REAL_INSTALL") != "1")
+            Assert.Skip("Set LIGHTSHOT_ALLOW_REAL_INSTALL=1 on a disposable machine (e.g. Windows Sandbox) to run this test.");
+        if (Directory.Exists(installRoot))
+            Assert.Skip($"A real Lightshot install exists at {installRoot}; run this test on a machine without one.");
 
-        // Wait up to 30s for installed exe to exist
-        var sw = Stopwatch.StartNew();
-        while (!File.Exists(installedExe) && sw.Elapsed < TimeSpan.FromSeconds(30))
-        {
-            await Task.Delay(500, TestContext.Current.CancellationToken);
-        }
-        Assert.True(File.Exists(installedExe), $"Installed executable not found at {installedExe}");
-
-        // 2. Launch with --background
-        var appPsi = new ProcessStartInfo
-        {
-            FileName = installedExe,
-            Arguments = "--background",
-            UseShellExecute = false
-        };
-        using var appProc = Process.Start(appPsi);
-        Assert.NotNull(appProc);
-
-        await Task.Delay(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
-        Assert.False(appProc.HasExited, "Installed app exited prematurely");
-
-        // 3. Set Run value
-        LaunchAtLogin.SetEnabled(true, installedExe);
-        Assert.True(LaunchAtLogin.IsEnabled());
-
-        // 4. Signal quit
+        string settingsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Lightshot", "settings.json");
+        byte[]? settingsBefore = File.Exists(settingsFile) ? File.ReadAllBytes(settingsFile) : null;
+        bool runAtLoginBefore = LaunchAtLogin.IsEnabled();
         try
         {
-            using var quitHandle = EventWaitHandle.OpenExisting(@"Local\Lightshot.Quit");
-            quitHandle.Set();
+            var setupFiles = Directory.GetFiles(_fixture.ReleaseDir, "*-win-Setup.exe");
+            Assert.Single(setupFiles);
+            string setupExe = setupFiles[0];
+
+            // 1. Run Setup.exe --silent
+            var setupPsi = new ProcessStartInfo
+            {
+                FileName = setupExe,
+                Arguments = "--silent",
+                UseShellExecute = false
+            };
+            using (var setupProc = Process.Start(setupPsi))
+            {
+                Assert.NotNull(setupProc);
+                await setupProc.WaitForExitAsync(TestContext.Current.CancellationToken);
+                Assert.Equal(0, setupProc.ExitCode);
+            }
+
+            string installedExe = Path.Combine(installRoot, "current", "Lightshot.App.exe");
+            string updateExe = Path.Combine(installRoot, "Update.exe");
+
+            // Wait up to 30s for installed exe to exist
+            var sw = Stopwatch.StartNew();
+            while (!File.Exists(installedExe) && sw.Elapsed < TimeSpan.FromSeconds(30))
+            {
+                await Task.Delay(500, TestContext.Current.CancellationToken);
+            }
+            Assert.True(File.Exists(installedExe), $"Installed executable not found at {installedExe}");
+
+            // 2. Launch with --background
+            var appPsi = new ProcessStartInfo
+            {
+                FileName = installedExe,
+                Arguments = "--background",
+                UseShellExecute = false
+            };
+            using var appProc = Process.Start(appPsi);
+            Assert.NotNull(appProc);
+
+            await Task.Delay(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+            Assert.False(appProc.HasExited, "Installed app exited prematurely");
+
+            // 3. Set Run value
+            LaunchAtLogin.SetEnabled(true, installedExe);
+            Assert.True(LaunchAtLogin.IsEnabled());
+
+            // 4. Signal quit
+            try
+            {
+                using var quitHandle = EventWaitHandle.OpenExisting(@"Local\Lightshot.Quit");
+                quitHandle.Set();
+            }
+            catch { }
+
+            await appProc.WaitForExitAsync(TestContext.Current.CancellationToken);
+
+            // 5. Run Update.exe --uninstall --silent with LIGHTSHOT_TEST_MODE=1
+            var uninstallPsi = new ProcessStartInfo
+            {
+                FileName = updateExe,
+                Arguments = "--uninstall --silent",
+                UseShellExecute = false
+            };
+            uninstallPsi.EnvironmentVariables["LIGHTSHOT_TEST_MODE"] = "1";
+            using (var uninstallProc = Process.Start(uninstallPsi))
+            {
+                Assert.NotNull(uninstallProc);
+                await uninstallProc.WaitForExitAsync(TestContext.Current.CancellationToken);
+            }
+
+            // Wait up to 30s for installRoot to be gone
+            sw.Restart();
+            while (Directory.Exists(installRoot) && sw.Elapsed < TimeSpan.FromSeconds(30))
+            {
+                await Task.Delay(500, TestContext.Current.CancellationToken);
+            }
+
+            // 6. Assertions
+            Assert.False(LaunchAtLogin.IsEnabled());
+            Assert.False(Directory.Exists(installRoot));
+            // settings.json is preserved
+            Assert.True(File.Exists(settingsFile));
         }
-        catch { }
-
-        await appProc.WaitForExitAsync(TestContext.Current.CancellationToken);
-
-        // 5. Run Update.exe --uninstall --silent with LIGHTSHOT_TEST_MODE=1
-        var uninstallPsi = new ProcessStartInfo
+        finally
         {
-            FileName = updateExe,
-            Arguments = "--uninstall --silent",
-            UseShellExecute = false
-        };
-        uninstallPsi.EnvironmentVariables["LIGHTSHOT_TEST_MODE"] = "1";
-        using (var uninstallProc = Process.Start(uninstallPsi))
-        {
-            Assert.NotNull(uninstallProc);
-            await uninstallProc.WaitForExitAsync(TestContext.Current.CancellationToken);
+            if (settingsBefore != null) File.WriteAllBytes(settingsFile, settingsBefore);
+            else if (File.Exists(settingsFile)) File.Delete(settingsFile);
+            // A Run value that pointed elsewhere before the test cannot be rebuilt; only the
+            // value this test created is removed.
+            if (!runAtLoginBefore && LaunchAtLogin.IsEnabled()) LaunchAtLogin.SetEnabled(false);
         }
-
-        // Wait up to 30s for installRoot to be gone
-        sw.Restart();
-        while (Directory.Exists(installRoot) && sw.Elapsed < TimeSpan.FromSeconds(30))
-        {
-            await Task.Delay(500, TestContext.Current.CancellationToken);
-        }
-
-        // 6. Assertions
-        Assert.False(LaunchAtLogin.IsEnabled());
-        Assert.False(Directory.Exists(installRoot));
-        string settingsFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "Lightshot", "settings.json");
-        // settings.json is preserved
-        Assert.True(File.Exists(settingsFile));
     }
 }
