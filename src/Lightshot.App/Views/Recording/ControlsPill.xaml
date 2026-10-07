@@ -68,6 +68,7 @@
 
             <!-- Pause / Resume Button -->
             <Button AutomationProperties.AutomationId="RecordingPauseResumeButton"
+                    AutomationProperties.Name="{Binding PauseResumeName}"
                     Click="OnPauseResumeClick" 
                     Style="{DynamicResource Button.Icon}"
                     Margin="2,0" 
@@ -77,6 +78,7 @@
 
             <!-- Stop Button -->
             <Button AutomationProperties.AutomationId="RecordingStopButton"
+                    AutomationProperties.Name="Stop Recording"
                     Click="OnStopClick" 
                     Style="{DynamicResource Button.Icon}"
                     Margin="2,0" 
@@ -89,6 +91,7 @@
 
             <!-- Restart Button -->
             <Button AutomationProperties.AutomationId="RecordingRestartButton"
+                    AutomationProperties.Name="Restart Recording"
                     Click="OnRestartClick" 
                     Style="{DynamicResource Button.Icon}"
                     Margin="2,0" 
@@ -98,6 +101,7 @@
 
             <!-- Discard Button -->
             <Button AutomationProperties.AutomationId="RecordingDiscardButton"
+                    AutomationProperties.Name="Discard Recording"
                     Click="OnDiscardClick" 
                     Style="{DynamicResource Button.Icon}"
                     Margin="2,0" 

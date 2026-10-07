@@ -47,11 +47,14 @@ public class ControlsPillViewModel : INotifyPropertyChanged
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(StatusText));
                 OnPropertyChanged(nameof(PlayPauseIcon));
+                OnPropertyChanged(nameof(PauseResumeName));
             }
         }
     }
 
     public string StatusText => _isPaused ? "Paused" : "Recording";
+    // The button's accessible name says what it does, not the current state.
+    public string PauseResumeName => _isPaused ? "Resume Recording" : "Pause Recording";
     public string PlayPauseIcon => _isPaused ? "\uE768" : "\uE769"; // Play : Pause
 
     public double ElapsedSeconds
