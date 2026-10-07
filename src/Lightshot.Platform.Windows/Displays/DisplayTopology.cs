@@ -22,6 +22,24 @@ public class DisplayTopology
 
     public static IReadOnlyList<DisplayInfo> GetDisplays() => new DisplayTopology().Displays;
 
+    /// <summary>
+    /// The pointer position in physical pixels (the process is PerMonitorV2-aware).
+    /// </summary>
+    public static Point GetCursorPosition()
+    {
+        return GetCursorPos(out var pt) ? new Point(pt.X, pt.Y) : new Point(0, 0);
+    }
+
+    [DllImport("user32.dll")]
+    private static extern bool GetCursorPos(out CURSORPOINT lpPoint);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct CURSORPOINT
+    {
+        public int X;
+        public int Y;
+    }
+
     public IReadOnlyList<DisplayInfo> Displays
     {
         get

@@ -5,9 +5,11 @@ using System.IO;
 using System.Windows;
 using System.Windows.Documents;
 using System.Windows.Input;
+using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 using Lightshot.App.Views.Notices;
 using Lightshot.Core;
+using Lightshot.Platform.Windows.Displays;
 using Microsoft.Win32;
 
 namespace Lightshot.App.Views.Editor;
@@ -90,6 +92,51 @@ public partial class EditorWindow : Window
             Width = EditorViewModel.DefaultWindowWidth;
             Height = EditorViewModel.DefaultWindowHeight;
         }
+    }
+
+    /// <summary>
+    /// Sizes and centres the editor inside the work area of the display under a physical point: the
+    /// capture's monitor, since the pointer is there when a capture or its card opens the editor.
+    /// </summary>
+    public void PlaceOnDisplayAt(Lightshot.Core.Point physicalPoint)
+    {
+        try
+        {
+            var display = DisplayMath.FindDisplayAt(DisplayTopology.GetDisplays(), physicalPoint);
+            if (display == null) return;
+
+            // CenterScreen sized from the primary's work area put the title bar above a shorter secondary.
+            WindowStartupLocation = WindowStartupLocation.Manual;
+            new WindowInteropHelper(this).EnsureHandle();
+            var frame = CalculateFrame(display.WorkArea, System.Windows.Media.VisualTreeHelper.GetDpi(this).DpiScaleX);
+            MinWidth = Math.Min(MinWidth, frame.Width);
+            MinHeight = Math.Min(MinHeight, frame.Height);
+            Width = frame.Width;
+            Height = frame.Height;
+            Left = frame.X;
+            Top = frame.Y;
+        }
+        catch
+        {
+            // Topology failures keep the default centred placement
+        }
+    }
+
+    /// <summary>
+    /// The editor frame, in the window's DIPs, centred in a physical work area. WPF maps a window's
+    /// DIPs to device pixels with the window's own scale across the whole desktop, so the work area is
+    /// divided by that scale rather than by its monitor's.
+    /// </summary>
+    public static Lightshot.Core.Rect CalculateFrame(Lightshot.Core.Rect workAreaPhysical, double windowScale)
+    {
+        var workArea = DisplayMath.PhysicalToDip(workAreaPhysical, windowScale);
+        var (width, height) = EditorViewModel.CalculateWindowSize(workArea.Width, workArea.Height);
+        var centred = new Lightshot.Core.Rect(
+            workArea.MinX + (workArea.Width - width) / 2,
+            workArea.MinY + (workArea.Height - height) / 2,
+            width,
+            height);
+        return DisplayMath.FitInside(centred, workArea);
     }
 
     private void OnLoaded(object sender, RoutedEventArgs e)

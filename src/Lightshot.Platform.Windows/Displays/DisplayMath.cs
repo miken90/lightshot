@@ -52,6 +52,26 @@ public static class DisplayMath
     }
 
     /// <summary>
+    /// Finds the display under a physical point; a point off every display falls back to the nearest one.
+    /// </summary>
+    public static DisplayInfo? FindDisplayAt(IEnumerable<DisplayInfo> displays, Point physicalPoint)
+    {
+        return FindLargestOverlap(displays, new Rect(physicalPoint.X, physicalPoint.Y, 1, 1));
+    }
+
+    /// <summary>
+    /// Shrinks a frame to fit inside an area, then shifts it so every edge lies inside.
+    /// </summary>
+    public static Rect FitInside(Rect frame, Rect area)
+    {
+        double width = Math.Min(frame.Width, area.Width);
+        double height = Math.Min(frame.Height, area.Height);
+        double x = Math.Clamp(frame.X, area.MinX, area.MaxX - width);
+        double y = Math.Clamp(frame.Y, area.MinY, area.MaxY - height);
+        return new Rect(x, y, width, height);
+    }
+
+    /// <summary>
     /// Scales a rect from DIPs (device-independent pixels at 96 DPI) to physical pixels using scaleFactor.
     /// </summary>
     public static Rect DipToPhysical(Rect dipRect, double scaleFactor)

@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Windows;
 using Lightshot.Core;
 using Lightshot.Platform.Windows.Displays;
@@ -32,6 +31,7 @@ public class QuickAccessHost : IDisposable
     private readonly Func<QuickAccessSettings> _settings;
     private readonly Func<Point>? _pointerProvider;
     private readonly Func<Point, Rect>? _workAreaProvider;
+    private readonly Func<IReadOnlyList<DisplayInfo>>? _displaysProvider;
     private readonly Func<Guid, CapturedImage, CardViewModel, ICardWindow> _windowFactory;
     private readonly IClock _clock;
 
@@ -49,12 +49,14 @@ public class QuickAccessHost : IDisposable
         Func<Point>? pointerProvider = null,
         Func<Point, Rect>? workAreaProvider = null,
         Func<Guid, CapturedImage, CardViewModel, ICardWindow>? windowFactory = null,
-        IClock? clock = null)
+        IClock? clock = null,
+        Func<IReadOnlyList<DisplayInfo>>? displaysProvider = null)
     {
         _actions = actions ?? new QuickAccessActions();
         _settings = settings ?? (() => new QuickAccessSettings());
         _pointerProvider = pointerProvider;
         _workAreaProvider = workAreaProvider;
+        _displaysProvider = displaysProvider;
         _windowFactory = windowFactory ?? ((id, img, vm) => new CardWindow(id, img, vm, _settings));
         _clock = clock ?? SystemClock.Instance;
 
@@ -73,11 +75,7 @@ public class QuickAccessHost : IDisposable
 
     public Guid Present(CapturedImage image)
     {
-        if (_stack.Cards.Count == 0 || !_activeWorkArea.HasValue)
-        {
-            _activeWorkArea = ResolveWorkArea();
-        }
-
+        bool startsStack = _stack.Cards.Count == 0 || !_activeWorkArea.HasValue;
         Guid id = _stack.Push(image);
         var viewModel = new CardViewModel(id, image);
 
@@ -104,6 +102,10 @@ public class QuickAccessHost : IDisposable
         viewModel.OnCloseAll = CloseAll;
 
         var window = _windowFactory(id, image, viewModel);
+        if (startsStack)
+        {
+            _activeWorkArea = ResolveWorkArea(window.DeviceScale);
+        }
         if (window is CardWindow cardWin)
         {
             cardWin.HoverChanged = (cardId, isInside) => OnCardHover(cardId, isInside);
@@ -183,7 +185,7 @@ public class QuickAccessHost : IDisposable
     {
         if (_stack.Cards.Count == 0) return;
 
-        Rect workArea = _activeWorkArea ?? ResolveWorkArea();
+        Rect workArea = _activeWorkArea ?? ResolveWorkArea(_cards.Values.First().Window.DeviceScale);
         var currentSettings = _settings();
         var anchor = currentSettings.Side == QuickAccessSide.Left
             ? ScreenAnchor.BottomLeft
@@ -241,9 +243,15 @@ public class QuickAccessHost : IDisposable
         }
     }
 
-    public Rect ResolveWorkArea()
+    /// <summary>
+    /// The work area of the monitor under the pointer, in the DIPs of a card window whose WPF device
+    /// scale is <paramref name="windowScale"/>. WPF maps a window's DIPs to device pixels with that one
+    /// scale across the whole virtual desktop, so dividing by the monitor's own scale instead puts cards
+    /// off-screen on a mixed-DPI desktop (a 100% secondary beside a 150% primary).
+    /// </summary>
+    public Rect ResolveWorkArea(double windowScale)
     {
-        Point pointer = _pointerProvider?.Invoke() ?? GetCurrentPointerPosition();
+        Point pointer = _pointerProvider?.Invoke() ?? DisplayTopology.GetCursorPosition();
         if (_workAreaProvider != null)
         {
             return _workAreaProvider(pointer);
@@ -251,19 +259,11 @@ public class QuickAccessHost : IDisposable
 
         try
         {
-            var displays = DisplayTopology.GetDisplays();
-            var targetDisplay = displays.FirstOrDefault(d => d.Bounds.Contains(pointer))
-                                ?? displays.FirstOrDefault(d => d.IsPrimary)
-                                ?? displays.FirstOrDefault();
-
+            var displays = _displaysProvider?.Invoke() ?? DisplayTopology.GetDisplays();
+            var targetDisplay = DisplayMath.FindDisplayAt(displays, pointer);
             if (targetDisplay != null)
             {
-                double scale = targetDisplay.ScaleFactor > 0 ? targetDisplay.ScaleFactor : 1.0;
-                return new Rect(
-                    targetDisplay.WorkArea.MinX / scale,
-                    targetDisplay.WorkArea.MinY / scale,
-                    targetDisplay.WorkArea.Width / scale,
-                    targetDisplay.WorkArea.Height / scale);
+                return DisplayMath.PhysicalToDip(targetDisplay.WorkArea, windowScale);
             }
         }
         catch
@@ -273,25 +273,6 @@ public class QuickAccessHost : IDisposable
 
         var wa = SystemParameters.WorkArea;
         return new Rect(wa.Left, wa.Top, wa.Width, wa.Height);
-    }
-
-    private static Point GetCurrentPointerPosition()
-    {
-        if (GetCursorPos(out var pt))
-        {
-            return new Point(pt.X, pt.Y);
-        }
-        return new Point(0, 0);
-    }
-
-    [DllImport("user32.dll")]
-    private static extern bool GetCursorPos(out POINT lpPoint);
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct POINT
-    {
-        public int X;
-        public int Y;
     }
 
     public void Dispose()

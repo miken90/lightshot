@@ -74,4 +74,38 @@ public class DisplayMathTests
         Assert.Equal(200, physOverlap.Width);
         Assert.Equal(200, physOverlap.Height);
     }
+
+    [Fact]
+    [Unit]
+    public void FindDisplayAtResolvesNegativeOriginsAndEdges()
+    {
+        var left = new DisplayInfo(2, @"\\.\DISPLAY2", (IntPtr)2, new Rect(-1920, 0, 1920, 1080), new Rect(-1920, 0, 1920, 1032), 1.0, 96, 96, false, 0);
+        var primary = new DisplayInfo(1, @"\\.\DISPLAY1", (IntPtr)1, new Rect(0, 0, 2560, 1600), new Rect(0, 0, 2560, 1528), 1.5, 144, 144, true, 0);
+        var above = new DisplayInfo(3, @"\\.\DISPLAY3", (IntPtr)3, new Rect(0, -1080, 1920, 1080), new Rect(0, -1080, 1920, 1032), 1.0, 96, 96, false, 0);
+        var displays = new[] { primary, left, above };
+
+        Assert.Equal(2u, DisplayMath.FindDisplayAt(displays, new Point(-1, 0))!.DisplayId);
+        Assert.Equal(1u, DisplayMath.FindDisplayAt(displays, new Point(0, 0))!.DisplayId);
+        Assert.Equal(3u, DisplayMath.FindDisplayAt(displays, new Point(100, -1))!.DisplayId);
+        Assert.Equal(2u, DisplayMath.FindDisplayAt(displays, new Point(-500, -500))!.DisplayId); // off-desktop: nearest centre
+    }
+
+    [Fact]
+    [Unit]
+    public void FitInsidePullsAFrameAboveOrLeftOfTheAreaBackIn()
+    {
+        var area = new Rect(1706.67, 0, 1688, 748);
+
+        Assert.Equal(new Rect(1960, 0, 1180, 700), DisplayMath.FitInside(new Rect(1960, -26, 1180, 700), area));
+        Assert.Equal(new Rect(1706.67, 48, 300, 200), DisplayMath.FitInside(new Rect(-2000, 48, 300, 200), area));
+    }
+
+    [Fact]
+    [Unit]
+    public void FitInsideShrinksAFrameLargerThanTheArea()
+    {
+        var area = new Rect(-1920, 0, 1920, 1032);
+
+        Assert.Equal(area, DisplayMath.FitInside(new Rect(-1845, -84, 2655, 1800), area));
+    }
 }

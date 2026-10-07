@@ -343,6 +343,7 @@ public sealed partial class AppController : ICaptureUI, IDisposable
         };
 
         _activeEditorWindow = window;
+        window.PlaceOnDisplayAt(DisplayTopology.GetCursorPosition());
         window.Show();
 
         IntPtr hwnd = new WindowInteropHelper(window).EnsureHandle();

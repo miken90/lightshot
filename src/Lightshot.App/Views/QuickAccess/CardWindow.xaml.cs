@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Interop;
+using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Lightshot.Core;
 using Lightshot.Platform.Windows.Interop;
@@ -46,6 +47,16 @@ public partial class CardWindow : Window, ICardWindow
             Top = value.MinY;
             Width = value.Width;
             Height = value.Height;
+        }
+    }
+
+    public double DeviceScale
+    {
+        get
+        {
+            // Read from the created HWND: that scale, not the target monitor's, maps this window's DIPs.
+            new WindowInteropHelper(this).EnsureHandle();
+            return VisualTreeHelper.GetDpi(this).DpiScaleX;
         }
     }
 
