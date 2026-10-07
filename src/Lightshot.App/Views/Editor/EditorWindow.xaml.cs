@@ -19,6 +19,8 @@ public partial class EditorWindow : Window
     private CropOverlay? _cropOverlay;
     private System.Windows.Point? _dragStartScreen;
     private bool _isDraggingOut;
+    private CanvasPanelViewModel? _canvasViewModel;
+    private EditorCanvasPresenter? _canvasPresenter;
 
     public ICommand CopyAndCloseCommand { get; }
     public ICommand CopyCommand { get; }
@@ -31,6 +33,8 @@ public partial class EditorWindow : Window
     public Action<CapturedImage>? OnPin { get; set; }
 
     public EditorViewModel? ViewModel => _viewModel;
+    public CanvasPanelViewModel? CanvasViewModel => _canvasViewModel;
+    public EditorCanvasPresenter? CanvasPresenter => _canvasPresenter;
 
     public EditorWindow()
     {
@@ -73,7 +77,28 @@ public partial class EditorWindow : Window
         _viewModel.CanvasInvalidated += OnCanvasInvalidated;
         FloatingTextEditor.Attach(MainCanvasHost, _viewModel);
 
+        _canvasViewModel = new CanvasPanelViewModel(_viewModel);
+        CanvasOptionsPanel.ViewModel = _canvasViewModel;
+        CanvasToggleButton.IsChecked = false;
+
+        _canvasPresenter = new EditorCanvasPresenter(
+            _viewModel,
+            _canvasViewModel,
+            CanvasStage,
+            CanvasBackdrop,
+            CanvasContainer,
+            MainCanvasHost);
+
+        _canvasViewModel.CanvasChanged += () =>
+        {
+            if (CanvasToggleButton.IsChecked != _canvasViewModel.IsEnabled)
+            {
+                CanvasToggleButton.IsChecked = _canvasViewModel.IsEnabled;
+            }
+        };
+
         UpdateContainerSize();
+        _canvasPresenter.Apply();
     }
 
     private void ApplyWorkAreaCap()
@@ -115,11 +140,13 @@ public partial class EditorWindow : Window
         }
 
         UpdateContainerSize();
+        _canvasPresenter?.Apply();
     }
 
     private void OnCanvasInvalidated()
     {
         UpdateContainerSize();
+        _canvasPresenter?.Apply();
         var adornerLayer = AdornerLayer.GetAdornerLayer(MainCanvasHost);
         adornerLayer?.Update();
     }
@@ -266,6 +293,19 @@ public partial class EditorWindow : Window
     private void OnCopyClick(object sender, RoutedEventArgs e)
     {
         _viewModel?.Copy();
+    }
+
+    private void OnCanvasToggleClick(object sender, RoutedEventArgs e)
+    {
+        if (_canvasViewModel != null)
+        {
+            _canvasViewModel.IsEnabled = CanvasToggleButton.IsChecked == true;
+        }
+    }
+
+    private void OnCanvasOptionsClick(object sender, RoutedEventArgs e)
+    {
+        CanvasOptionsPopup.IsOpen = !CanvasOptionsPopup.IsOpen;
     }
 
     private void OnPinClick(object sender, RoutedEventArgs e)

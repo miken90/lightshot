@@ -58,6 +58,30 @@
                     <Button x:Name="CopyButton" Content="Copy" Margin="0,0,8,0"
                             Click="OnCopyClick" ToolTip="Copy to Clipboard (Ctrl+C)"/>
 
+                    <!-- Canvas Controls -->
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,8,0">
+                        <ToggleButton x:Name="CanvasToggleButton"
+                                      AutomationProperties.AutomationId="CanvasToggle"
+                                      AutomationProperties.Name="Canvas"
+                                      Content="Canvas"
+                                      ToolTip="Place capture on styled canvas"
+                                      Click="OnCanvasToggleClick"/>
+                        <Button x:Name="CanvasOptionsButton"
+                                AutomationProperties.AutomationId="CanvasOptionsButton"
+                                AutomationProperties.Name="Canvas options"
+                                Content="▾"
+                                Width="20"
+                                Padding="0"
+                                ToolTip="Canvas options"
+                                Click="OnCanvasOptionsClick"/>
+                        <Popup x:Name="CanvasOptionsPopup"
+                               PlacementTarget="{Binding ElementName=CanvasToggleButton}"
+                               Placement="Bottom"
+                               StaysOpen="False">
+                            <local:CanvasPanel x:Name="CanvasOptionsPanel"/>
+                        </Popup>
+                    </StackPanel>
+
                     <Button x:Name="PinButton" AutomationProperties.AutomationId="PinButton" Content="Pin" Margin="0,0,8,0"
                             Click="OnPinClick" ToolTip="Pin to Screen"/>
 
@@ -71,14 +95,17 @@
         <!-- Main Canvas Area -->
         <ScrollViewer Grid.Row="1" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" Background="{DynamicResource Theme.StudioCanvas}">
             <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="20">
-                <Canvas x:Name="CanvasContainer">
-                    <local:CanvasHost x:Name="MainCanvasHost"
-                                      MouseDown="OnCanvasMouseDown"
-                                      MouseMove="OnCanvasMouseMove"
-                                      MouseUp="OnCanvasMouseUp"/>
+                <Grid x:Name="CanvasStage">
+                    <Image x:Name="CanvasBackdrop" Stretch="None" HorizontalAlignment="Left" VerticalAlignment="Top" Visibility="Collapsed"/>
+                    <Canvas x:Name="CanvasContainer" HorizontalAlignment="Left" VerticalAlignment="Top">
+                        <local:CanvasHost x:Name="MainCanvasHost"
+                                          MouseDown="OnCanvasMouseDown"
+                                          MouseMove="OnCanvasMouseMove"
+                                          MouseUp="OnCanvasMouseUp"/>
 
-                    <local:TextEditorBox x:Name="FloatingTextEditor"/>
-                </Canvas>
+                        <local:TextEditorBox x:Name="FloatingTextEditor"/>
+                    </Canvas>
+                </Grid>
             </Grid>
         </ScrollViewer>
     </Grid>
