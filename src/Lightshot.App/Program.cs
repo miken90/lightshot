@@ -14,9 +14,12 @@ namespace Lightshot.App;
 
 public static class Program
 {
-    private const string MutexName = @"Local\Lightshot.SingleInstance";
-    public const string QuitEventName = @"Local\Lightshot.Quit";
-    public const string ActivateEventName = @"Local\Lightshot.Activate";
+    // Scoped to LIGHTSHOT_DATA_ROOT when set, so a test-launched app never meets the user's instance.
+    private static readonly string MutexName = AppInstance.ScopedName(@"Local\Lightshot.SingleInstance");
+    public const string QuitEventBaseName = @"Local\Lightshot.Quit";
+    public const string ActivateEventBaseName = @"Local\Lightshot.Activate";
+    public static readonly string QuitEventName = AppInstance.ScopedName(QuitEventBaseName);
+    public static readonly string ActivateEventName = AppInstance.ScopedName(ActivateEventBaseName);
 
     [STAThread]
     public static int Main(string[] args)

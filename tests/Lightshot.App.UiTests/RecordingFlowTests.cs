@@ -24,14 +24,17 @@ using Xunit;
 
 namespace Lightshot.App.UiTests;
 
-public class RecordingFlowTests
+public class RecordingFlowTests : IDisposable
 {
     private readonly ITestOutputHelper _output;
+    private readonly IsolatedApp _app = new();
 
     public RecordingFlowTests(ITestOutputHelper output)
     {
         _output = output;
     }
+
+    public void Dispose() => _app.Dispose();
 
     private delegate bool EnumWindowsProc(IntPtr hWnd, IntPtr lParam);
 
@@ -53,29 +56,9 @@ public class RecordingFlowTests
     [DllImport("user32.dll")]
     private static extern bool IsWindowVisible(IntPtr hWnd);
 
-    private static void CleanupPreviousProcesses()
-    {
-        foreach (var p in Process.GetProcessesByName("Lightshot.App"))
-        {
-            try
-            {
-                p.Kill();
-                p.WaitForExit(1000);
-            }
-            catch { }
-        }
-        Thread.Sleep(300);
-    }
+    private void CleanupPreviousProcesses() => _app.KillStarted();
 
-    private static void SignalAppQuit()
-    {
-        try
-        {
-            using var quitHandle = EventWaitHandle.OpenExisting(@"Local\Lightshot.Quit");
-            quitHandle.Set();
-        }
-        catch { }
-    }
+    private void SignalAppQuit() => _app.SignalQuit();
 
     private static string FindAppExecutable()
     {
@@ -287,33 +270,47 @@ public class RecordingFlowTests
         Assert.True(closed?.Success ?? false, "Recording toolbar must close after Record is invoked");
     }
 
-    private static ProcessStartInfo CreateStartInfo(string exePath, string args)
+    // Screen readers and remote-control tools find the pill buttons by name, not by glyph.
+    private static void AssertPillButtonNames(Application app, UIA3Automation automation)
     {
-        var psi = new ProcessStartInfo
+        foreach (var (id, name) in new[]
         {
-            FileName = exePath,
-            Arguments = args,
-            UseShellExecute = false,
-            CreateNoWindow = false
-        };
-
-        psi.EnvironmentVariables["LIGHTSHOT_DISABLE_ONBOARDING"] = "1";
-        psi.EnvironmentVariables["LIGHTSHOT_TEST_MODE"] = "1";
-
-        string? dotnetRoot = Environment.GetEnvironmentVariable("DOTNET_ROOT");
-        if (!string.IsNullOrEmpty(dotnetRoot))
+            ("RecordingPauseResumeButton", "Pause Recording"),
+            ("RecordingStopButton", "Stop Recording"),
+            ("RecordingRestartButton", "Restart Recording"),
+            ("RecordingDiscardButton", "Discard Recording")
+        })
         {
-            psi.EnvironmentVariables["DOTNET_ROOT"] = dotnetRoot;
+            var button = FindDescendantInApp(app, automation, id);
+            Assert.True(button != null, $"{id} must be on the controls pill");
+            Assert.Equal(name, button!.Name);
         }
-        else
+    }
+
+    private static string[] VisibleWindows(int processId)
+    {
+        var windows = new System.Collections.Generic.List<string>();
+        EnumWindows((hWnd, lParam) =>
         {
-            string defaultRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "dotnet");
-            if (Directory.Exists(defaultRoot))
+            GetWindowThreadProcessId(hWnd, out uint pid);
+            if (pid == (uint)processId && IsWindowVisible(hWnd))
             {
-                psi.EnvironmentVariables["DOTNET_ROOT"] = defaultRoot;
+                var cls = new System.Text.StringBuilder(128);
+                var title = new System.Text.StringBuilder(128);
+                GetClassNameW(hWnd, cls, 128);
+                GetWindowTextW(hWnd, title, 128);
+                windows.Add($"{cls} '{title}'");
             }
-        }
+            return true;
+        }, IntPtr.Zero);
+        return windows.ToArray();
+    }
 
+    private ProcessStartInfo CreateStartInfo(string exePath, string args)
+    {
+        var psi = _app.StartInfo(exePath, args);
+        psi.CreateNoWindow = false;
+        psi.EnvironmentVariables["LIGHTSHOT_TEST_MODE"] = "1";
         return psi;
     }
 
@@ -323,7 +320,7 @@ public class RecordingFlowTests
     {
         CleanupPreviousProcesses();
 
-        string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        string appData = Path.Combine(_app.DataRoot, "Roaming");
         string settingsDir = Path.Combine(appData, "Lightshot");
         string settingsPath = Path.Combine(settingsDir, "settings.json");
         byte[]? originalSettings = File.Exists(settingsPath) ? File.ReadAllBytes(settingsPath) : null;
@@ -358,7 +355,7 @@ public class RecordingFlowTests
             Assert.True(File.Exists(exePath), $"App executable not found at: {exePath}");
 
             var psi = CreateStartInfo(exePath, "--record-screen");
-            using var process = Process.Start(psi);
+            using var process = _app.Start(psi);
             Assert.NotNull(process);
 
             try
@@ -407,6 +404,7 @@ public class RecordingFlowTests
 
                 Assert.NotNull(pauseButtonResult?.Result);
                 var pauseBtn = pauseButtonResult.Result.AsButton();
+                AssertPillButtonNames(app, automation);
                 Thread.Sleep(2000);
                 try { pauseBtn.Invoke(); } catch { pauseBtn.Click(); }
 
@@ -492,7 +490,7 @@ public class RecordingFlowTests
     {
         CleanupPreviousProcesses();
 
-        string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        string appData = Path.Combine(_app.DataRoot, "Roaming");
         string settingsDir = Path.Combine(appData, "Lightshot");
         string settingsPath = Path.Combine(settingsDir, "settings.json");
         byte[]? originalSettings = File.Exists(settingsPath) ? File.ReadAllBytes(settingsPath) : null;
@@ -527,7 +525,7 @@ public class RecordingFlowTests
             Assert.True(File.Exists(exePath), $"App executable not found at: {exePath}");
 
             var psi = CreateStartInfo(exePath, "--record-screen");
-            using var process = Process.Start(psi);
+            using var process = _app.Start(psi);
             Assert.NotNull(process);
 
             try
@@ -655,15 +653,83 @@ public class RecordingFlowTests
 
     [Fact]
     [Desktop]
+    public void SelectionToolbarCloseButtonCancelsTheFlowLikeEsc()
+    {
+        string tempSaveDir = Path.Combine(Path.GetTempPath(), "Lightshot_CloseTest_" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempSaveDir);
+
+        try
+        {
+            var root = _app.ReadSettings();
+            root["save.location"] = tempSaveDir;
+            // Covers on, so the test also proves the cancel leaves no desktop cover behind.
+            root["app.hideDesktopIcons"] = true;
+            root["recording.defaults"] = JsonSerializer.SerializeToNode(new RecordingDefaults
+            {
+                AfterRecording = AfterRecordingAction.ShowOverlay,
+                CountdownEnabled = true,
+                CountdownSeconds = 3,
+                ShowRecordingControls = true,
+                RecordMicrophone = false,
+                RecordComputerAudio = false
+            });
+            _app.WriteSettings(root);
+
+            string exePath = FindAppExecutable();
+            Assert.True(File.Exists(exePath), $"App executable not found at: {exePath}");
+
+            using var process = _app.Start(CreateStartInfo(exePath, "--record-screen"));
+            using var automation = new UIA3Automation();
+            using var app = Application.Attach(process.Id);
+
+            var overlay = Retry.WhileTrue(() => FindOverlayHwnd(process.Id) == IntPtr.Zero, TimeSpan.FromSeconds(15));
+            if (!(overlay?.Success ?? false)) Assert.Fail("Recording overlay must appear: " + DescribeApp(process, "close-overlay"));
+            Thread.Sleep(500);
+            Keyboard.Press(VirtualKeyShort.RETURN);
+
+            var closeResult = Retry.WhileNull(
+                () => FindDescendantInApp(app, automation, "RecordingToolbarCloseButton"),
+                TimeSpan.FromSeconds(10));
+            if (closeResult?.Result == null) Assert.Fail("Recording toolbar must show a close button: " + DescribeApp(process, "close-toolbar"));
+            Assert.Equal("Cancel Recording", closeResult!.Result!.Name);
+
+            var closeBtn = closeResult.Result.AsButton();
+            try { closeBtn.Invoke(); } catch { closeBtn.Click(); }
+
+            // Esc's end state: toolbar, frame, overlay and covers all gone, while the app stays running.
+            var gone = Retry.WhileTrue(() => VisibleWindows(process.Id).Length > 0, TimeSpan.FromSeconds(5));
+            if (!(gone?.Success ?? false)) Assert.Fail("Every recording window must close after the close button: " + DescribeApp(process, "close-windows"));
+
+            // Outlast the 3 s countdown: a take that started anyway would show the pill or a cover by now.
+            Thread.Sleep(5000);
+            Assert.False(process.HasExited, "The app must return to idle, not exit");
+            Assert.Empty(VisibleWindows(process.Id));
+            Assert.False(DoesDesktopCoverExist(process.Id), "No desktop cover may remain after cancel");
+            Assert.Null(FindDescendantInApp(app, automation, "RecordingStopButton"));
+
+            string scratchDir = Path.Combine(_app.LocalData, "Recordings");
+            Assert.True(Directory.GetFiles(tempSaveDir).Length == 0, "Cancel must not save a file: " + ListFiles(tempSaveDir));
+            Assert.True(!Directory.Exists(scratchDir) || Directory.GetFiles(scratchDir).Length == 0, "Cancel must not leave a take: " + ListFiles(scratchDir));
+        }
+        finally
+        {
+            if (_app.SignalQuit()) Thread.Sleep(500);
+            _app.KillStarted();
+            try { Directory.Delete(tempSaveDir, true); } catch { }
+        }
+    }
+
+    [Fact]
+    [Desktop]
     public async Task LeftoverScratchRecordingIsDeliveredAtStartup()
     {
         CleanupPreviousProcesses();
 
-        string localData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+        string localData = Path.Combine(_app.DataRoot, "Local");
         string appScratchDir = Path.Combine(localData, "Lightshot", "Lightshot Recordings");
         string backupDir = Path.Combine(Path.GetTempPath(), "Lightshot_Scratch_Backup_" + Guid.NewGuid().ToString("N"));
 
-        string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+        string appData = Path.Combine(_app.DataRoot, "Roaming");
         string settingsDir = Path.Combine(appData, "Lightshot");
         string settingsPath = Path.Combine(settingsDir, "settings.json");
         byte[]? originalSettings = File.Exists(settingsPath) ? File.ReadAllBytes(settingsPath) : null;
@@ -729,7 +795,7 @@ public class RecordingFlowTests
             Assert.True(File.Exists(exePath), $"App executable not found at: {exePath}");
 
             var psi = CreateStartInfo(exePath, string.Empty);
-            using var process = Process.Start(psi);
+            using var process = _app.Start(psi);
             Assert.NotNull(process);
 
             try

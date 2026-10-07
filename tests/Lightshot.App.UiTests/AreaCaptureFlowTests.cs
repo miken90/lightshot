@@ -19,8 +19,12 @@ namespace Lightshot.App.UiTests;
 /// <summary>
 /// One area capture gesture must open Lightshot's own overlay on the first try and yield exactly one editor.
 /// </summary>
-public class AreaCaptureFlowTests
+public class AreaCaptureFlowTests : IDisposable
 {
+    private readonly IsolatedApp _app = new();
+
+    public void Dispose() => _app.Dispose();
+
     private const string OverlayTitle = "LightshotOverlay";
     private const string EditorTitle = "Lightshot";
 
@@ -29,6 +33,9 @@ public class AreaCaptureFlowTests
     public void FirstPrintScreenPressOpensTheLightshotOverlayAndOneEditor()
     {
         // Windows 11 hands PrintScreen to the Snipping Tool by default; the press must reach Lightshot instead.
+        // A Lightshot the user runs keeps the PrintScreen hotkey, so this one gesture needs it closed.
+        Assert.True(WaitFor(() => Process.GetProcessesByName("Lightshot.App").Length == 0, TimeSpan.FromSeconds(10)),
+            "Another Lightshot.App is running; it owns the PrintScreen hotkey.");
         using var process = LaunchApp(arguments: "");
         try
         {
@@ -68,7 +75,7 @@ public class AreaCaptureFlowTests
             int overlays = OverlayCount(process.Id);
 
             // A second launch signals this event and asks the running instance for another area capture.
-            using (var activate = EventWaitHandle.OpenExisting(Program.ActivateEventName))
+            using (var activate = EventWaitHandle.OpenExisting(_app.ActivateEventName))
             {
                 activate.Set();
             }
@@ -97,7 +104,7 @@ public class AreaCaptureFlowTests
             PostMessageW(FirstOverlayHandle(process.Id), 0x0010 /* WM_CLOSE */, IntPtr.Zero, IntPtr.Zero);
             Assert.True(WaitFor(() => OverlayCount(process.Id) == 0, TimeSpan.FromSeconds(5)), "WM_CLOSE did not cancel the overlay.");
 
-            using (var activate = EventWaitHandle.OpenExisting(Program.ActivateEventName))
+            using (var activate = EventWaitHandle.OpenExisting(_app.ActivateEventName))
             {
                 activate.Set();
             }
@@ -115,7 +122,7 @@ public class AreaCaptureFlowTests
     private static void SelectAreaAndAssertOneEditor(Process process)
     {
         using var automation = new UIA3Automation();
-        using var app = FlaUI.Core.Application.Attach(process);
+        using var app = FlaUI.Core.Application.Attach(process.Id);
         Thread.Sleep(300);
 
         Mouse.MoveTo(new System.Drawing.Point(350, 250));
@@ -140,52 +147,18 @@ public class AreaCaptureFlowTests
         Assert.Equal(0, OverlayCount(process.Id));
     }
 
-    private static Process LaunchApp(string arguments)
+    private Process LaunchApp(string arguments)
     {
-        // The previous test's instance may still be shutting down; a user-run instance never goes away.
-        Assert.True(WaitFor(() => Process.GetProcessesByName("Lightshot.App").Length == 0, TimeSpan.FromSeconds(10)),
-            "Another Lightshot.App is running; it would own the hotkeys and single-instance mutex.");
-
         string exePath = FindAppExecutable();
         Assert.True(File.Exists(exePath), $"App executable not found at: {exePath}");
-        var psi = new ProcessStartInfo
-        {
-            FileName = exePath,
-            Arguments = arguments,
-            UseShellExecute = false
-        };
-        psi.EnvironmentVariables["LIGHTSHOT_DISABLE_ONBOARDING"] = "1";
-
-        var process = Process.Start(psi);
-        Assert.NotNull(process);
-        return process;
+        return _app.Start(exePath, arguments);
     }
 
-    private static void Quit(Process process)
+    private void Quit(Process process)
     {
-        try
-        {
-            using var quit = EventWaitHandle.OpenExisting(Program.QuitEventName);
-            quit.Set();
-            if (process.WaitForExit(5000)) return;
-        }
-        catch
-        {
-            // Fall through to Kill: the instance this test started must not outlive it.
-        }
-
-        try
-        {
-            if (!process.HasExited)
-            {
-                process.Kill();
-                process.WaitForExit(5000);
-            }
-        }
-        catch
-        {
-            // Already exited
-        }
+        if (_app.SignalQuit() && process.WaitForExit(5000)) return;
+        // The instance this test started must not outlive it.
+        _app.KillStarted();
     }
 
     private static bool WaitFor(Func<bool> condition, TimeSpan timeout)

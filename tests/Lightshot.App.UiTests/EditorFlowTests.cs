@@ -18,25 +18,16 @@ using Xunit;
 
 namespace Lightshot.App.UiTests;
 
-public class EditorFlowTests
+public class EditorFlowTests : IDisposable
 {
+    private readonly IsolatedApp _app = new();
+
+    public void Dispose() => _app.Dispose();
+
     [Fact]
     [Desktop]
     public void DrawArrowCopyAndClose()
     {
-        // 1. Terminate any previous Lightshot instance
-        foreach (var p in Process.GetProcessesByName("Lightshot.App"))
-        {
-            try
-            {
-                p.Kill();
-                p.WaitForExit(1000);
-            }
-            catch { }
-        }
-
-        ResetSettingsFile();
-
         // 2. Clear clipboard
         ClearClipboard();
 
@@ -49,35 +40,16 @@ public class EditorFlowTests
         string exePath = FindAppExecutable();
         Assert.True(File.Exists(exePath), $"App executable not found at: {exePath}");
 
-        var psi = new ProcessStartInfo
-        {
-            FileName = exePath,
-            Arguments = "--area",
-            UseShellExecute = false,
-            CreateNoWindow = false
-        };
+        var psi = _app.StartInfo(exePath, "--area");
+        psi.CreateNoWindow = false;
 
-        string? dotnetRoot = Environment.GetEnvironmentVariable("DOTNET_ROOT");
-        if (!string.IsNullOrEmpty(dotnetRoot))
-        {
-            psi.EnvironmentVariables["DOTNET_ROOT"] = dotnetRoot;
-        }
-        else
-        {
-            string defaultRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "dotnet");
-            if (Directory.Exists(defaultRoot))
-            {
-                psi.EnvironmentVariables["DOTNET_ROOT"] = defaultRoot;
-            }
-        }
-
-        using var process = Process.Start(psi);
+        using var process = _app.Start(psi);
         Assert.NotNull(process);
 
         try
         {
             using var automation = new UIA3Automation();
-            using var app = Application.Attach(process);
+            using var app = Application.Attach(process.Id);
 
             // 5. Wait for overlay window to initialize and show (robust replacement for fixed Thread.Sleep)
             var overlayWindowResult = Retry.WhileNull(
@@ -226,26 +198,11 @@ public class EditorFlowTests
         finally
         {
             // Clean shutdown of app via quit event
-            try
+            if (_app.SignalQuit())
             {
-                using var quitHandle = EventWaitHandle.OpenExisting(Program.QuitEventName);
-                quitHandle.Set();
                 process.WaitForExit(5000);
             }
-            catch
-            {
-                try
-                {
-                    if (!process.HasExited)
-                    {
-                        process.Kill();
-                    }
-                }
-                catch
-                {
-                    // Process already exited
-                }
-            }
+            _app.KillStarted();
         }
     }
 
@@ -436,22 +393,5 @@ public class EditorFlowTests
             return true;
         }, IntPtr.Zero);
         return found;
-    }
-
-    private static void ResetSettingsFile()
-    {
-        try
-        {
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            string settingsPath = Path.Combine(appData, "Lightshot", "settings.json");
-            if (File.Exists(settingsPath))
-            {
-                string json = File.ReadAllText(settingsPath);
-                json = json.Replace("\"openInEditor\": false", "\"openInEditor\": true");
-                json = json.Replace("\"openInEditor\":false", "\"openInEditor\":true");
-                File.WriteAllText(settingsPath, json);
-            }
-        }
-        catch { }
     }
 }

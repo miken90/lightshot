@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Lightshot.Platform.Windows.Files;
 
 namespace Lightshot.Platform.Windows.Recording;
 
@@ -18,7 +19,7 @@ public sealed class ScratchStore
     public ScratchStore(string? rootDirectory = null)
     {
         RootDirectory = rootDirectory ?? Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            KnownFolders.LocalApplicationData,
             "Lightshot",
             "Recordings");
 

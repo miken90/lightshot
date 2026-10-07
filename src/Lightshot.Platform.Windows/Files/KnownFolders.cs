@@ -2,6 +2,7 @@
 
 using System;
 using System.IO;
+using Lightshot.Platform.Windows.Windows;
 
 namespace Lightshot.Platform.Windows.Files;
 
@@ -16,11 +17,13 @@ public static class KnownFolders
     public static string Pictures =>
         Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
 
-    public static string AppData =>
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+    public static string AppData => AppInstance.DataRoot is { } root
+        ? Path.Combine(root, "Roaming")
+        : Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
 
-    public static string LocalApplicationData =>
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+    public static string LocalApplicationData => AppInstance.DataRoot is { } root
+        ? Path.Combine(root, "Local")
+        : Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
 
     public static string UserProfile =>
         Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);

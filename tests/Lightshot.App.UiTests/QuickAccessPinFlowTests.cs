@@ -17,8 +17,12 @@ using Xunit;
 
 namespace Lightshot.App.UiTests;
 
-public class QuickAccessPinFlowTests
+public class QuickAccessPinFlowTests : IDisposable
 {
+    private readonly IsolatedApp _app = new();
+
+    public void Dispose() => _app.Dispose();
+
     [Fact]
     [Desktop]
     public void CaptureArea_ShowsQuickAccessCard_PinsImage()
@@ -30,37 +34,16 @@ public class QuickAccessPinFlowTests
         string exePath = FindAppExecutable();
         Assert.True(File.Exists(exePath), $"App executable not found at: {exePath}");
 
-        var psi = new ProcessStartInfo
-        {
-            FileName = exePath,
-            Arguments = "--quick-access",
-            UseShellExecute = false,
-            CreateNoWindow = false
-        };
+        var psi = _app.StartInfo(exePath, "--quick-access");
+        psi.CreateNoWindow = false;
 
-        psi.EnvironmentVariables["LIGHTSHOT_DISABLE_ONBOARDING"] = "1";
-
-        string? dotnetRoot = Environment.GetEnvironmentVariable("DOTNET_ROOT");
-        if (!string.IsNullOrEmpty(dotnetRoot))
-        {
-            psi.EnvironmentVariables["DOTNET_ROOT"] = dotnetRoot;
-        }
-        else
-        {
-            string defaultRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "dotnet");
-            if (Directory.Exists(defaultRoot))
-            {
-                psi.EnvironmentVariables["DOTNET_ROOT"] = defaultRoot;
-            }
-        }
-
-        using var process = Process.Start(psi);
+        using var process = _app.Start(psi);
         Assert.NotNull(process);
 
         try
         {
             using var automation = new UIA3Automation();
-            using var app = Application.Attach(process);
+            using var app = Application.Attach(process.Id);
 
             // 3. Wait for overlay window to appear
             var overlayWindowResult = Retry.WhileNull(
@@ -151,16 +134,7 @@ public class QuickAccessPinFlowTests
         }
         finally
         {
-            try
-            {
-                if (!process.HasExited)
-                {
-                    process.Kill();
-                }
-            }
-            catch { }
-
-            ResetSettingsFile();
+            _app.KillStarted();
         }
     }
 
@@ -175,29 +149,16 @@ public class QuickAccessPinFlowTests
         string exePath = FindAppExecutable();
         Assert.True(File.Exists(exePath), $"App executable not found at: {exePath}");
 
-        var psi = new ProcessStartInfo
-        {
-            FileName = exePath,
-            Arguments = "--area",
-            UseShellExecute = false,
-            CreateNoWindow = false
-        };
+        var psi = _app.StartInfo(exePath, "--area");
+        psi.CreateNoWindow = false;
 
-        psi.EnvironmentVariables["LIGHTSHOT_DISABLE_ONBOARDING"] = "1";
-
-        string? dotnetRoot = Environment.GetEnvironmentVariable("DOTNET_ROOT");
-        if (!string.IsNullOrEmpty(dotnetRoot))
-        {
-            psi.EnvironmentVariables["DOTNET_ROOT"] = dotnetRoot;
-        }
-
-        using var process = Process.Start(psi);
+        using var process = _app.Start(psi);
         Assert.NotNull(process);
 
         try
         {
             using var automation = new UIA3Automation();
-            using var app = Application.Attach(process);
+            using var app = Application.Attach(process.Id);
 
             // 3. Wait for overlay
             var overlayWindowResult = Retry.WhileNull(
@@ -283,60 +244,13 @@ public class QuickAccessPinFlowTests
         }
         finally
         {
-            try
-            {
-                if (!process.HasExited)
-                {
-                    process.Kill();
-                }
-            }
-            catch { }
-
-            ResetSettingsFile();
+            _app.KillStarted();
         }
     }
 
-    private static void CleanupPreviousProcesses()
-    {
-        foreach (var p in Process.GetProcessesByName("Lightshot.App"))
-        {
-            try
-            {
-                p.Kill();
-                p.WaitForExit(1000);
-            }
-            catch { }
-        }
-        Thread.Sleep(300);
-        ResetSettingsFile();
-    }
+    private void CleanupPreviousProcesses() => _app.KillStarted();
 
-    private static void ResetSettingsFile()
-    {
-        try
-        {
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            string settingsPath = Path.Combine(appData, "Lightshot", "settings.json");
-            if (File.Exists(settingsPath))
-            {
-                string json = File.ReadAllText(settingsPath);
-                json = json.Replace("\"openInEditor\": false", "\"openInEditor\": true");
-                json = json.Replace("\"openInEditor\":false", "\"openInEditor\":true");
-                File.WriteAllText(settingsPath, json);
-            }
-        }
-        catch { }
-    }
-
-    private static void SignalAppQuit()
-    {
-        try
-        {
-            using var quitHandle = EventWaitHandle.OpenExisting(@"Local\Lightshot.Quit");
-            quitHandle.Set();
-        }
-        catch { }
-    }
+    private void SignalAppQuit() => _app.SignalQuit();
 
     private static string FindAppExecutable()
     {

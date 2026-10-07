@@ -15,42 +15,8 @@ public class TrayStubTests
         string exePath = FindAppExecutable();
         Assert.True(File.Exists(exePath), $"App executable not found at: {exePath}");
 
-        var psi = new ProcessStartInfo
-        {
-            FileName = exePath,
-            UseShellExecute = false,
-            CreateNoWindow = true
-        };
-        psi.EnvironmentVariables["LIGHTSHOT_DISABLE_ONBOARDING"] = "1";
-
-        string? dotnetRoot = Environment.GetEnvironmentVariable("DOTNET_ROOT");
-        if (!string.IsNullOrEmpty(dotnetRoot))
-        {
-            psi.EnvironmentVariables["DOTNET_ROOT"] = dotnetRoot;
-        }
-        else
-        {
-            string defaultRoot = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Microsoft", "dotnet");
-            if (Directory.Exists(defaultRoot))
-            {
-                psi.EnvironmentVariables["DOTNET_ROOT"] = defaultRoot;
-            }
-        }
-
-        // Ensure no previous instances are running and mutex is released
-        foreach (var p in Process.GetProcessesByName("Lightshot.App"))
-        {
-            try
-            {
-                p.Kill();
-                p.WaitForExit(1000);
-            }
-            catch { }
-        }
-        Thread.Sleep(500);
-
-        using var process = Process.Start(psi);
-        Assert.NotNull(process);
+        using var isolated = new IsolatedApp();
+        using var process = isolated.Start(exePath);
 
         try
         {
@@ -64,30 +30,64 @@ public class TrayStubTests
                     Assert.Fail($"App process exited prematurely with exit code {process.ExitCode}.");
                     break;
                 }
-                try
+                if (isolated.SignalQuit())
                 {
-                    using var handle = EventWaitHandle.OpenExisting(@"Local\Lightshot.Quit");
                     eventOpened = true;
-                    handle.Set();
                     break;
-                }
-                catch (WaitHandleCannotBeOpenedException)
-                {
-                    // Retry until available
                 }
             }
 
-            Assert.True(eventOpened, "Failed to open quit event Local\\Lightshot.Quit");
+            Assert.True(eventOpened, $"Failed to open quit event {isolated.QuitEventName}");
             bool exited = process.WaitForExit(5000);
             Assert.True(exited, "App process failed to exit within 5 seconds of quit signal.");
             Assert.Equal(0, process.ExitCode);
         }
         finally
         {
-            if (!process.HasExited)
+            isolated.KillStarted();
+        }
+    }
+
+    [Fact]
+    [Desktop]
+    public void IsolatedAppLeavesTheRealSettingsFileUntouched()
+    {
+        string exePath = FindAppExecutable();
+        Assert.True(File.Exists(exePath), $"App executable not found at: {exePath}");
+
+        string realSettings = IsolatedApp.RealSettingsPath;
+        byte[]? realBefore = File.Exists(realSettings) ? File.ReadAllBytes(realSettings) : null;
+        DateTime realStampBefore = File.Exists(realSettings) ? File.GetLastWriteTimeUtc(realSettings) : DateTime.MinValue;
+
+        using var isolated = new IsolatedApp();
+        // A legacy key makes startup migrate and rewrite whichever settings file the app resolves.
+        isolated.WriteSettings(new System.Text.Json.Nodes.JsonObject { ["HideDesktopIcons"] = true, ["save.location"] = isolated.DataRoot });
+
+        using var process = isolated.Start(exePath);
+        try
+        {
+            bool quitSignalled = false;
+            for (int i = 0; i < 50 && !quitSignalled; i++)
             {
-                process.Kill();
+                Thread.Sleep(200);
+                Assert.False(process.HasExited, $"App exited early with code {(process.HasExited ? process.ExitCode : 0)}: it must not hand off to another instance.");
+                quitSignalled = isolated.SignalQuit();
             }
+            Assert.True(quitSignalled, $"Failed to open quit event {isolated.QuitEventName}");
+            Assert.True(process.WaitForExit(5000), "App process failed to exit within 5 seconds of quit signal.");
+        }
+        finally
+        {
+            isolated.KillStarted();
+        }
+
+        Assert.True(Directory.Exists(Path.Combine(isolated.LocalData, "History")), "The app did not create its data under the isolated root.");
+        Assert.Contains("app.hideDesktopIcons", File.ReadAllText(isolated.SettingsPath));
+        Assert.Equal(realBefore != null, File.Exists(realSettings));
+        if (realBefore != null)
+        {
+            Assert.Equal(realBefore, File.ReadAllBytes(realSettings));
+            Assert.Equal(realStampBefore, File.GetLastWriteTimeUtc(realSettings));
         }
     }
 
