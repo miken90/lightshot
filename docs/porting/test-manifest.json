@@ -3500,6 +3500,42 @@
       "csharpMethod": "UnreadableImageReturnsNull",
       "targetProject": "Lightshot.Rendering.Tests",
       "tier": "Render"
+    },
+    {
+      "className": "AppCoordinatorTests",
+      "csharpMethod": "AreaCaptureTriggeredWhileTheOverlayIsOpenIsIgnored",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "HistoryStoreTests",
+      "csharpMethod": "ACaptureAddedAfterAReloadIsTheNewestAndSurvivesAFullStore",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "DocumentRenderTests",
+      "csharpMethod": "OutputIgnoresAppearance",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "GaussianBlurTests",
+      "csharpMethod": "BlurredOutputIsExactlySymmetricLeftRightAndUpDown",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "GaussianBlurTests",
+      "csharpMethod": "BlurredOutputRisesMonotonicallyTowardCentreAlongBothAxes",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "GaussianBlurTests",
+      "csharpMethod": "BlurredOutputMatchesAnalyticGaussianWithinTolerance",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
     }
   ]
 }
