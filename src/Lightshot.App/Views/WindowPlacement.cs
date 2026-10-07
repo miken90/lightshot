@@ -53,6 +53,13 @@ public static class WindowPlacement
     }
 
     /// <summary>
+    /// A size function for <see cref="PlaceOnDisplayAt"/>: the designed size, capped so a small
+    /// secondary monitor still shows the whole window with a margin.
+    /// </summary>
+    public static Func<double, double, (double Width, double Height)> CappedSize(double width, double height) =>
+        (workAreaWidth, workAreaHeight) => (Math.Min(width, workAreaWidth * 0.9), Math.Min(height, workAreaHeight * 0.9));
+
+    /// <summary>
     /// Sizes and centres <paramref name="window"/> before it is shown. <paramref name="sizeForWorkArea"/>
     /// maps the target work area (DIP width, height) to the window's size in DIPs.
     /// </summary>

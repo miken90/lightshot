@@ -9,6 +9,7 @@ using System.Windows;
 using System.Windows.Interop;
 using System.Diagnostics;
 using Lightshot.App.Theming;
+using Lightshot.App.Views;
 using Lightshot.App.Views.Editor;
 using Lightshot.App.Views.History;
 using Lightshot.App.Views.Notices;
@@ -382,6 +383,8 @@ public sealed partial class AppController : ICaptureUI, IDisposable
                 settingsStore: _settingsStore);
             _historyWindow = new HistoryWindow(vm);
             _historyWindow.Closed += (s, e) => _historyWindow = null;
+            // Open where the user is working, not on the primary monitor.
+            WindowPlacement.PlaceOnDisplayAt(_historyWindow, DisplayTopology.GetCursorPosition(), WindowPlacement.CappedSize(_historyWindow.Width, _historyWindow.Height));
         }
 
         _historyWindow.Show();
@@ -411,6 +414,8 @@ public sealed partial class AppController : ICaptureUI, IDisposable
                 updates: CreateUpdateSettingsViewModel());
             _settingsWindow = new SettingsWindow(vm);
             _settingsWindow.Closed += (s, e) => { _settingsWindow = null; _openUpdateSettings = null; };
+            // Open where the user is working, not on the primary monitor.
+            WindowPlacement.PlaceOnDisplayAt(_settingsWindow, DisplayTopology.GetCursorPosition(), WindowPlacement.CappedSize(_settingsWindow.Width, _settingsWindow.Height));
         }
 
         _settingsWindow.Show();
@@ -431,6 +436,24 @@ public sealed partial class AppController : ICaptureUI, IDisposable
             var vm = new OnboardingViewModel(_settingsStore);
             _onboardingWindow = new OnboardingWindow(vm);
             _onboardingWindow.Closed += (s, e) => _onboardingWindow = null;
+            // Open where the user is working, not on the primary monitor.
+            var cursor = DisplayTopology.GetCursorPosition();
+            WindowPlacement.PlaceOnDisplayAt(_onboardingWindow, cursor, WindowPlacement.CappedSize(_onboardingWindow.Width, double.PositiveInfinity));
+            _onboardingWindow.SizeToContent = SizeToContent.Height;
+            _onboardingWindow.ContentRendered += (_, _) =>
+            {
+                try
+                {
+                    var display = DisplayMath.FindDisplayAt(DisplayTopology.GetDisplays(), cursor);
+                    if (display != null && _onboardingWindow != null && _onboardingWindow.ActualHeight > 0)
+                    {
+                        var scale = WindowPlacement.MoveOntoDisplay(_onboardingWindow, display.WorkArea);
+                        var workArea = DisplayMath.PhysicalToDip(display.WorkArea, scale);
+                        _onboardingWindow.Top = workArea.MinY + (workArea.Height - _onboardingWindow.ActualHeight) / 2;
+                    }
+                }
+                catch { }
+            };
         }
 
         _onboardingWindow.Show();
