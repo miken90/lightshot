@@ -165,7 +165,9 @@ try {
         }
         $sumLines += "$hex  $($file.Name)"
     }
-    [System.IO.File]::WriteAllLines($sumsFile, $sumLines)
+    # LF only: sha256sum -c on Linux/macOS reads a trailing CR as part of the file name.
+    $sumsText = ($sumLines -join "`n") + "`n"
+    [System.IO.File]::WriteAllText($sumsFile, $sumsText, (New-Object System.Text.UTF8Encoding($false)))
 
     # 7. Clean up temporary throwaway key
     if ($tempKeyDir -and (Test-Path $tempKeyDir)) {
