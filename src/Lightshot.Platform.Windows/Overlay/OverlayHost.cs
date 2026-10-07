@@ -51,7 +51,7 @@ public sealed class OverlayHost : IDisposable
         }
     }
 
-    public Task<CaptureRegion?> RunSelectionAsync(bool adjustable)
+    public Task<CaptureRegion?> RunSelectionAsync(bool adjustable, int magnifierZoom = 4)
     {
         _completionTcs = new TaskCompletionSource<CaptureRegion?>(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -59,6 +59,7 @@ public sealed class OverlayHost : IDisposable
         {
             win.Mode = OverlayMode.Region;
             win.IsAdjustable = adjustable;
+            win.MagnifierZoom = magnifierZoom;
             win.ClearSelection();
             win.Show();
         }

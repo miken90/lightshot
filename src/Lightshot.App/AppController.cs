@@ -106,7 +106,7 @@ public sealed partial class AppController : ICaptureUI, IDisposable
         _imageSource = imageSource ?? new FileImageSource(_codec, PromptOpenFile);
 
         _captureService = captureService ?? new WindowsCaptureService(_topology, _settingsStore);
-        _overlay = overlay ?? new WindowsOverlayController(_shellThread);
+        _overlay = overlay ?? new WindowsOverlayController(_shellThread, magnifierZoom: () => _settingsStore.MagnifierZoom);
         _hotkeys = hotkeys ?? new WindowsHotkeyService(_shellThread);
         _trayIcon = new TrayIcon("Lightshot");
 

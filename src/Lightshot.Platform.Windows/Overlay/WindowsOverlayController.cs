@@ -15,13 +15,20 @@ public sealed class WindowsOverlayController : IOverlayController, IDisposable
     private readonly ShellThread _shellThread;
     private readonly bool _ownsShellThread;
     private readonly Func<Task<FrozenScreen?>> _freezeForRecording;
+    private readonly Func<int> _magnifierZoom;
     private bool _disposed;
 
     /// <param name="freezeForRecording">Captures the still the recording selection dims over;
     /// defaults to a DDA freeze of every display.</param>
-    public WindowsOverlayController(ShellThread? shellThread = null, Func<Task<FrozenScreen?>>? freezeForRecording = null)
+    /// <param name="magnifierZoom">Reads the loupe zoom (2, 4 or 8) from the caller's settings at the start of
+    /// each selection; defaults to 4.</param>
+    public WindowsOverlayController(
+        ShellThread? shellThread = null,
+        Func<Task<FrozenScreen?>>? freezeForRecording = null,
+        Func<int>? magnifierZoom = null)
     {
         _freezeForRecording = freezeForRecording ?? FreezeAllDisplaysAsync;
+        _magnifierZoom = magnifierZoom ?? (() => 4);
 
         if (shellThread != null)
         {
@@ -39,10 +46,11 @@ public sealed class WindowsOverlayController : IOverlayController, IDisposable
     {
         ObjectDisposedException.ThrowIf(_disposed, this);
 
+        int zoom = _magnifierZoom();
         return await _shellThread.InvokeAsync(async () =>
         {
             using var host = new OverlayHost(frozen);
-            return await host.RunSelectionAsync(adjustable);
+            return await host.RunSelectionAsync(adjustable, zoom);
         }).Unwrap();
     }
 

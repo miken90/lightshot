@@ -36,6 +36,9 @@ public sealed class OverlayWindow : IDisposable
     public uint MonitorId { get; }
     public CapturedImage? Backdrop { get; set; }
 
+    /// <summary>Loupe zoom factor (2, 4 or 8) handed in by the caller that owns the settings.</summary>
+    public int MagnifierZoom { get; set; } = 4;
+
     public OverlayMode Mode { get; set; } = OverlayMode.Region;
     public bool IsAdjustable { get; set; }
     private EditableSelection _editable;
@@ -49,6 +52,10 @@ public sealed class OverlayWindow : IDisposable
     public bool IsDragging { get; private set; }
 
     private Point? _dragStart;
+
+    // Pointer position for the loupe; null while the pointer is off this monitor.
+    private Point? _loupePointer;
+    private bool _trackingMouseLeave;
     private EditableSelection? _beforeRedraw;
 
     // Events forwarded to OverlayHost
@@ -149,6 +156,7 @@ public sealed class OverlayWindow : IDisposable
         CurrentSelection = null;
         ShowsControls = false;
         IsDragging = false;
+        _loupePointer = null;
         _editable = new EditableSelection(MonitorBounds);
         Invalidate();
     }
@@ -167,7 +175,8 @@ public sealed class OverlayWindow : IDisposable
                 {
                     SelectionPainter.Paint(
                         hdc, clientW, clientH, MonitorBounds,
-                        CurrentSelection, ShowsControls, Backdrop, hWnd);
+                        CurrentSelection, ShowsControls, Backdrop, hWnd,
+                        ShowsControls ? null : _loupePointer, MagnifierZoom);
                 }
                 else if (Mode == OverlayMode.Recording)
                 {
@@ -205,6 +214,15 @@ public sealed class OverlayWindow : IDisposable
                 HandleMouseMove(new Point(MonitorBounds.MinX + lx, MonitorBounds.MinY + ly));
                 return IntPtr.Zero;
             }
+
+            case WM_MOUSELEAVE:
+                _trackingMouseLeave = false;
+                if (_loupePointer != null)
+                {
+                    _loupePointer = null;
+                    Invalidate();
+                }
+                return IntPtr.Zero;
 
             case Win32Window.WM_LBUTTONDOWN:
             {
@@ -307,9 +325,47 @@ public sealed class OverlayWindow : IDisposable
         {
             _editable.DragChanged(globalPt);
             CurrentSelection = _editable.Rect;
+        }
+
+        // The loupe follows the pointer until the selection settles.
+        if (Mode == OverlayMode.Region && !ShowsControls)
+        {
+            _loupePointer = globalPt;
+            TrackMouseLeave();
+            Invalidate();
+        }
+        else if (IsDragging)
+        {
             Invalidate();
         }
     }
+
+    private void TrackMouseLeave()
+    {
+        if (_trackingMouseLeave || Handle == IntPtr.Zero) return;
+        var tme = new TRACKMOUSEEVENT
+        {
+            cbSize = (uint)Marshal.SizeOf<TRACKMOUSEEVENT>(),
+            dwFlags = TME_LEAVE,
+            hwndTrack = Handle,
+        };
+        _trackingMouseLeave = TrackMouseEvent(ref tme);
+    }
+
+    private const uint WM_MOUSELEAVE = 0x02A3;
+    private const uint TME_LEAVE = 0x00000002;
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct TRACKMOUSEEVENT
+    {
+        public uint cbSize;
+        public uint dwFlags;
+        public IntPtr hwndTrack;
+        public uint dwHoverTime;
+    }
+
+    [DllImport("user32.dll")]
+    private static extern bool TrackMouseEvent(ref TRACKMOUSEEVENT lpEventTrack);
 
     private void HandleMouseUp(Point globalPt)
     {

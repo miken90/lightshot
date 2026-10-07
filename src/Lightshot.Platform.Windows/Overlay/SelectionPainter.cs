@@ -140,7 +140,9 @@ public static class SelectionPainter
         Rect? globalSelection,
         bool showsControls,
         CapturedImage? backdrop,
-        IntPtr hwnd = default)
+        IntPtr hwnd = default,
+        Point? loupePointer = null,
+        int magnifierZoom = 4)
     {
         if (hdc == IntPtr.Zero || clientWidth <= 0 || clientHeight <= 0) return;
 
@@ -272,6 +274,13 @@ public static class SelectionPainter
             {
                 // Full dimming
                 AlphaBlend(memDc, 0, 0, clientWidth, clientHeight, dimDc, 0, 0, clientWidth, clientHeight, blend);
+            }
+
+            // 7. Loupe goes on top of everything else, still inside the double buffer
+            if (loupePointer.HasValue && backdrop.HasValue)
+            {
+                LoupePainter.Paint(memDc, clientWidth, clientHeight, screenBounds,
+                    loupePointer.Value, backdrop.Value, magnifierZoom, scale);
             }
 
             // Blit completed frame to target DC
