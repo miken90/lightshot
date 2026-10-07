@@ -112,7 +112,8 @@ public sealed partial class AppController : ICaptureUI, IDisposable
         _historyStore = historyStore ?? new HistoryStore(
             AppPaths.History,
             _settingsStore.HistoryRetention,
-            new SkiaThumbnailer());
+            new SkiaThumbnailer(),
+            codec: _codec);
 
         _pinBoard = pinBoard ?? new PinBoard();
 

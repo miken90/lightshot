@@ -130,4 +130,90 @@ public class HistoryStoreTests : IDisposable
         Assert.Equal(HistoryError.UnreadableMedia, ex.Error);
         Assert.True(File.Exists(notAGif));
     }
+
+    [Fact]
+    [Render]
+    public void ReopenedScreenshotDecodesToTheOriginalSize()
+    {
+        var thumbnailer = new SkiaThumbnailer();
+        var codec = new SkiaImageCodec();
+        var store = new HistoryStore(_tempDir, thumbnailer: thumbnailer, codec: codec);
+
+        var rawPixels = new byte[100 * 80 * 4];
+        for (int i = 0; i < rawPixels.Length; i += 4)
+        {
+            rawPixels[i] = 0x11;     // B
+            rawPixels[i + 1] = 0x22; // G
+            rawPixels[i + 2] = 0x33; // R
+            rawPixels[i + 3] = 0xFF; // A
+        }
+        var image = new CapturedImage(100, 80, rawPixels);
+        var record = store.Add(image, CaptureSource.Area);
+
+        var reopened = store.CapturedImage(record);
+        Assert.NotNull(reopened);
+        Assert.Equal(100, reopened.Value.PixelWidth);
+        Assert.Equal(80, reopened.Value.PixelHeight);
+        Assert.Equal(100 * 80 * 4, reopened.Value.Data.Length);
+    }
+
+    [Fact]
+    [Render]
+    public void LegacyRawScreenshotIsPurgedAtLoad()
+    {
+        var historyDir = Path.Combine(_tempDir, "legacy-history");
+        Directory.CreateDirectory(historyDir);
+
+        // 1. Build a store without a codec: writes raw pixels to <id>.png
+        var storeWithoutCodec = new HistoryStore(historyDir, thumbnailer: new SkiaThumbnailer());
+        var rawPixels = new byte[50 * 50 * 4];
+        rawPixels[0] = 0x01; // Not PNG signature
+        var image = new CapturedImage(50, 50, rawPixels);
+        var record = storeWithoutCodec.Add(image, CaptureSource.Area);
+
+        Assert.True(File.Exists(record.FileUrl));
+        Assert.True(File.Exists(record.ThumbnailUrl));
+        Assert.Single(storeWithoutCodec.All());
+
+        // 2. Open a new store with codec: purges legacy raw screenshot
+        var storeWithCodec = new HistoryStore(historyDir, thumbnailer: new SkiaThumbnailer(), codec: new SkiaImageCodec());
+        Assert.Empty(storeWithCodec.All());
+        Assert.False(File.Exists(record.FileUrl));
+        Assert.False(File.Exists(record.ThumbnailUrl));
+    }
+
+    [Fact]
+    [Render]
+    public void RecordingEntriesSurviveTheLegacyPurge()
+    {
+        var historyDir = Path.Combine(_tempDir, "recording-purge-history");
+        Directory.CreateDirectory(historyDir);
+
+        var storeWithoutCodec = new HistoryStore(historyDir, thumbnailer: new SkiaThumbnailer());
+
+        var dummyVideo = Path.Combine(_tempDir, "dummy-video.mp4");
+        File.WriteAllBytes(dummyVideo, [0x00, 0x00, 0x00, 0x18, 0x66, 0x74, 0x79, 0x70]);
+        byte[] dummyThumb = [0x01, 0x02, 0x03, 0x04];
+
+        var record = storeWithoutCodec.Add(
+            dummyVideo,
+            CaptureKind.Video,
+            1280,
+            720,
+            10.5,
+            dummyThumb,
+            CaptureSource.Area);
+
+        Assert.Single(storeWithoutCodec.All());
+        Assert.True(File.Exists(record.FileUrl));
+        Assert.True(File.Exists(record.ThumbnailUrl));
+
+        // Open a new store with codec: video recording survives
+        var storeWithCodec = new HistoryStore(historyDir, thumbnailer: new SkiaThumbnailer(), codec: new SkiaImageCodec());
+        var records = storeWithCodec.All();
+        Assert.Single(records);
+        Assert.Equal(CaptureKind.Video, records[0].Kind);
+        Assert.True(File.Exists(records[0].FileUrl));
+        Assert.True(File.Exists(records[0].ThumbnailUrl));
+    }
 }

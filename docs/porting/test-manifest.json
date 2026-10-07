@@ -3590,6 +3590,24 @@
       "csharpMethod": "ScreenshotFileIsADecodableImage",
       "targetProject": "Lightshot.Rendering.Tests",
       "tier": "Render"
+    },
+    {
+      "className": "HistoryStoreTests",
+      "csharpMethod": "ReopenedScreenshotDecodesToTheOriginalSize",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "HistoryStoreTests",
+      "csharpMethod": "LegacyRawScreenshotIsPurgedAtLoad",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "HistoryStoreTests",
+      "csharpMethod": "RecordingEntriesSurviveTheLegacyPurge",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
     }
   ]
 }

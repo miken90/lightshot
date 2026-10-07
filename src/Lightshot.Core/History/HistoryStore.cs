@@ -15,7 +15,7 @@ namespace Lightshot.Core;
 /// The local capture history: records captures as they happen, lists them for the history view,
 /// and enforces a retention cap that trims the oldest.
 /// </summary>
-public class HistoryStore
+public partial class HistoryStore
 {
     public const int DefaultRetention = 50;
     public const int ThumbnailMaxPixelSize = 320;
@@ -25,18 +25,28 @@ public class HistoryStore
     private readonly string _directory;
     private readonly string _indexFile;
     private readonly IThumbnailer? _thumbnailer;
+    private readonly IImageCodec? _codec;
     private readonly List<StoredEntry> _entries = [];
 
     public int Retention { get; private set; }
 
-    public HistoryStore(string directory, int retention = DefaultRetention, IThumbnailer? thumbnailer = null)
+    public HistoryStore(
+        string directory,
+        int retention = DefaultRetention,
+        IThumbnailer? thumbnailer = null,
+        IImageCodec? codec = null)
     {
         _directory = directory;
         _indexFile = Path.Combine(directory, "index.json");
         _thumbnailer = thumbnailer;
+        _codec = codec;
         Retention = Math.Max(0, retention);
 
         LoadIndex();
+        if (_codec != null)
+        {
+            PurgeLegacyRawScreenshots();
+        }
     }
 
     /// <summary>
@@ -71,7 +81,9 @@ public class HistoryStore
         try
         {
             var bytes = File.ReadAllBytes(record.FileUrl);
-            return new CapturedImage(record.PixelWidth, record.PixelHeight, bytes);
+            if (_codec == null) return new CapturedImage(record.PixelWidth, record.PixelHeight, bytes);
+            var decoded = _codec.Decode(bytes);
+            return decoded is { } img && img.PixelWidth > 0 ? img : null;
         }
         catch
         {
@@ -102,10 +114,12 @@ public class HistoryStore
         var imageFilePath = Path.Combine(_directory, imageFileName);
         var thumbFilePath = Path.Combine(_directory, thumbFileName);
 
-        File.WriteAllBytes(imageFilePath, image.Data.ToArray());
-
-        var thumbBytes = _thumbnailer?.CreateThumbnail(image.Data.ToArray(), ThumbnailMaxPixelSize)
-                         ?? image.Data.ToArray();
+        // Captures arrive as raw BGRA; encode once so the file and thumbnail are real PNGs.
+        byte[] fileBytes = _codec != null
+            ? _codec.Encode(new RenderedImage(image.PixelWidth, image.PixelHeight, image.Data.ToArray()), ImageFormat.Png.Instance)
+            : image.Data.ToArray();
+        File.WriteAllBytes(imageFilePath, fileBytes);
+        var thumbBytes = _thumbnailer?.CreateThumbnail(fileBytes, ThumbnailMaxPixelSize) ?? fileBytes;
         File.WriteAllBytes(thumbFilePath, thumbBytes);
 
         var entry = new StoredEntry
