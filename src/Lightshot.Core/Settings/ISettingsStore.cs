@@ -19,6 +19,7 @@ public interface ISettingsStore
     bool IncludeCursor { get; set; }
     double CaptureDelay { get; set; }
     int HistoryRetention { get; set; }
+    int HistoryMaxAgeDays { get; set; }
     bool LaunchAtLogin { get; set; }
     RecordingDefaults RecordingDefaults { get; set; }
     bool RememberLastRecordingArea { get; set; }

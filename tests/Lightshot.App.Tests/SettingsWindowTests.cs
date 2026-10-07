@@ -25,6 +25,7 @@ public class SettingsWindowTests
         public bool IncludeCursor { get; set; } = false;
         public double CaptureDelay { get; set; } = 0;
         public int HistoryRetention { get; set; } = 50;
+        public int HistoryMaxAgeDays { get; set; } = 7;
         public bool LaunchAtLogin { get; set; } = false;
         public RecordingDefaults RecordingDefaults { get; set; } = new();
         public bool RememberLastRecordingArea { get; set; } = false;

@@ -274,6 +274,20 @@ public class SettingsViewModel : INotifyPropertyChanged
         }
     }
 
+    public int HistoryMaxAgeDays
+    {
+        get => _store.HistoryMaxAgeDays;
+        set
+        {
+            int val = Math.Clamp(value, 0, 3650);
+            if (_store.HistoryMaxAgeDays != val)
+            {
+                _store.HistoryMaxAgeDays = val;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     public bool HideDesktopIcons
     {
         get => _store.HideDesktopIcons;

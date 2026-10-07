@@ -62,7 +62,7 @@ public sealed partial class AppController
             ? new RecordingMenuState(true, ControlsPillViewModel.FormatTime(_coordinator.RecordingElapsed))
             : null;
 
-        _ = Task.Run(RecoverScratchAsync);
+        _ = Task.Run(RecoverScratchAsync).ContinueWith(_ => OnUi(StartAutoClear), TaskScheduler.Default);
     }
 
     public void PresentRecordingState(RecordingSession session)

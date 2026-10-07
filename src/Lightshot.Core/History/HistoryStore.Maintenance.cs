@@ -32,4 +32,37 @@ public partial class HistoryStore
         }
         catch { return false; }
     }
+
+    // Age-based auto-clear; the count cap (Trim) still applies on every Append.
+    // Deletions use leaf file names to avoid directory traversal.
+    public int PruneOlderThan(DateTime cutoffUtc)
+    {
+        int removed = 0;
+        for (int i = _entries.Count - 1; i >= 0; i--)
+        {
+            var entry = _entries[i];
+            if (entry.Timestamp.ToUniversalTime() >= cutoffUtc) continue;
+            DeleteFilesSafe(entry);
+            _entries.RemoveAt(i);
+            removed++;
+        }
+        if (removed > 0) Persist();
+        return removed;
+    }
+
+    private void DeleteFilesSafe(StoredEntry entry)
+    {
+        var imgLeaf = Path.GetFileName(entry.ImageFile);
+        var thumbLeaf = Path.GetFileName(entry.ThumbnailFile);
+        if (!string.IsNullOrEmpty(imgLeaf))
+        {
+            var p = Path.Combine(_directory, imgLeaf);
+            try { if (File.Exists(p)) File.Delete(p); } catch { }
+        }
+        if (!string.IsNullOrEmpty(thumbLeaf))
+        {
+            var p = Path.Combine(_directory, thumbLeaf);
+            try { if (File.Exists(p)) File.Delete(p); } catch { }
+        }
+    }
 }

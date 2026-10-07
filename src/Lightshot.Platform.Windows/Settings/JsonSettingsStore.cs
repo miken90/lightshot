@@ -29,6 +29,7 @@ public class JsonSettingsStore : ISettingsStore
     private bool _includeCursor = SettingsKeys.DefaultIncludeCursor;
     private double _captureDelay = SettingsKeys.DefaultCaptureDelay;
     private int _historyRetention = SettingsKeys.DefaultHistoryRetention;
+    private int _historyMaxAgeDays = SettingsKeys.DefaultHistoryMaxAgeDays;
     private bool _launchAtLoginFallback = false;
     private RecordingDefaults _recordingDefaults = new();
     private bool _rememberLastRecordingArea = SettingsKeys.DefaultRememberLastArea;
@@ -179,6 +180,22 @@ public class JsonSettingsStore : ISettingsStore
                 Save();
             }
             NotifyChanged(SettingsKeys.HistoryRetention);
+        }
+    }
+
+    public int HistoryMaxAgeDays
+    {
+        get { lock (_lock) return _historyMaxAgeDays; }
+        set
+        {
+            lock (_lock)
+            {
+                int clamped = Math.Clamp(value, 0, 3650);
+                if (_historyMaxAgeDays == clamped) return;
+                _historyMaxAgeDays = clamped;
+                Save();
+            }
+            NotifyChanged(SettingsKeys.HistoryMaxAgeDays);
         }
     }
 
@@ -431,6 +448,7 @@ public class JsonSettingsStore : ISettingsStore
 
                 // 6. history
                 root[SettingsKeys.HistoryRetention] = _historyRetention;
+                root[SettingsKeys.HistoryMaxAgeDays] = _historyMaxAgeDays;
 
                 // 7. recording
                 root[SettingsKeys.RecordingDefaults] = JsonSerializer.SerializeToNode(_recordingDefaults);
@@ -563,6 +581,9 @@ public class JsonSettingsStore : ISettingsStore
                 if (TryGetInt(root, SettingsKeys.HistoryRetention, "HistoryRetention", out int retention))
                     _historyRetention = Math.Max(0, retention);
 
+                if (TryGetInt(root, SettingsKeys.HistoryMaxAgeDays, "HistoryMaxAgeDays", out int maxAgeDays))
+                    _historyMaxAgeDays = Math.Clamp(maxAgeDays, 0, 3650);
+
                 // 7. recording
                 var recDefaultsNode = root[SettingsKeys.RecordingDefaults] ?? root["RecordingDefaults"];
                 if (recDefaultsNode != null)
@@ -654,6 +675,7 @@ public class JsonSettingsStore : ISettingsStore
                         !string.Equals(k, "AdjustAreaBeforeCapture", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(k, "CaptureDelay", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(k, "HistoryRetention", StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(k, "HistoryMaxAgeDays", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(k, "RecordingDefaults", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(k, "RememberLastRecordingArea", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(k, "LastRecordingRegion", StringComparison.OrdinalIgnoreCase) &&
@@ -685,6 +707,7 @@ public class JsonSettingsStore : ISettingsStore
         _includeCursor = SettingsKeys.DefaultIncludeCursor;
         _captureDelay = SettingsKeys.DefaultCaptureDelay;
         _historyRetention = SettingsKeys.DefaultHistoryRetention;
+        _historyMaxAgeDays = SettingsKeys.DefaultHistoryMaxAgeDays;
         _recordingDefaults = new();
         _rememberLastRecordingArea = SettingsKeys.DefaultRememberLastArea;
         _lastRecordingRegion = null;

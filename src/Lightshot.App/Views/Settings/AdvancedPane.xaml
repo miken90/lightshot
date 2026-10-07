@@ -33,8 +33,12 @@
                     <TextBox Text="{Binding CaptureDelay, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60" HorizontalAlignment="Left"/>
                 </DockPanel>
                 <DockPanel Margin="0,4,0,0">
-                    <TextBlock Text="History retention (days): " Foreground="{DynamicResource Theme.TextPrimary}" VerticalAlignment="Center"/>
+                    <TextBlock Text="History retention (items): " Foreground="{DynamicResource Theme.TextPrimary}" VerticalAlignment="Center"/>
                     <TextBox Text="{Binding HistoryRetention, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60" HorizontalAlignment="Left"/>
+                </DockPanel>
+                <DockPanel Margin="0,4,0,0">
+                    <TextBlock Text="Delete history and temp files older than (days, 0 = never): " Foreground="{DynamicResource Theme.TextPrimary}" VerticalAlignment="Center"/>
+                    <TextBox Text="{Binding HistoryMaxAgeDays, Mode=TwoWay, UpdateSourceTrigger=LostFocus}" Width="60" HorizontalAlignment="Left"/>
                 </DockPanel>
             </StackPanel>
 

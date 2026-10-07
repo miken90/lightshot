@@ -3620,6 +3620,18 @@
       "csharpMethod": "EditorDragPayloadIsPng",
       "targetProject": "Lightshot.Rendering.Tests",
       "tier": "Render"
+    },
+    {
+      "className": "HistoryPruneTests",
+      "csharpMethod": "PruneRemovesOnlyEntriesOlderThanTheCutoff",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "HistoryPruneTests",
+      "csharpMethod": "PruneWithNothingOldDoesNotRewriteTheIndex",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
     }
   ]
 }

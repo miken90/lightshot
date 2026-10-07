@@ -520,6 +520,8 @@ public sealed partial class AppController : ICaptureUI, IDisposable
             jsonStore.SettingChanged -= OnSettingChanged;
         }
 
+        _autoClearTimer?.Stop();
+
         try { _historyWindow?.Close(); } catch { }
         try { _settingsWindow?.Close(); } catch { }
         try { _onboardingWindow?.Close(); } catch { }

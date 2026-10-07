@@ -147,4 +147,45 @@ public class JsonSettingsStoreTests
             if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
         }
     }
+
+    [Fact]
+    [Unit]
+    public void HistoryMaxAgeDaysDefaultsToSevenAndClamps()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), $"ls_max_age_{Guid.NewGuid():N}");
+        string file = Path.Combine(tempDir, "settings.json");
+        try
+        {
+            Directory.CreateDirectory(tempDir);
+            var store = new JsonSettingsStore(file);
+
+            // Default is 7
+            Assert.Equal(7, store.HistoryMaxAgeDays);
+
+            // Round trip
+            store.HistoryMaxAgeDays = 14;
+            Assert.Equal(14, store.HistoryMaxAgeDays);
+
+            var reloaded = new JsonSettingsStore(file);
+            Assert.Equal(14, reloaded.HistoryMaxAgeDays);
+
+            // Clamp below 0 -> 0
+            store.HistoryMaxAgeDays = -10;
+            Assert.Equal(0, store.HistoryMaxAgeDays);
+
+            var reloadedZero = new JsonSettingsStore(file);
+            Assert.Equal(0, reloadedZero.HistoryMaxAgeDays);
+
+            // Clamp above 3650 -> 3650
+            store.HistoryMaxAgeDays = 99999;
+            Assert.Equal(3650, store.HistoryMaxAgeDays);
+
+            var reloadedMax = new JsonSettingsStore(file);
+            Assert.Equal(3650, reloadedMax.HistoryMaxAgeDays);
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+        }
+    }
 }

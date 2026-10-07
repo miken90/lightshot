@@ -23,6 +23,7 @@ public static class SettingsKeys
     public const string CaptureAdjustAreaBeforeCapture = "capture.adjustAreaBeforeCapture";
     public const string CaptureDelay = "capture.delay";
     public const string HistoryRetention = "history.retention";
+    public const string HistoryMaxAgeDays = "history.maxAgeDays";
     public const string RecordingDefaults = "recording.defaults";
     public const string RecordingRememberLastArea = "recording.rememberLastArea";
     public const string RecordingLastRegion = "recording.lastRegion";
@@ -56,6 +57,7 @@ public static class SettingsKeys
     public const bool DefaultAdjustAreaBeforeCapture = false;
     public const double DefaultCaptureDelay = 0.0;
     public const int DefaultHistoryRetention = 50;
+    public const int DefaultHistoryMaxAgeDays = 7;
     public const bool DefaultRememberLastArea = false;
     public const string DefaultAppearance = "system";
     public const bool DefaultOcrKeepLineBreaks = true;
@@ -77,6 +79,7 @@ public static class SettingsKeys
         CaptureAdjustAreaBeforeCapture,
         CaptureDelay,
         HistoryRetention,
+        HistoryMaxAgeDays,
         RecordingDefaults,
         RecordingRememberLastArea,
         RecordingLastRegion,

@@ -271,5 +271,14 @@ public static class SettingsMigrations
             else
                 obj[SettingsKeys.AfterCaptureSettings] = JsonSerializer.SerializeToNode(new AfterCaptureSettings());
         }
+
+        // 20. history.maxAgeDays
+        if (!obj.ContainsKey(SettingsKeys.HistoryMaxAgeDays))
+        {
+            if (obj.TryGetPropertyValue("HistoryMaxAgeDays", out var legacyVal) && legacyVal != null)
+                obj[SettingsKeys.HistoryMaxAgeDays] = legacyVal.DeepClone();
+            else
+                obj[SettingsKeys.HistoryMaxAgeDays] = SettingsKeys.DefaultHistoryMaxAgeDays;
+        }
     }
 }
