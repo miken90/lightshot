@@ -30,6 +30,15 @@ public class DocumentRenderer : IImageRenderer
             return new RenderedImage(width, height, document.BaseImage.Data.ToArray());
         }
 
+        if (document.Canvas?.Enabled == true)
+        {
+            var canvasFrame = CanvasLayout.Compute(width, height, document.Canvas);
+            using var composed = CanvasComposer.Compose(bitmap, canvasFrame, document.Canvas, bitmap);
+            using var composedData = composed.Encode(SKEncodedImageFormat.Png, 100);
+            byte[] bytes = composedData != null ? composedData.ToArray() : Array.Empty<byte>();
+            return new RenderedImage(canvasFrame.Width, canvasFrame.Height, bytes);
+        }
+
         using var data = bitmap.Encode(SKEncodedImageFormat.Png, 100);
         byte[] pngBytes = data != null ? data.ToArray() : Array.Empty<byte>();
 

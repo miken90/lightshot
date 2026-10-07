@@ -3722,6 +3722,66 @@
       "csharpMethod": "GradientPresetIndexIsClampedAndStable",
       "targetProject": "Lightshot.Core.Tests",
       "tier": "Unit"
+    },
+    {
+      "className": "CanvasRenderTests",
+      "csharpMethod": "DisabledCanvasKeepsTheTightOutput",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "CanvasRenderTests",
+      "csharpMethod": "EnabledCanvasOutputsTheLayoutSize",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "CanvasRenderTests",
+      "csharpMethod": "SolidFillPaintsThePadding",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "CanvasRenderTests",
+      "csharpMethod": "ImageIsDrawnAtTheLayoutRect",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "CanvasRenderTests",
+      "csharpMethod": "RoundedCornerShowsTheFillAtTheImageCorner",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "CanvasRenderTests",
+      "csharpMethod": "AutoEdgeFillUsesTheDominantBorderColor",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "CanvasRenderTests",
+      "csharpMethod": "MissingFillImageFallsBackToGradient",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "CanvasRenderTests",
+      "csharpMethod": "DownscaleToFitKeepsTheFixedSize",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "CanvasRenderTests",
+      "csharpMethod": "GradientCanvasWithShadow",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "CanvasRenderTests",
+      "csharpMethod": "ImageFillCoversTheCanvas",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
     }
   ]
 }

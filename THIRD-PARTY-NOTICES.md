@@ -82,3 +82,8 @@ This project incorporates third-party open source software and assets.
 - Status: Original artwork created from scratch for this project (see `cc-art-261006-0030-lightshot-app-icon.md`).
 - License: MIT License
 - Copyright (c) 2026 Lightshot Contributors.
+
+## 17. WinShot (Border color sampling & canvas layout algorithm reference)
+- Source: https://github.com/mrgoonie/winshot
+- License: BSD 3-Clause License
+- Copyright (c) 2025, mrgoonie
