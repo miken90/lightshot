@@ -9,5 +9,6 @@
   "CurvedArrowIsDrawnThroughItsBendNotAlongItsChord": "4f8e4b90b07f3504d83858f4fbf2557ec7a76ccdff4eb19df410985652b910dd",
   "FilledRectanglePaintsItsInterior": "171c98396ac8a9b86e42d9fb42e2b2db8718b8839e22890f8d88ffcd789ba034",
   "GradientCanvasWithShadow": "0f2ec288be0a7d8c10d3433b5dde4c63f2bb195f6608dd2961ae77d2c0e38cf6",
-  "ImageFillCoversTheCanvas": "b7bfc93b674d6a68447b089ee0c90c094c28d60abcb1fe0f9dfac12a610cac23"
+  "ImageFillCoversTheCanvas": "b7bfc93b674d6a68447b089ee0c90c094c28d60abcb1fe0f9dfac12a610cac23",
+  "RoundedRectangleRendersFillAndStroke": "34d913ba36eb46cd5a92929b061066eb02717e7a7b3c704b9f15be534c9f8106"
 }
