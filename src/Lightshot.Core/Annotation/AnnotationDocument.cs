@@ -80,6 +80,9 @@ public class AnnotationDocument : IEquatable<AnnotationDocument>
 
     public Rect VisibleFrame => _state.CropRect ?? ImageBounds;
 
+    /// <summary>Non-undoable presentation canvas style (null = disabled / tight capture).</summary>
+    public CanvasStyle? Canvas { get; set; }
+
     public bool CanUndo => _undoStack.Count > 0;
 
     public bool CanRedo => _redoStack.Count > 0;

@@ -3632,6 +3632,96 @@
       "csharpMethod": "PruneWithNothingOldDoesNotRewriteTheIndex",
       "targetProject": "Lightshot.Core.Tests",
       "tier": "Unit"
+    },
+    {
+      "className": "CanvasLayoutTests",
+      "csharpMethod": "DisabledCanvasIsTheImageItself",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CanvasLayoutTests",
+      "csharpMethod": "AutoAddsPaddingAround",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CanvasLayoutTests",
+      "csharpMethod": "WideRatioExpandsWidth",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CanvasLayoutTests",
+      "csharpMethod": "TallRatioExpandsHeight",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CanvasLayoutTests",
+      "csharpMethod": "SmallImageIsCenteredOnFixedSize",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CanvasLayoutTests",
+      "csharpMethod": "LargeImageExpandsToTargetRatioByDefault",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CanvasLayoutTests",
+      "csharpMethod": "LargeImageDownscalesWhenAsked",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CanvasLayoutTests",
+      "csharpMethod": "EveryAspectPresetProducesItsRatio",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EdgeColorSamplerTests",
+      "csharpMethod": "DominantBorderColorWins",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EdgeColorSamplerTests",
+      "csharpMethod": "TransparentBorderFallsBack",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EdgeColorSamplerTests",
+      "csharpMethod": "QuantizesToStepsOf32",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EdgeColorSamplerTests",
+      "csharpMethod": "RgbaAndBgraAgree",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EdgeColorSamplerTests",
+      "csharpMethod": "ShortBufferFallsBack",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CanvasStyleTests",
+      "csharpMethod": "DocumentCanvasIsOffByDefaultAndNotUndone",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CanvasStyleTests",
+      "csharpMethod": "GradientPresetIndexIsClampedAndStable",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
     }
   ]
 }
