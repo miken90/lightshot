@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using Lightshot.Platform.Windows.Files;
+using Lightshot.Platform.Windows.Windows;
 
 namespace Lightshot.Platform.Windows.Recording;
 
 /// <summary>
-/// Manages temporary recording takes and remux artifacts in %LocalAppData%\Lightshot\Recordings.
+/// Manages temporary recording takes and remux artifacts in %LocalAppData%\Lightshot\Lightshot Recordings.
 /// </summary>
 public sealed class ScratchStore
 {
@@ -18,10 +18,7 @@ public sealed class ScratchStore
 
     public ScratchStore(string? rootDirectory = null)
     {
-        RootDirectory = rootDirectory ?? Path.Combine(
-            KnownFolders.LocalApplicationData,
-            "Lightshot",
-            "Recordings");
+        RootDirectory = rootDirectory ?? AppPaths.ScratchRecordings;
 
         Directory.CreateDirectory(RootDirectory);
     }

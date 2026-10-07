@@ -16,7 +16,8 @@ public static class AutoClearTargets
         new(AppPaths.Temp, "*", FoldersOnly: false),
         new(AppPaths.Temp, "*", FoldersOnly: true),
         new(AppPaths.Logs, "*.log", FoldersOnly: false),
-        new(Path.Combine(AppPaths.LocalData, "Lightshot Recordings"), "*.partial", FoldersOnly: false),
+        new(AppPaths.ScratchRecordings, "*.partial", FoldersOnly: false),
+        // Older builds' default scratch root; kept so leftovers there still age out.
         new(Path.Combine(KnownFolders.LocalApplicationData, "Lightshot", "Recordings"), "*.partial", FoldersOnly: false),
     ];
 }

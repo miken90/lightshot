@@ -27,6 +27,11 @@ public static class AppPaths
     public static string LocalData => Path.Combine(KnownFolders.LocalApplicationData, "Lightshot");
 
     /// <summary>
+    /// %LocalAppData%\Lightshot\Lightshot Recordings (recording scratch takes and recovery).
+    /// </summary>
+    public static string ScratchRecordings => Path.Combine(LocalData, "Lightshot Recordings");
+
+    /// <summary>
     /// %LocalAppData%\Lightshot\History.
     /// </summary>
     public static string History => Path.Combine(LocalData, "History");

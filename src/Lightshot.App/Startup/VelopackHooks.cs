@@ -23,7 +23,7 @@ internal static class VelopackHooks
             .Run();
 
     // Unfinished takes live here (AppController.cs:129). Keep them on uninstall when the folder holds any file.
-    internal static readonly string ScratchRecordingsDirectory = Path.Combine(AppPaths.LocalData, "Lightshot Recordings");
+    internal static string ScratchRecordingsDirectory => AppPaths.ScratchRecordings;
 
     // The Run value points at the running exe; rewrite it after an update so it names the new one.
     internal static void RefreshRunKey(string valueName = LaunchAtLogin.DefaultValueName)

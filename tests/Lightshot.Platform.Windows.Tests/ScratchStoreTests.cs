@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using Lightshot.Platform.Windows.Recording;
+using Lightshot.Platform.Windows.Windows;
 using Lightshot.TestSupport;
 using Xunit;
 
@@ -72,5 +73,24 @@ public class ScratchStoreTests : IDisposable
         bool deleteResult = store.DeleteTake(takeFile);
         Assert.True(deleteResult);
         Assert.False(File.Exists(takeFile));
+    }
+
+    [Fact]
+    [Unit]
+    public void DefaultRootIsTheAppScratchRoot()
+    {
+        bool existedBefore = Directory.Exists(AppPaths.ScratchRecordings);
+        var store = new ScratchStore();
+        try
+        {
+            Assert.Equal(AppPaths.ScratchRecordings, store.RootDirectory);
+        }
+        finally
+        {
+            if (!existedBefore && Directory.Exists(AppPaths.ScratchRecordings))
+            {
+                try { Directory.Delete(AppPaths.ScratchRecordings, recursive: true); } catch { }
+            }
+        }
     }
 }

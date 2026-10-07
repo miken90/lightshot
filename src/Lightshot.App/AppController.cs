@@ -129,7 +129,7 @@ public sealed partial class AppController : ICaptureUI, IDisposable
             codec: _codec);
 
         // One scratch root for engine takes, coordinator outputs and recovery, so a crash leaves files recovery can see.
-        _scratchStore = new ScratchStore(Path.Combine(AppPaths.LocalData, "Lightshot Recordings"));
+        _scratchStore = new ScratchStore(AppPaths.ScratchRecordings);
         _audioDevices = new AudioDeviceService();
         var engine = new RecordingEngine(scratchStore: _scratchStore, audioDeviceService: _audioDevices,
             playSounds: () => _settingsStore.RecordingDefaults.PlaySounds);
