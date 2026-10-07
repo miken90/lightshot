@@ -150,6 +150,35 @@ public class JsonSettingsStoreTests
 
     [Fact]
     [Unit]
+    public void MagnifierZoomFactorRoundTripsAndDefaultsToFour()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), $"ls_magnifier_{Guid.NewGuid():N}");
+        string file = Path.Combine(tempDir, "settings.json");
+        try
+        {
+            Directory.CreateDirectory(tempDir);
+            var store = new JsonSettingsStore(file);
+            Assert.Equal(4, store.MagnifierZoom);
+
+            store.MagnifierZoom = 8;
+            Assert.Equal(8, new JsonSettingsStore(file).MagnifierZoom);
+
+            store.MagnifierZoom = 2;
+            Assert.Equal(2, new JsonSettingsStore(file).MagnifierZoom);
+
+            // Only 2, 4 and 8 exist; anything else falls back to 4.
+            store.MagnifierZoom = 5;
+            Assert.Equal(4, store.MagnifierZoom);
+            Assert.Equal(4, new JsonSettingsStore(file).MagnifierZoom);
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+        }
+    }
+
+    [Fact]
+    [Unit]
     public void HistoryMaxAgeDaysDefaultsToSevenAndClamps()
     {
         string tempDir = Path.Combine(Path.GetTempPath(), $"ls_max_age_{Guid.NewGuid():N}");

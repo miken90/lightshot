@@ -20,6 +20,12 @@ public interface ISettingsStore
     double CaptureDelay { get; set; }
     int HistoryRetention { get; set; }
     int HistoryMaxAgeDays { get; set; }
+
+    /// <summary>
+    /// Zoom factor of the capture loupe: 2, 4 or 8.
+    /// </summary>
+    int MagnifierZoom { get; set; }
+
     bool LaunchAtLogin { get; set; }
     RecordingDefaults RecordingDefaults { get; set; }
     bool RememberLastRecordingArea { get; set; }

@@ -23,6 +23,7 @@ public class ShortcutsPaneTests
         public double CaptureDelay { get; set; } = 0;
         public int HistoryRetention { get; set; } = 50;
         public int HistoryMaxAgeDays { get; set; } = 7;
+        public int MagnifierZoom { get; set; } = 4;
         public bool LaunchAtLogin { get; set; } = false;
         public RecordingDefaults RecordingDefaults { get; set; } = new();
         public bool RememberLastRecordingArea { get; set; } = false;

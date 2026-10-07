@@ -288,6 +288,20 @@ public class SettingsViewModel : INotifyPropertyChanged
         }
     }
 
+    /// <summary>Loupe zoom factor: 2, 4 or 8.</summary>
+    public int MagnifierZoom
+    {
+        get => _store.MagnifierZoom;
+        set
+        {
+            if (_store.MagnifierZoom != value)
+            {
+                _store.MagnifierZoom = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
     public bool HideDesktopIcons
     {
         get => _store.HideDesktopIcons;

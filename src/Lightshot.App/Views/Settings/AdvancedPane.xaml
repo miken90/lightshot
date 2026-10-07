@@ -1,6 +1,7 @@
 <UserControl x:Class="Lightshot.App.Views.Settings.AdvancedPane"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d" 
@@ -13,10 +14,10 @@
             <TextBlock Text="Magnifier" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <StackPanel Margin="{DynamicResource Space.SectionGap}">
                 <TextBlock Text="Magnifier Zoom Factor:" Foreground="{DynamicResource Theme.TextSecondary}" Margin="0,0,0,4"/>
-                <ComboBox SelectedIndex="1" Width="120" HorizontalAlignment="Left">
-                    <ComboBoxItem Content="2x" />
-                    <ComboBoxItem Content="4x" />
-                    <ComboBoxItem Content="8x" />
+                <ComboBox SelectedValue="{Binding MagnifierZoom, Mode=TwoWay}" SelectedValuePath="Tag" Width="120" HorizontalAlignment="Left">
+                    <ComboBoxItem Content="2x"><ComboBoxItem.Tag><sys:Int32>2</sys:Int32></ComboBoxItem.Tag></ComboBoxItem>
+                    <ComboBoxItem Content="4x"><ComboBoxItem.Tag><sys:Int32>4</sys:Int32></ComboBoxItem.Tag></ComboBoxItem>
+                    <ComboBoxItem Content="8x"><ComboBoxItem.Tag><sys:Int32>8</sys:Int32></ComboBoxItem.Tag></ComboBoxItem>
                 </ComboBox>
             </StackPanel>
 

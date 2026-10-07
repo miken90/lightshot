@@ -280,5 +280,14 @@ public static class SettingsMigrations
             else
                 obj[SettingsKeys.HistoryMaxAgeDays] = SettingsKeys.DefaultHistoryMaxAgeDays;
         }
+
+        // 21. capture.magnifierZoom
+        if (!obj.ContainsKey(SettingsKeys.CaptureMagnifierZoom))
+        {
+            if (obj.TryGetPropertyValue("MagnifierZoom", out var legacyVal) && legacyVal != null)
+                obj[SettingsKeys.CaptureMagnifierZoom] = legacyVal.DeepClone();
+            else
+                obj[SettingsKeys.CaptureMagnifierZoom] = SettingsKeys.DefaultCaptureMagnifierZoom;
+        }
     }
 }

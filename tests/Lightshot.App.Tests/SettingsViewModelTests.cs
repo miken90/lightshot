@@ -23,6 +23,7 @@ public class SettingsViewModelTests
         public double CaptureDelay { get; set; } = 0;
         public int HistoryRetention { get; set; } = 50;
         public int HistoryMaxAgeDays { get; set; } = 7;
+        public int MagnifierZoom { get; set; } = 4;
         public bool LaunchAtLogin { get; set; } = false;
         public RecordingDefaults RecordingDefaults { get; set; } = new();
         public bool RememberLastRecordingArea { get; set; } = false;
@@ -33,6 +34,19 @@ public class SettingsViewModelTests
         public bool AdjustAreaBeforeCapture { get; set; } = false;
         public QuickAccessSettings QuickAccess { get; set; } = new();
         public AfterCaptureSettings AfterCapture { get; set; } = new();
+    }
+
+    [Fact]
+    [Unit]
+    public void MagnifierZoomUpdatesStore()
+    {
+        var store = new MemorySettingsStore();
+        var vm = new SettingsViewModel(store, applyHotkeys: _ => []);
+        Assert.Equal(4, vm.MagnifierZoom);
+
+        vm.MagnifierZoom = 8;
+
+        Assert.Equal(8, store.MagnifierZoom);
     }
 
     [Fact]

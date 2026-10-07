@@ -30,6 +30,7 @@ public class JsonSettingsStore : ISettingsStore
     private double _captureDelay = SettingsKeys.DefaultCaptureDelay;
     private int _historyRetention = SettingsKeys.DefaultHistoryRetention;
     private int _historyMaxAgeDays = SettingsKeys.DefaultHistoryMaxAgeDays;
+    private int _magnifierZoom = SettingsKeys.DefaultCaptureMagnifierZoom;
     private bool _launchAtLoginFallback = false;
     private RecordingDefaults _recordingDefaults = new();
     private bool _rememberLastRecordingArea = SettingsKeys.DefaultRememberLastArea;
@@ -198,6 +199,28 @@ public class JsonSettingsStore : ISettingsStore
             NotifyChanged(SettingsKeys.HistoryMaxAgeDays);
         }
     }
+
+    public int MagnifierZoom
+    {
+        get { lock (_lock) return _magnifierZoom; }
+        set
+        {
+            lock (_lock)
+            {
+                int snapped = NormalizeMagnifierZoom(value);
+                if (_magnifierZoom == snapped) return;
+                _magnifierZoom = snapped;
+                Save();
+            }
+            NotifyChanged(SettingsKeys.CaptureMagnifierZoom);
+        }
+    }
+
+    /// <summary>
+    /// Only 2x, 4x and 8x exist; anything else falls back to the default.
+    /// </summary>
+    private static int NormalizeMagnifierZoom(int value) =>
+        value is 2 or 4 or 8 ? value : SettingsKeys.DefaultCaptureMagnifierZoom;
 
     /// <summary>
     /// Source of truth is the real HKCU Run login-item registration (APP §5).
@@ -449,6 +472,7 @@ public class JsonSettingsStore : ISettingsStore
                 // 6. history
                 root[SettingsKeys.HistoryRetention] = _historyRetention;
                 root[SettingsKeys.HistoryMaxAgeDays] = _historyMaxAgeDays;
+                root[SettingsKeys.CaptureMagnifierZoom] = _magnifierZoom;
 
                 // 7. recording
                 root[SettingsKeys.RecordingDefaults] = JsonSerializer.SerializeToNode(_recordingDefaults);
@@ -584,6 +608,9 @@ public class JsonSettingsStore : ISettingsStore
                 if (TryGetInt(root, SettingsKeys.HistoryMaxAgeDays, "HistoryMaxAgeDays", out int maxAgeDays))
                     _historyMaxAgeDays = Math.Clamp(maxAgeDays, 0, 3650);
 
+                if (TryGetInt(root, SettingsKeys.CaptureMagnifierZoom, "MagnifierZoom", out int magnifierZoom))
+                    _magnifierZoom = NormalizeMagnifierZoom(magnifierZoom);
+
                 // 7. recording
                 var recDefaultsNode = root[SettingsKeys.RecordingDefaults] ?? root["RecordingDefaults"];
                 if (recDefaultsNode != null)
@@ -676,6 +703,7 @@ public class JsonSettingsStore : ISettingsStore
                         !string.Equals(k, "CaptureDelay", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(k, "HistoryRetention", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(k, "HistoryMaxAgeDays", StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(k, "MagnifierZoom", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(k, "RecordingDefaults", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(k, "RememberLastRecordingArea", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(k, "LastRecordingRegion", StringComparison.OrdinalIgnoreCase) &&
@@ -708,6 +736,7 @@ public class JsonSettingsStore : ISettingsStore
         _captureDelay = SettingsKeys.DefaultCaptureDelay;
         _historyRetention = SettingsKeys.DefaultHistoryRetention;
         _historyMaxAgeDays = SettingsKeys.DefaultHistoryMaxAgeDays;
+        _magnifierZoom = SettingsKeys.DefaultCaptureMagnifierZoom;
         _recordingDefaults = new();
         _rememberLastRecordingArea = SettingsKeys.DefaultRememberLastArea;
         _lastRecordingRegion = null;
