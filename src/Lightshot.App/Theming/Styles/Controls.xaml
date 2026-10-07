@@ -3,12 +3,16 @@
     <!-- Merged by ThemeService after ThemeMode is set, so the Fluent implicit
          styles exist and BasedOn can reference them (App.xaml parse is too early). -->
 
+    <!-- Icon glyph font for TextBlocks inside icon buttons; MDL2 Assets is the Windows 10 fallback. -->
+    <FontFamily x:Key="Font.SegoeFluentIcons">Segoe Fluent Icons, Segoe MDL2 Assets</FontFamily>
+
     <!-- Spacing on the 4 epx grid (MS Learn content-basics: 8 between controls, 12 label gap, 16 surface edge, 24 dialog). -->
     <Thickness x:Key="Space.Pane">16</Thickness>
     <Thickness x:Key="Space.Dialog">24</Thickness>
     <Thickness x:Key="Space.Footer">16,12,16,12</Thickness>
     <Thickness x:Key="Space.SectionGap">0,0,0,16</Thickness>
     <Thickness x:Key="Space.HeaderGap">0,0,0,8</Thickness>
+    <Thickness x:Key="Space.RowGap">0,0,0,8</Thickness>
     <Thickness x:Key="Space.ButtonGap">8,0,0,0</Thickness>
     <Thickness x:Key="Space.Indent">28,0,0,0</Thickness>
 
@@ -42,7 +46,7 @@
         <Setter Property="Width" Value="32"/>
         <Setter Property="Height" Value="32"/>
         <Setter Property="Padding" Value="0"/>
-        <Setter Property="FontFamily" Value="Segoe Fluent Icons, Segoe MDL2 Assets"/>
+        <Setter Property="FontFamily" Value="{StaticResource Font.SegoeFluentIcons}"/>
         <Setter Property="FontSize" Value="16"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -58,7 +62,7 @@
         <Setter Property="HorizontalAlignment" Value="Stretch"/>
         <Setter Property="HorizontalContentAlignment" Value="Center"/>
         <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="FontFamily" Value="Segoe Fluent Icons, Segoe MDL2 Assets"/>
+        <Setter Property="FontFamily" Value="{StaticResource Font.SegoeFluentIcons}"/>
         <Setter Property="FontSize" Value="16"/>
     </Style>
     <!-- Implicit TextBox padding: Fluent default (10,5,6,6) leaves only 19 px for a 19.3 px line at 14 px font, clipping vertically. (10,3,6,4) gives 23 px room without clipping. -->
