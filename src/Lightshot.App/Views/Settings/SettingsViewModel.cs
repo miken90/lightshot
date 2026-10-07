@@ -201,6 +201,24 @@ public class SettingsViewModel : INotifyPropertyChanged
         }
     }
 
+    public bool AfterShowQuickAccess
+    {
+        get => _store.AfterCapture.ShowQuickAccess;
+        set { if (_store.AfterCapture.ShowQuickAccess != value) { _store.AfterCapture = _store.AfterCapture with { ShowQuickAccess = value }; OnPropertyChanged(); } }
+    }
+
+    public bool AfterCopyToClipboard
+    {
+        get => _store.AfterCapture.CopyToClipboard;
+        set { if (_store.AfterCapture.CopyToClipboard != value) { _store.AfterCapture = _store.AfterCapture with { CopyToClipboard = value }; OnPropertyChanged(); } }
+    }
+
+    public bool AfterSaveToFile
+    {
+        get => _store.AfterCapture.SaveToFile;
+        set { if (_store.AfterCapture.SaveToFile != value) { _store.AfterCapture = _store.AfterCapture with { SaveToFile = value }; OnPropertyChanged(); } }
+    }
+
     public bool IncludeCursor
     {
         get => _store.IncludeCursor;

@@ -79,4 +79,44 @@ public class JsonSettingsStoreTests
             }
         }
     }
+
+    [Fact]
+    [Unit]
+    public void AfterCaptureDefaultsToCopyAndQuickAccess()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), $"ls_ac_def_{Guid.NewGuid():N}");
+        try
+        {
+            var store = new JsonSettingsStore(Path.Combine(tempDir, "settings.json"));
+            Assert.True(store.AfterCapture.ShowQuickAccess);
+            Assert.True(store.AfterCapture.CopyToClipboard);
+            Assert.False(store.AfterCapture.SaveToFile);
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+        }
+    }
+
+    [Fact]
+    [Unit]
+    public void AfterCaptureRoundTripsThroughSettingsFile()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), $"ls_ac_roundtrip_{Guid.NewGuid():N}");
+        string file = Path.Combine(tempDir, "settings.json");
+        try
+        {
+            var store = new JsonSettingsStore(file);
+            store.AfterCapture = new AfterCaptureSettings(ShowQuickAccess: false, CopyToClipboard: false, SaveToFile: true);
+
+            var reloaded = new JsonSettingsStore(file);
+            Assert.False(reloaded.AfterCapture.ShowQuickAccess);
+            Assert.False(reloaded.AfterCapture.CopyToClipboard);
+            Assert.True(reloaded.AfterCapture.SaveToFile);
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+        }
+    }
 }

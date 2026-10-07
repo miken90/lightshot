@@ -262,5 +262,14 @@ public static class SettingsMigrations
         {
             obj[SettingsKeys.AppOnboarded] = SettingsKeys.DefaultAppOnboarded;
         }
+
+        // 19. capture.afterCapture
+        if (!obj.ContainsKey(SettingsKeys.AfterCaptureSettings))
+        {
+            if (obj.TryGetPropertyValue("AfterCapture", out var legacyVal) && legacyVal != null)
+                obj[SettingsKeys.AfterCaptureSettings] = legacyVal.DeepClone();
+            else
+                obj[SettingsKeys.AfterCaptureSettings] = JsonSerializer.SerializeToNode(new AfterCaptureSettings());
+        }
     }
 }

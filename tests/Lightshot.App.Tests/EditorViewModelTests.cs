@@ -291,6 +291,7 @@ public class TestSettingsStore : ISettingsStore
     public bool HideDesktopIcons { get; set; } = false;
     public bool AdjustAreaBeforeCapture { get; set; } = false;
     public QuickAccessSettings QuickAccess { get; set; } = new();
+    public AfterCaptureSettings AfterCapture { get; set; } = new();
 
     public string? GetSetting(string key) => _settings.TryGetValue(key, out var v) ? v : null;
     public void SetSetting(string key, string? value) => _settings[key] = value;

@@ -23,6 +23,7 @@ public class FakeSettingsStore : ISettingsStore
     public bool HideDesktopIcons { get; set; } = false;
     public bool AdjustAreaBeforeCapture { get; set; } = false;
     public QuickAccessSettings QuickAccess { get; set; } = new();
+    public AfterCaptureSettings AfterCapture { get; set; } = new();
 
     private readonly System.Collections.Generic.Dictionary<string, string?> _customSettings = new();
     public string? GetSetting(string key) => _customSettings.TryGetValue(key, out var val) ? val : null;

@@ -29,6 +29,11 @@ public interface ISettingsStore
     bool AdjustAreaBeforeCapture { get; set; }
     QuickAccessSettings QuickAccess { get; set; }
 
+    /// <summary>
+    /// Actions run after every completed screenshot capture.
+    /// </summary>
+    AfterCaptureSettings AfterCapture { get; set; }
+
     string? GetSetting(string key) => null;
     void SetSetting(string key, string? value) { }
 }

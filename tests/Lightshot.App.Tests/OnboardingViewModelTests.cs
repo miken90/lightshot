@@ -30,6 +30,7 @@ public class OnboardingViewModelTests
         public bool HideDesktopIcons { get; set; } = false;
         public bool AdjustAreaBeforeCapture { get; set; } = false;
         public QuickAccessSettings QuickAccess { get; set; } = new();
+        public AfterCaptureSettings AfterCapture { get; set; } = new();
 
         private readonly Dictionary<string, string?> _custom = new();
         public string? GetSetting(string key) => _custom.TryGetValue(key, out var v) ? v : null;

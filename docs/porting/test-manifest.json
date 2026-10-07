@@ -3536,6 +3536,60 @@
       "csharpMethod": "BlurredOutputMatchesAnalyticGaussianWithinTolerance",
       "targetProject": "Lightshot.Rendering.Tests",
       "tier": "Render"
+    },
+    {
+      "className": "CopyAfterCaptureProofTests",
+      "csharpMethod": "AreaCaptureCopiesTheImageToTheClipboard",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CopyAfterCaptureProofTests",
+      "csharpMethod": "FullscreenCaptureCopiesTheImageToTheClipboard",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "AfterCaptureTests",
+      "csharpMethod": "CopyOffLeavesTheClipboardAlone",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "AfterCaptureTests",
+      "csharpMethod": "SaveOnWritesTheCaptureToTheDefaultDestination",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "AfterCaptureTests",
+      "csharpMethod": "QuickAccessOffShowsNoCard",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "AfterCaptureTests",
+      "csharpMethod": "EditorOnSkipsQuickAccess",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "AfterCaptureTests",
+      "csharpMethod": "CopyFailureStillOpensTheEditor",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "HistoryThumbnailProofTests",
+      "csharpMethod": "ScreenshotThumbnailIsADecodableImage",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
+    },
+    {
+      "className": "HistoryThumbnailProofTests",
+      "csharpMethod": "ScreenshotFileIsADecodableImage",
+      "targetProject": "Lightshot.Rendering.Tests",
+      "tier": "Render"
     }
   ]
 }

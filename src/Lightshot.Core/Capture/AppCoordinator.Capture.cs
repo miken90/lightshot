@@ -161,16 +161,23 @@ public partial class AppCoordinator
         }
     }
 
+    // After Capture actions run for every capture path, before the editor or Quick Access appears,
+    // so the clipboard already holds the image when the user starts annotating.
     private void PresentCapture(CapturedImage image)
     {
-        if (_settings.OpenInEditor)
+        var after = _settings.AfterCapture;
+        if (after.CopyToClipboard)
         {
-            _ui.OpenEditor(image);
+            try { CopyToClipboard(new AnnotationDocument(image)); }
+            catch (Exception) { /* a clipboard held by another app must not block the editor */ }
         }
-        else
+        if (after.SaveToFile)
         {
-            _ui.PresentQuickAccess(image);
+            try { Save(new AnnotationDocument(image), DateTime.Now); }
+            catch (Exception) { /* a full or missing save folder must not block the editor */ }
         }
+        if (_settings.OpenInEditor) _ui.OpenEditor(image);
+        else if (after.ShowQuickAccess) _ui.PresentQuickAccess(image);
     }
 
     private async Task<bool> GuideFirstRunAuthorizationIfNeededAsync(IPermissionAuthorizing service)

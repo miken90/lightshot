@@ -38,6 +38,7 @@ public class JsonSettingsStore : ISettingsStore
     private bool _hideDesktopIcons = SettingsKeys.DefaultHideDesktopIcons;
     private bool _adjustAreaBeforeCapture = SettingsKeys.DefaultAdjustAreaBeforeCapture;
     private QuickAccessSettings _quickAccess = new();
+    private AfterCaptureSettings _afterCapture = new();
 
     private readonly Dictionary<string, string?> _customSettings = new(StringComparer.OrdinalIgnoreCase);
 
@@ -329,6 +330,21 @@ public class JsonSettingsStore : ISettingsStore
         }
     }
 
+    public AfterCaptureSettings AfterCapture
+    {
+        get { lock (_lock) return _afterCapture; }
+        set
+        {
+            lock (_lock)
+            {
+                if (_afterCapture == value) return;
+                _afterCapture = value;
+                Save();
+            }
+            NotifyChanged(SettingsKeys.AfterCaptureSettings);
+        }
+    }
+
     public string? GetSetting(string key)
     {
         lock (_lock)
@@ -436,8 +452,9 @@ public class JsonSettingsStore : ISettingsStore
                 root[SettingsKeys.OcrKeepLineBreaks] = _ocrKeepsLineBreaks;
                 root[SettingsKeys.AppHideDesktopIcons] = _hideDesktopIcons;
 
-                // 10. Quick access
+                // 10. Quick access & After capture
                 root[SettingsKeys.QuickAccessSettings] = JsonSerializer.SerializeToNode(_quickAccess);
+                root[SettingsKeys.AfterCaptureSettings] = JsonSerializer.SerializeToNode(_afterCapture);
 
                 // 11. Custom settings (e.g. editor.lastArrowStyle)
                 foreach (var (k, v) in _customSettings)
@@ -586,7 +603,7 @@ public class JsonSettingsStore : ISettingsStore
                 if (TryGetBool(root, SettingsKeys.AppHideDesktopIcons, "HideDesktopIcons", out bool hideIcons))
                     _hideDesktopIcons = hideIcons;
 
-                // 10. Quick access
+                // 10. Quick access & After capture
                 var qaNode = root[SettingsKeys.QuickAccessSettings] ?? root["QuickAccess"];
                 if (qaNode != null)
                 {
@@ -594,6 +611,17 @@ public class JsonSettingsStore : ISettingsStore
                     {
                         var qa = JsonSerializer.Deserialize<QuickAccessSettings>(qaNode.ToJsonString());
                         if (qa != null) _quickAccess = qa;
+                    }
+                    catch { /* keep default */ }
+                }
+
+                var acNode = root[SettingsKeys.AfterCaptureSettings] ?? root["AfterCapture"];
+                if (acNode != null)
+                {
+                    try
+                    {
+                        var ac = JsonSerializer.Deserialize<AfterCaptureSettings>(acNode.ToJsonString());
+                        if (ac != null) _afterCapture = ac;
                     }
                     catch { /* keep default */ }
                 }
@@ -629,7 +657,8 @@ public class JsonSettingsStore : ISettingsStore
                         !string.Equals(k, "Appearance", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(k, "OcrKeepsLineBreaks", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(k, "HideDesktopIcons", StringComparison.OrdinalIgnoreCase) &&
-                        !string.Equals(k, "QuickAccess", StringComparison.OrdinalIgnoreCase))
+                        !string.Equals(k, "QuickAccess", StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(k, "AfterCapture", StringComparison.OrdinalIgnoreCase))
                     {
                         _customSettings[k] = v?.GetValue<string>() ?? v?.ToString();
                     }
@@ -661,6 +690,7 @@ public class JsonSettingsStore : ISettingsStore
         _hideDesktopIcons = SettingsKeys.DefaultHideDesktopIcons;
         _adjustAreaBeforeCapture = SettingsKeys.DefaultAdjustAreaBeforeCapture;
         _quickAccess = new();
+        _afterCapture = new();
     }
 
     private static bool TryGetBool(JsonObject obj, string primaryKey, string legacyKey, out bool value)

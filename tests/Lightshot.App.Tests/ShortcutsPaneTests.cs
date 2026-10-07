@@ -31,6 +31,7 @@ public class ShortcutsPaneTests
         public bool HideDesktopIcons { get; set; } = false;
         public bool AdjustAreaBeforeCapture { get; set; } = false;
         public QuickAccessSettings QuickAccess { get; set; } = new();
+        public AfterCaptureSettings AfterCapture { get; set; } = new();
     }
 
     private static void RunInSta(Action action)

@@ -9,8 +9,8 @@
         <TextBlock Text="After Capture" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
         <TextBlock Text="Configure actions performed immediately when a capture completes." Foreground="{DynamicResource Theme.TextSecondary}" Margin="{DynamicResource Space.SectionGap}"/>
 
-        <CheckBox Content="Show Quick Access card in bottom corner" IsChecked="True" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
-        <CheckBox Content="Copy image to clipboard" IsChecked="True" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
-        <CheckBox Content="Save image to file" IsChecked="False" Foreground="{DynamicResource Theme.TextPrimary}" Margin="{DynamicResource Space.SectionGap}"/>
+        <CheckBox Content="Show Quick Access card in bottom corner" IsChecked="{Binding AfterShowQuickAccess, Mode=TwoWay}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
+        <CheckBox Content="Copy image to clipboard" IsChecked="{Binding AfterCopyToClipboard, Mode=TwoWay}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
+        <CheckBox Content="Save image to file" IsChecked="{Binding AfterSaveToFile, Mode=TwoWay}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="{DynamicResource Space.SectionGap}"/>
     </StackPanel>
 </UserControl>

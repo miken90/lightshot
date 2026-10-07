@@ -40,8 +40,6 @@
 
             <TextBlock Text="Rendering &amp; Diagnostics" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <StackPanel Margin="{DynamicResource Space.SectionGap}">
-                <CheckBox Content="Use hardware acceleration (GPU)" IsChecked="True" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
-                <CheckBox Content="Override target DPI scaling" IsChecked="False" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0"/>
                 <Button Content="Flush Diagnostic Buffer" HorizontalAlignment="Left" Margin="0,8,0,0"/>
             </StackPanel>
         </StackPanel>

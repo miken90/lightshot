@@ -30,6 +30,7 @@ public static class SettingsKeys
     public const string OcrKeepLineBreaks = "ocr.keepLineBreaks";
     public const string AppHideDesktopIcons = "app.hideDesktopIcons";
     public const string QuickAccessSettings = "quickAccess.settings";
+    public const string AfterCaptureSettings = "capture.afterCapture";
     public const string AppOnboarded = "app.onboarded";
 
     // Phase 4 custom setting preserved for editor state
@@ -81,6 +82,7 @@ public static class SettingsKeys
         OcrKeepLineBreaks,
         AppHideDesktopIcons,
         QuickAccessSettings,
+        AfterCaptureSettings,
         AppOnboarded
     ];
 }
