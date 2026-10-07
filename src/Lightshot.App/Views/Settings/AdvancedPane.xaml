@@ -45,7 +45,7 @@
 
             <TextBlock Text="Rendering &amp; Diagnostics" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <StackPanel Margin="{DynamicResource Space.SectionGap}">
-                <Button Content="Flush Diagnostic Buffer" HorizontalAlignment="Left" Margin="0,8,0,0"/>
+                <Button Content="Flush &amp; Open Logs" Click="OnFlushAndOpenLogsClick" HorizontalAlignment="Left" Margin="0,8,0,0"/>
             </StackPanel>
         </StackPanel>
     </ScrollViewer>
