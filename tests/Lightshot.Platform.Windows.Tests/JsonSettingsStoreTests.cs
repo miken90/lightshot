@@ -119,4 +119,32 @@ public class JsonSettingsStoreTests
             if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
         }
     }
+
+    [Fact]
+    [Unit]
+    public void BoolCustomValueDoesNotResetSettings()
+    {
+        string tempDir = Path.Combine(Path.GetTempPath(), $"ls_bool_custom_{Guid.NewGuid():N}");
+        string file = Path.Combine(tempDir, "settings.json");
+        try
+        {
+            Directory.CreateDirectory(tempDir);
+            string json = """
+            {
+                "custom.flag": true,
+                "save.format": "jpeg",
+                "save.jpegQuality": 0.55
+            }
+            """;
+            File.WriteAllText(file, json);
+
+            var store = new JsonSettingsStore(file);
+            Assert.IsType<ImageFormat.Jpeg>(store.DefaultFormat);
+            Assert.Equal("true", store.GetSetting("custom.flag"));
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir)) Directory.Delete(tempDir, true);
+        }
+    }
 }

@@ -31,6 +31,8 @@ public static class SettingsKeys
     public const string AppHideDesktopIcons = "app.hideDesktopIcons";
     public const string QuickAccessSettings = "quickAccess.settings";
     public const string AfterCaptureSettings = "capture.afterCapture";
+
+    // Custom string key: must stay out of AllKeys (Load rebuilds custom settings only for keys not in AllKeys)
     public const string AppOnboarded = "app.onboarded";
 
     // Phase 4 custom setting preserved for editor state
@@ -82,7 +84,6 @@ public static class SettingsKeys
         OcrKeepLineBreaks,
         AppHideDesktopIcons,
         QuickAccessSettings,
-        AfterCaptureSettings,
-        AppOnboarded
+        AfterCaptureSettings
     ];
 }

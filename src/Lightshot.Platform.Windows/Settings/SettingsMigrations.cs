@@ -260,7 +260,7 @@ public static class SettingsMigrations
         // 18. app.onboarded
         if (!obj.ContainsKey(SettingsKeys.AppOnboarded))
         {
-            obj[SettingsKeys.AppOnboarded] = SettingsKeys.DefaultAppOnboarded;
+            obj[SettingsKeys.AppOnboarded] = "false";
         }
 
         // 19. capture.afterCapture

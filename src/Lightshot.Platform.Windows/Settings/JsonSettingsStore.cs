@@ -627,12 +627,15 @@ public class JsonSettingsStore : ISettingsStore
                 }
 
                 // 11. Custom settings (including editor.lastArrowStyle)
+                static string? AsSettingString(JsonNode? v) =>
+                    v is JsonValue jv && jv.TryGetValue<string>(out var s) ? s : v?.ToJsonString();
+
                 _customSettings.Clear();
                 if (root["CustomSettings"] is JsonObject customObj)
                 {
                     foreach (var (k, v) in customObj)
                     {
-                        _customSettings[k] = v?.GetValue<string>() ?? v?.ToString();
+                        _customSettings[k] = AsSettingString(v);
                     }
                 }
 
@@ -660,7 +663,7 @@ public class JsonSettingsStore : ISettingsStore
                         !string.Equals(k, "QuickAccess", StringComparison.OrdinalIgnoreCase) &&
                         !string.Equals(k, "AfterCapture", StringComparison.OrdinalIgnoreCase))
                     {
-                        _customSettings[k] = v?.GetValue<string>() ?? v?.ToString();
+                        _customSettings[k] = AsSettingString(v);
                     }
                 }
             }
