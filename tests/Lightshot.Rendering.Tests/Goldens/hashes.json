@@ -7,5 +7,7 @@
   "StrokedLineMarksThePixelsAlongIt": "16a8aab2d6783537a49d1776dfd0f31f0dac7f2d55814cf198899bb0a2c35057",
   "EverythingOutsideTheFocusAreasIsDimmedAndTheAreasStayClear": "e05e7541d0e094e81eb1fc92e9639c12b5b65c20e7f4d562702b358a06fa7ff8",
   "CurvedArrowIsDrawnThroughItsBendNotAlongItsChord": "4f8e4b90b07f3504d83858f4fbf2557ec7a76ccdff4eb19df410985652b910dd",
-  "FilledRectanglePaintsItsInterior": "171c98396ac8a9b86e42d9fb42e2b2db8718b8839e22890f8d88ffcd789ba034"
+  "FilledRectanglePaintsItsInterior": "171c98396ac8a9b86e42d9fb42e2b2db8718b8839e22890f8d88ffcd789ba034",
+  "GradientCanvasWithShadow": "0f2ec288be0a7d8c10d3433b5dde4c63f2bb195f6608dd2961ae77d2c0e38cf6",
+  "ImageFillCoversTheCanvas": "b7bfc93b674d6a68447b089ee0c90c094c28d60abcb1fe0f9dfac12a610cac23"
 }
