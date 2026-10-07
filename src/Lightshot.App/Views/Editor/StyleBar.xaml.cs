@@ -20,6 +20,7 @@ public partial class StyleBar : UserControl
     {
         InitializeComponent();
         ColorPickerControl.ColorSelected += OnColorSelected;
+        FillPickerControl.ColorSelected += OnFillSelected;
     }
 
     public void BindViewModel(EditorViewModel viewModel)
@@ -42,11 +43,22 @@ public partial class StyleBar : UserControl
         switch (e.PropertyName)
         {
             case nameof(EditorViewModel.VisibleStyleFields):
+            case nameof(EditorViewModel.ActiveTool):
+            case nameof(EditorViewModel.IsCropping):
             case nameof(EditorViewModel.CanResetCrop):
                 UpdateVisibility();
                 break;
             case nameof(EditorViewModel.ActiveColor):
                 UpdateColor();
+                break;
+            case nameof(EditorViewModel.ActiveFill):
+                UpdateFill();
+                break;
+            case nameof(EditorViewModel.ActiveCornerRadius):
+                UpdateCornerRadius();
+                break;
+            case nameof(EditorViewModel.CropAspect):
+                UpdateCropAspect();
                 break;
             case nameof(EditorViewModel.StrokeWidth):
                 UpdateStrokeWidth();
@@ -68,6 +80,9 @@ public partial class StyleBar : UserControl
     {
         UpdateVisibility();
         UpdateColor();
+        UpdateFill();
+        UpdateCornerRadius();
+        UpdateCropAspect();
         UpdateStrokeWidth();
         UpdateArrowStyle();
         UpdateFontSize();
@@ -81,10 +96,13 @@ public partial class StyleBar : UserControl
 
         ColorContainer.Visibility = (fields & StyleFields.Color) != 0 ? Visibility.Visible : Visibility.Collapsed;
         StrokeContainer.Visibility = (fields & StyleFields.StrokeWidth) != 0 ? Visibility.Visible : Visibility.Collapsed;
+        FillContainer.Visibility = (fields & StyleFields.Fill) != 0 ? Visibility.Visible : Visibility.Collapsed;
+        CornerContainer.Visibility = (fields & StyleFields.CornerRadius) != 0 ? Visibility.Visible : Visibility.Collapsed;
         ArrowStyleContainer.Visibility = (fields & StyleFields.ArrowStyle) != 0 ? Visibility.Visible : Visibility.Collapsed;
         FontSizeContainer.Visibility = (fields & StyleFields.FontSize) != 0 ? Visibility.Visible : Visibility.Collapsed;
         RedactionContainer.Visibility = (fields & StyleFields.Redaction) != 0 ? Visibility.Visible : Visibility.Collapsed;
 
+        CropRatioComboBox.Visibility = _viewModel.ActiveTool == EditorTool.Crop ? Visibility.Visible : Visibility.Collapsed;
         ResetCropButton.Visibility = _viewModel.CanResetCrop ? Visibility.Visible : Visibility.Collapsed;
     }
 
@@ -120,6 +138,87 @@ public partial class StyleBar : UserControl
                     if (Math.Abs(val - width) < 0.1)
                     {
                         StrokeWidthComboBox.SelectedItem = item;
+                        return;
+                    }
+                }
+            }
+        }
+        finally
+        {
+            _updatingUi = false;
+        }
+    }
+
+    private void UpdateFill()
+    {
+        if (_viewModel == null) return;
+        var fill = _viewModel.ActiveFill;
+        var swatch = FillButton.Template.FindName("FillSwatch", FillButton) as Rectangle;
+        if (swatch != null)
+        {
+            if (fill.HasValue)
+            {
+                var c = fill.Value;
+                swatch.Fill = new SolidColorBrush(System.Windows.Media.Color.FromArgb(
+                    (byte)Math.Round(Math.Clamp(c.A, 0.0, 1.0) * 255),
+                    (byte)Math.Round(Math.Clamp(c.R, 0.0, 1.0) * 255),
+                    (byte)Math.Round(Math.Clamp(c.G, 0.0, 1.0) * 255),
+                    (byte)Math.Round(Math.Clamp(c.B, 0.0, 1.0) * 255)));
+            }
+            else
+            {
+                swatch.Fill = Brushes.Transparent;
+            }
+        }
+        if (fill.HasValue)
+        {
+            FillPickerControl.SetCurrentColor(fill.Value);
+        }
+    }
+
+    private void UpdateCornerRadius()
+    {
+        if (_viewModel == null) return;
+        _updatingUi = true;
+        try
+        {
+            double radius = _viewModel.ActiveCornerRadius;
+            foreach (ComboBoxItem item in CornerRadiusComboBox.Items)
+            {
+                if (item.Tag is string tagStr && double.TryParse(tagStr, NumberStyles.Float, CultureInfo.InvariantCulture, out double val))
+                {
+                    if (Math.Abs(val - radius) < 0.1)
+                    {
+                        CornerRadiusComboBox.SelectedItem = item;
+                        return;
+                    }
+                }
+            }
+            if (CornerRadiusComboBox.SelectedItem == null && CornerRadiusComboBox.Items.Count > 0)
+            {
+                CornerRadiusComboBox.SelectedIndex = 0;
+            }
+        }
+        finally
+        {
+            _updatingUi = false;
+        }
+    }
+
+    private void UpdateCropAspect()
+    {
+        if (_viewModel == null) return;
+        _updatingUi = true;
+        try
+        {
+            var aspect = _viewModel.CropAspect;
+            foreach (ComboBoxItem item in CropRatioComboBox.Items)
+            {
+                if (item.Tag is string tagStr && Enum.TryParse<AspectPreset>(tagStr, out var preset))
+                {
+                    if (preset == aspect)
+                    {
+                        CropRatioComboBox.SelectedItem = item;
                         return;
                     }
                 }
@@ -206,6 +305,54 @@ public partial class StyleBar : UserControl
         {
             _viewModel.ActiveColor = color;
             _viewModel.CommitStyleEdit();
+        }
+    }
+
+    private void OnFillButtonClick(object sender, RoutedEventArgs e)
+    {
+        FillPickerPopup.IsOpen = true;
+    }
+
+    private void OnFillSelected(RGBAColor color)
+    {
+        FillPickerPopup.IsOpen = false;
+        if (_viewModel != null)
+        {
+            _viewModel.ActiveFill = color;
+            _viewModel.CommitStyleEdit();
+        }
+    }
+
+    private void OnNoFillClick(object sender, RoutedEventArgs e)
+    {
+        FillPickerPopup.IsOpen = false;
+        if (_viewModel != null)
+        {
+            _viewModel.ActiveFill = null;
+            _viewModel.CommitStyleEdit();
+        }
+    }
+
+    private void OnCornerRadiusChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_updatingUi || _viewModel == null) return;
+        if (CornerRadiusComboBox.SelectedItem is ComboBoxItem item &&
+            item.Tag is string tagStr &&
+            double.TryParse(tagStr, NumberStyles.Float, CultureInfo.InvariantCulture, out double val))
+        {
+            _viewModel.ActiveCornerRadius = val;
+            _viewModel.CommitStyleEdit();
+        }
+    }
+
+    private void OnCropAspectChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (_updatingUi || _viewModel == null) return;
+        if (CropRatioComboBox.SelectedItem is ComboBoxItem item &&
+            item.Tag is string tagStr &&
+            Enum.TryParse<AspectPreset>(tagStr, out var preset))
+        {
+            _viewModel.CropAspect = preset;
         }
     }
 

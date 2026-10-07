@@ -115,6 +115,12 @@ public class EditorViewModel : INotifyPropertyChanged
             {
                 Document.Select(null);
                 _cropDraft = DocumentCropFrame;
+                double? ratio = AspectPresets.Ratio(_cropAspect);
+                if (ratio.HasValue && ratio.Value > 0)
+                {
+                    var baseRect = _cropDraft ?? Document.ImageBounds;
+                    _cropDraft = CropConstraint.FitInside(baseRect, ratio.Value);
+                }
             }
             else if (old == EditorTool.Crop)
             {
@@ -137,6 +143,8 @@ public class EditorViewModel : INotifyPropertyChanged
             _activeStyle = value;
             OnPropertyChanged();
             OnPropertyChanged(nameof(ActiveColor));
+            OnPropertyChanged(nameof(ActiveFill));
+            OnPropertyChanged(nameof(ActiveCornerRadius));
             OnPropertyChanged(nameof(StrokeWidth));
             OnPropertyChanged(nameof(FontSize));
         }
@@ -152,6 +160,55 @@ public class EditorViewModel : INotifyPropertyChanged
             ApplyStyleToSelection();
             OnPropertyChanged();
             NotifyCanvasChanged();
+        }
+    }
+
+    public RGBAColor? ActiveFill
+    {
+        get => _activeStyle.Fill;
+        set
+        {
+            if (_activeStyle.Fill == value) return;
+            _activeStyle.Fill = value;
+            ApplyStyleToSelection();
+            OnPropertyChanged();
+            NotifyCanvasChanged();
+        }
+    }
+
+    public double ActiveCornerRadius
+    {
+        get => _activeStyle.CornerRadius;
+        set
+        {
+            if (Math.Abs(_activeStyle.CornerRadius - value) < 1e-6) return;
+            _activeStyle.CornerRadius = Math.Max(0, value);
+            ApplyStyleToSelection();
+            OnPropertyChanged();
+            NotifyCanvasChanged();
+        }
+    }
+
+    private AspectPreset _cropAspect = AspectPreset.Auto;
+    public AspectPreset CropAspect
+    {
+        get => _cropAspect;
+        set
+        {
+            if (_cropAspect == value) return;
+            _cropAspect = value;
+            if (IsCropping)
+            {
+                double? ratio = AspectPresets.Ratio(value);
+                if (ratio.HasValue && ratio.Value > 0)
+                {
+                    var baseRect = _cropDraft ?? DocumentCropFrame;
+                    _cropDraft = CropConstraint.FitInside(baseRect, ratio.Value);
+                    OnPropertyChanged(nameof(CropFrame));
+                    NotifyCanvasChanged();
+                }
+            }
+            OnPropertyChanged();
         }
     }
 
@@ -237,7 +294,7 @@ public class EditorViewModel : INotifyPropertyChanged
     {
         if (Document.SelectedID.HasValue)
         {
-            Document.SetStyle(Document.SelectedID.Value, _activeStyle);
+            Document.SetStyle(Document.SelectedID.Value, _activeStyle with { });
         }
     }
 
@@ -264,22 +321,28 @@ public class EditorViewModel : INotifyPropertyChanged
                 var selected = Document.Element(Document.SelectedID.Value);
                 if (selected != null)
                 {
-                    return StyleFieldsExtensions.Fields(selected.ElementKind);
+                    return StyleFieldsExtensions.Fields(selected.ElementKind)
+                         | StyleFieldsExtensions.ShapeFields(selected.ElementKind);
                 }
             }
 
             return ActiveTool switch
             {
                 EditorTool.Arrow => StyleFields.Color | StyleFields.StrokeWidth | StyleFields.ArrowStyle,
-                EditorTool.Line or EditorTool.Rectangle or EditorTool.Ellipse or EditorTool.Freehand =>
+                EditorTool.Line or EditorTool.Freehand =>
                     StyleFields.Color | StyleFields.StrokeWidth,
+                EditorTool.Rectangle =>
+                    StyleFields.Color | StyleFields.StrokeWidth | StyleFields.Fill | StyleFields.CornerRadius,
+                EditorTool.Ellipse =>
+                    StyleFields.Color | StyleFields.StrokeWidth | StyleFields.Fill,
                 EditorTool.Text or EditorTool.Step =>
                     StyleFields.Color | StyleFields.FontSize,
                 EditorTool.Highlight => StyleFields.Color,
                 EditorTool.Redact => StyleFields.Redaction,
                 EditorTool.Focus or EditorTool.Crop => StyleFields.None,
                 EditorTool.Select => Document.SelectedID.HasValue && Document.Element(Document.SelectedID.Value) != null
-                    ? StyleFieldsExtensions.Fields(Document.Element(Document.SelectedID.Value)!.ElementKind)
+                    ? (StyleFieldsExtensions.Fields(Document.Element(Document.SelectedID.Value)!.ElementKind)
+                     | StyleFieldsExtensions.ShapeFields(Document.Element(Document.SelectedID.Value)!.ElementKind))
                     : StyleFields.None,
                 _ => StyleFields.None
             };
@@ -690,17 +753,18 @@ public class EditorViewModel : INotifyPropertyChanged
     {
         var rect = _cropDraft ?? Document.ImageBounds;
         var handle = CropHandle(point, rect);
+        double? ratio = AspectPresets.Ratio(CropAspect);
         if (handle.HasValue)
         {
-            _cropSession = new CropSession(new CropSession.Mode.Resize(handle.Value), point, rect);
+            _cropSession = new CropSession(new CropSession.Mode.Resize(handle.Value), point, rect, ratio);
         }
         else if (rect.Contains(point))
         {
-            _cropSession = new CropSession(new CropSession.Mode.Move(), point, rect);
+            _cropSession = new CropSession(new CropSession.Mode.Move(), point, rect, ratio);
         }
         else
         {
-            _cropSession = new CropSession(new CropSession.Mode.Draw(), point, rect);
+            _cropSession = new CropSession(new CropSession.Mode.Draw(), point, rect, ratio);
         }
     }
 
@@ -762,7 +826,11 @@ public class EditorViewModel : INotifyPropertyChanged
         var s = el.Style;
         if (el.ElementKind is AnnotationElement.Kind.StepMarker sm)
         {
-            s = new Style(s.Color, s.StrokeWidth, sm.Radius, s.Fill);
+            s = new Style(s.Color, s.StrokeWidth, sm.Radius, s.Fill, s.CornerRadius);
+        }
+        else
+        {
+            s = s with { };
         }
         _activeStyle = s;
 
@@ -778,6 +846,8 @@ public class EditorViewModel : INotifyPropertyChanged
 
         OnPropertyChanged(nameof(ActiveStyle));
         OnPropertyChanged(nameof(ActiveColor));
+        OnPropertyChanged(nameof(ActiveFill));
+        OnPropertyChanged(nameof(ActiveCornerRadius));
         OnPropertyChanged(nameof(StrokeWidth));
         OnPropertyChanged(nameof(FontSize));
         OnPropertyChanged(nameof(ArrowStyle));
@@ -1023,7 +1093,7 @@ public class EditorViewModel : INotifyPropertyChanged
         }
     }
 
-    private sealed class CropSession
+    internal sealed class CropSession
     {
         public abstract record Mode
         {
@@ -1035,12 +1105,14 @@ public class EditorViewModel : INotifyPropertyChanged
         public Mode CurrentMode { get; }
         public Point Start { get; }
         public Rect Origin { get; }
+        public double? Ratio { get; }
 
-        public CropSession(Mode mode, Point start, Rect origin)
+        public CropSession(Mode mode, Point start, Rect origin, double? ratio = null)
         {
             CurrentMode = mode;
             Start = start;
             Origin = origin;
+            Ratio = ratio;
         }
 
         public Rect GetRect(Point point, Rect bounds)
@@ -1048,6 +1120,10 @@ public class EditorViewModel : INotifyPropertyChanged
             switch (CurrentMode)
             {
                 case Mode.Draw:
+                    if (Ratio.HasValue && Ratio.Value > 0)
+                    {
+                        return CropConstraint.Constrain(new Rect(Start.X, Start.Y, 0, 0), Handle.BottomRight, point, Ratio.Value, bounds);
+                    }
                     var between = GeometryUtils.RectBetween(Start, point);
                     return bounds.Intersection(between) ?? new Rect(point.X, point.Y, 0, 0);
                 case Mode.Move:
@@ -1057,6 +1133,10 @@ public class EditorViewModel : INotifyPropertyChanged
                     double y = Math.Min(Math.Max(Origin.MinY + dy, bounds.MinY), bounds.MaxY - Origin.Height);
                     return new Rect(x, y, Origin.Width, Origin.Height);
                 case Mode.Resize r:
+                    if (Ratio.HasValue && Ratio.Value > 0)
+                    {
+                        return CropConstraint.Constrain(Origin, r.Handle, point, Ratio.Value, bounds);
+                    }
                     var resized = Origin.Resized(r.Handle, point.X - Start.X, point.Y - Start.Y);
                     return bounds.Intersection(resized) ?? Origin;
                 default:

@@ -83,6 +83,40 @@
             </ComboBox>
         </StackPanel>
 
+        <!-- Fill Well Button with Popup and No Fill Button -->
+        <StackPanel x:Name="FillContainer" Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,4,0" Visibility="Collapsed">
+            <TextBlock Text="Fill:" Style="{DynamicResource Text.Caption}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+            <Grid Margin="0,0,4,0">
+                <Button x:Name="FillButton" Width="32" Height="32" Padding="0" Click="OnFillButtonClick" ToolTip="Fill Color">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border CornerRadius="16" BorderBrush="{DynamicResource Theme.PanelEdge}" BorderThickness="1">
+                                <Rectangle x:Name="FillSwatch" Width="20" Height="20" RadiusX="3" RadiusY="3" Fill="Transparent"/>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+                <Popup x:Name="FillPickerPopup" PlacementTarget="{Binding ElementName=FillButton}" Placement="Bottom" StaysOpen="False">
+                    <local:ColorPopup x:Name="FillPickerControl"/>
+                </Popup>
+            </Grid>
+            <Button x:Name="NoFillButton" AutomationProperties.AutomationId="NoFillButton" Content="No fill" MinWidth="54" Height="32" Padding="6,0" Click="OnNoFillClick" ToolTip="Remove fill"/>
+        </StackPanel>
+
+        <!-- Corner Radius -->
+        <StackPanel x:Name="CornerContainer" Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,4,0" Visibility="Collapsed">
+            <TextBlock Text="Corners:" Style="{DynamicResource Text.Caption}" VerticalAlignment="Center" Margin="0,0,4,0"/>
+            <ComboBox x:Name="CornerRadiusComboBox" MinWidth="76" SelectionChanged="OnCornerRadiusChanged">
+                <ComboBoxItem Content="0 px" Tag="0.0"/>
+                <ComboBoxItem Content="4 px" Tag="4.0"/>
+                <ComboBoxItem Content="8 px" Tag="8.0"/>
+                <ComboBoxItem Content="12 px" Tag="12.0"/>
+                <ComboBoxItem Content="16 px" Tag="16.0"/>
+                <ComboBoxItem Content="24 px" Tag="24.0"/>
+                <ComboBoxItem Content="32 px" Tag="32.0"/>
+            </ComboBox>
+        </StackPanel>
+
         <!-- Arrow Styles -->
         <StackPanel x:Name="ArrowStyleContainer" Orientation="Horizontal" VerticalAlignment="Center" Margin="4,0,4,0" Visibility="Collapsed">
             <RadioButton x:Name="ArrowStandardRadio" Content="Standard" GroupName="ArrowStyles" Style="{StaticResource SegmentButtonStyle}" Click="OnArrowStyleClick" Tag="Standard"/>
@@ -117,6 +151,20 @@
             <TextBlock x:Name="SecurityLabel" Text="Not secure - visual only" Foreground="#FF9500" 
                        VerticalAlignment="Center" Margin="6,0,2,0" FontSize="11" ToolTip="Visual only - can be reversed or inferred. Use Blackout to hide secrets."/>
         </StackPanel>
+
+        <!-- Crop Aspect Ratio -->
+        <ComboBox x:Name="CropRatioComboBox" MinWidth="84" Margin="6,0,2,0"
+                  SelectionChanged="OnCropAspectChanged" Visibility="Collapsed" ToolTip="Crop Aspect Ratio">
+            <ComboBoxItem Content="Auto" Tag="Auto"/>
+            <ComboBoxItem Content="1:1" Tag="Square"/>
+            <ComboBoxItem Content="4:3" Tag="FourThree"/>
+            <ComboBoxItem Content="3:2" Tag="ThreeTwo"/>
+            <ComboBoxItem Content="16:9" Tag="SixteenNine"/>
+            <ComboBoxItem Content="5:3" Tag="FiveThree"/>
+            <ComboBoxItem Content="9:16" Tag="NineSixteen"/>
+            <ComboBoxItem Content="3:4" Tag="ThreeFour"/>
+            <ComboBoxItem Content="2:3" Tag="TwoThree"/>
+        </ComboBox>
 
         <!-- Reset Crop Button -->
         <Button x:Name="ResetCropButton" Content="Reset Crop" MinWidth="80" Margin="6,0,2,0"
