@@ -1,8 +1,10 @@
 // MIT License, Copyright (c) 2026 Viet Le
 
+using System;
 using Lightshot.Core;
 using Lightshot.Platform.Windows.Capture;
 using Lightshot.Platform.Windows.Displays;
+using Lightshot.Platform.Windows.Recording;
 using Lightshot.TestSupport;
 using Xunit;
 
@@ -32,5 +34,17 @@ public class DdaCaptureTests
             Assert.True(image.Data.Length >= image.PixelWidth * image.PixelHeight * 4,
                 $"Image data size ({image.Data.Length}) must be >= {image.PixelWidth * image.PixelHeight * 4} bytes.");
         }
+    }
+
+    [Fact]
+    [Desktop]
+    public void UnknownDisplayFailsLoudly()
+    {
+        var displays = DisplayTopology.GetDisplays();
+        Assert.NotEmpty(displays);
+
+        var fake = displays[0] with { DeviceName = @"\\.\DISPLAY_NOT_THERE" };
+        var ex = Assert.Throws<InvalidOperationException>(() => new DdaFrameSource(fake));
+        Assert.Contains(@"\\.\DISPLAY_NOT_THERE", ex.Message);
     }
 }

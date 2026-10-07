@@ -161,15 +161,7 @@ public sealed class DdaFrameSource : IDisposable
             adapter.Dispose();
         }
 
-        // Fallback to first available adapter and output
-        if (factory.EnumAdapters1(0, out var fallbackAdapter).Success && fallbackAdapter != null)
-        {
-            if (fallbackAdapter.EnumOutputs(0, out var fallbackOutput).Success && fallbackOutput != null)
-            {
-                matchedAdapter = fallbackAdapter;
-                matchedOutput = fallbackOutput;
-            }
-        }
+        // No fallback: recording another monitor than the one the user picked is worse than failing.
     }
 
     /// <summary>
