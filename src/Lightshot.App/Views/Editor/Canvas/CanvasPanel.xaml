@@ -14,16 +14,19 @@
              Padding="10">
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+        <local:ValuesEqualConverter x:Key="ValuesEqual"/>
 
         <Style x:Key="SwatchButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="26"/>
             <Setter Property="Height" Value="26"/>
             <Setter Property="Margin" Value="2"/>
             <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource Theme.PanelEdge}"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Border" CornerRadius="13" Background="{TemplateBinding Background}" BorderBrush="{DynamicResource Theme.PanelEdge}" BorderThickness="1">
+                        <Border x:Name="Border" CornerRadius="13" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -36,6 +39,8 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <Style x:Key="SelectableSwatchStyle" TargetType="Button" BasedOn="{StaticResource SwatchButtonStyle}"/>
 
         <Style x:Key="PresetButtonStyle" TargetType="Button">
             <Setter Property="Height" Value="26"/>
@@ -64,6 +69,20 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Style.Triggers>
+                <DataTrigger Value="True">
+                    <DataTrigger.Binding>
+                        <MultiBinding Converter="{StaticResource ValuesEqual}">
+                            <Binding Path="Aspect"/>
+                            <Binding Path="Tag" RelativeSource="{RelativeSource Self}"/>
+                        </MultiBinding>
+                    </DataTrigger.Binding>
+                    <Setter Property="BorderBrush" Value="{DynamicResource Theme.AccentBlue}"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                    <Setter Property="FontWeight" Value="SemiBold"/>
+                    <Setter Property="Background" Value="{DynamicResource Theme.ControlHover}"/>
+                </DataTrigger>
+            </Style.Triggers>
         </Style>
     </UserControl.Resources>
 
@@ -136,11 +155,31 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button Style="{StaticResource SwatchButtonStyle}"
-                                Background="{Binding Brush}"
+                        <Button Background="{Binding Brush}"
                                 Tag="{Binding Color}"
                                 ToolTip="{Binding Hex}"
-                                Click="OnSolidSwatchClick"/>
+                                Click="OnSolidSwatchClick">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SelectableSwatchStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Value="True">
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource ValuesEqual}">
+                                                    <Binding Path="Color"/>
+                                                    <Binding Path="DataContext.SolidColor" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource Theme.TextPrimary}"/>
+                                            <Setter Property="BorderThickness" Value="2"/>
+                                            <Setter Property="Content" Value="&#xE73E;"/>
+                                            <Setter Property="FontFamily" Value="{DynamicResource Font.SegoeFluentIcons}"/>
+                                            <Setter Property="FontSize" Value="12"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
@@ -156,11 +195,31 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Button Style="{StaticResource SwatchButtonStyle}"
-                                Background="{Binding Brush}"
+                        <Button Background="{Binding Brush}"
                                 Tag="{Binding Index}"
                                 ToolTip="{Binding Name}"
-                                Click="OnGradientSwatchClick"/>
+                                Click="OnGradientSwatchClick">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource SelectableSwatchStyle}">
+                                    <Style.Triggers>
+                                        <DataTrigger Value="True">
+                                            <DataTrigger.Binding>
+                                                <MultiBinding Converter="{StaticResource ValuesEqual}">
+                                                    <Binding Path="Index"/>
+                                                    <Binding Path="DataContext.GradientIndex" RelativeSource="{RelativeSource AncestorType=UserControl}"/>
+                                                </MultiBinding>
+                                            </DataTrigger.Binding>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource Theme.TextPrimary}"/>
+                                            <Setter Property="BorderThickness" Value="2"/>
+                                            <Setter Property="Content" Value="&#xE73E;"/>
+                                            <Setter Property="FontFamily" Value="{DynamicResource Font.SegoeFluentIcons}"/>
+                                            <Setter Property="FontSize" Value="12"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>

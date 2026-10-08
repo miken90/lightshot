@@ -68,6 +68,29 @@ public class CanvasToolbarTests
         });
     }
 
+    [Fact]
+    [Unit]
+    public void OpeningCanvasOptionsTurnsTheCanvasOn()
+    {
+        RunInSta(() =>
+        {
+            var doc = new AnnotationDocument(CreateTestImage(100, 100));
+            var vm = new EditorViewModel(doc, new LocalTestImageSink());
+            var window = new EditorWindow(vm);
+
+            var toggle = window.FindName("CanvasToggleButton") as ToggleButton;
+            var options = window.FindName("CanvasOptionsButton") as Button;
+
+            Assert.NotNull(toggle);
+            Assert.NotNull(options);
+            Assert.False(toggle.IsChecked);
+
+            options.RaiseEvent(new System.Windows.RoutedEventArgs(ButtonBase.ClickEvent));
+
+            Assert.True(toggle.IsChecked);
+        });
+    }
+
     private sealed class LocalTestImageSink : IImageSink
     {
         public void CopyToClipboard(RenderedImage image) { }

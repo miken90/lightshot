@@ -3860,6 +3860,48 @@
       "csharpMethod": "ZeroInsetPreservesStandardFrame",
       "targetProject": "Lightshot.Core.Tests",
       "tier": "Unit"
+    },
+    {
+      "className": "CanvasPanelViewModelTests",
+      "csharpMethod": "ChangingAnOptionTurnsTheCanvasOn",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CanvasPanelViewModelTests",
+      "csharpMethod": "ResetDefaultsDoesNotTurnTheCanvasOn",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CanvasToolbarTests",
+      "csharpMethod": "OpeningCanvasOptionsTurnsTheCanvasOn",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "ValuesEqualConverterTests",
+      "csharpMethod": "MatchingValuesConvertToTrue",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "ValuesEqualConverterTests",
+      "csharpMethod": "DifferentValuesConvertToFalse",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "ValuesEqualConverterTests",
+      "csharpMethod": "UnsetOrNullConvertsToFalse",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "ValuesEqualConverterTests",
+      "csharpMethod": "NullableColorMatchesSwatchColor",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
     }
   ]
 }

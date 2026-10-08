@@ -191,6 +191,39 @@ public class CanvasPanelViewModelTests
         Assert.Equal(AspectPreset.Auto, vm.Aspect);
     }
 
+    [Fact]
+    [Unit]
+    public void ChangingAnOptionTurnsTheCanvasOn()
+    {
+        var doc = new AnnotationDocument(CreateTestImage(200, 150));
+        var store = new LocalTestSettingsStore();
+        var vm = new CanvasPanelViewModel(doc, store);
+
+        Assert.False(vm.IsEnabled);
+
+        vm.Padding = 50;
+
+        Assert.True(vm.IsEnabled);
+        Assert.NotNull(doc.Canvas);
+        Assert.True(doc.Canvas.Enabled);
+    }
+
+    [Fact]
+    [Unit]
+    public void ResetDefaultsDoesNotTurnTheCanvasOn()
+    {
+        var doc = new AnnotationDocument(CreateTestImage(200, 150));
+        var store = new LocalTestSettingsStore();
+        var vm = new CanvasPanelViewModel(doc, store);
+
+        Assert.False(vm.IsEnabled);
+
+        vm.ResetDefaults();
+
+        Assert.False(vm.IsEnabled);
+        Assert.True(doc.Canvas == null || !doc.Canvas.Enabled);
+    }
+
     private sealed class LocalTestImageSink : IImageSink
     {
         public List<RenderedImage> Copied { get; } = [];

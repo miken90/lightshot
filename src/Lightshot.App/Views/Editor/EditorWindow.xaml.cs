@@ -329,6 +329,11 @@ public partial class EditorWindow : Window
 
     private void OnCanvasOptionsClick(object sender, RoutedEventArgs e)
     {
+        if (!CanvasOptionsPopup.IsOpen && _canvasViewModel is { IsEnabled: false })
+        {
+            _canvasViewModel.IsEnabled = true;
+        }
+
         CanvasOptionsPopup.IsOpen = !CanvasOptionsPopup.IsOpen;
     }
 

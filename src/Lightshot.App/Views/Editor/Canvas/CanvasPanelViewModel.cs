@@ -111,6 +111,13 @@ public sealed class CanvasPanelViewModel : INotifyPropertyChanged
         get => _style;
         set
         {
+            // Changing an option is a request to see it: turn the canvas on (user, 261008).
+            if (!_isEnabled)
+            {
+                _isEnabled = true;
+                OnPropertyChanged(nameof(IsEnabled));
+            }
+
             _style = value with { Enabled = _isEnabled };
             _document.Canvas = _style;
             PersistSettings();
