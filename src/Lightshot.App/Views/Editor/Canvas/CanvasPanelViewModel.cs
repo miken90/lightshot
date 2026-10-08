@@ -310,6 +310,60 @@ public sealed class CanvasPanelViewModel : INotifyPropertyChanged
         }
     }
 
+    public double Inset
+    {
+        get => _style.Inset;
+        set
+        {
+            double clamped = Math.Clamp(value, 0.0, 64.0);
+            if (Math.Abs(_style.Inset - clamped) < 1e-4) return;
+            Style = _style with { Inset = clamped };
+            OnPropertyChanged();
+        }
+    }
+
+    public double BorderWidth
+    {
+        get => _style.BorderWidth;
+        set
+        {
+            double clamped = Math.Clamp(value, 0.0, 12.0);
+            if (Math.Abs(_style.BorderWidth - clamped) < 1e-4) return;
+            Style = _style with { BorderWidth = clamped };
+            OnPropertyChanged();
+        }
+    }
+
+    public RGBAColor? BorderColor
+    {
+        get => _style.BorderColor;
+        set
+        {
+            if (_style.BorderColor == value) return;
+            Style = _style with { BorderColor = value };
+            OnPropertyChanged();
+            OnPropertyChanged(nameof(EffectiveBorderColor));
+            OnPropertyChanged(nameof(BorderColorBrush));
+        }
+    }
+
+    public RGBAColor EffectiveBorderColor => _style.EffectiveBorderColor;
+
+    public SolidColorBrush BorderColorBrush
+    {
+        get
+        {
+            var c = EffectiveBorderColor;
+            byte a = (byte)Math.Clamp(Math.Round(c.A * 255), 0, 255);
+            byte r = (byte)Math.Clamp(Math.Round(c.R * 255), 0, 255);
+            byte g = (byte)Math.Clamp(Math.Round(c.G * 255), 0, 255);
+            byte b = (byte)Math.Clamp(Math.Round(c.B * 255), 0, 255);
+            var brush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(a, r, g, b));
+            brush.Freeze();
+            return brush;
+        }
+    }
+
     public int SelectedFixedPresetIndex
     {
         get
@@ -370,6 +424,11 @@ public sealed class CanvasPanelViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(Padding));
         OnPropertyChanged(nameof(CornerRadius));
         OnPropertyChanged(nameof(Shadow));
+        OnPropertyChanged(nameof(Inset));
+        OnPropertyChanged(nameof(BorderWidth));
+        OnPropertyChanged(nameof(BorderColor));
+        OnPropertyChanged(nameof(EffectiveBorderColor));
+        OnPropertyChanged(nameof(BorderColorBrush));
         OnPropertyChanged(nameof(SelectedFixedPresetIndex));
         OnPropertyChanged(nameof(IsCustomFixedSize));
     }

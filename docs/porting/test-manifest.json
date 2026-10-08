@@ -3848,6 +3848,18 @@
       "csharpMethod": "SampledPixelFormatsToUppercaseHex",
       "targetProject": "Lightshot.Core.Tests",
       "tier": "Unit"
+    },
+    {
+      "className": "CanvasInsetTests",
+      "csharpMethod": "InsetExpandsFrameDimensions",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "CanvasInsetTests",
+      "csharpMethod": "ZeroInsetPreservesStandardFrame",
+      "targetProject": "Lightshot.Core.Tests",
+      "tier": "Unit"
     }
   ]
 }

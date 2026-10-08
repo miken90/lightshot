@@ -19,6 +19,7 @@ public partial class CanvasPanel : UserControl
     public CanvasPanel()
     {
         InitializeComponent();
+        BorderColorPickerControl.ColorSelected += OnBorderColorSelected;
     }
 
     private void OnAspectButtonClick(object sender, RoutedEventArgs e)
@@ -64,5 +65,20 @@ public partial class CanvasPanel : UserControl
     private void OnResetOptionsClick(object sender, RoutedEventArgs e)
     {
         ViewModel?.ResetDefaults();
+    }
+
+    private void OnBorderColorButtonClick(object sender, RoutedEventArgs e)
+    {
+        BorderColorPickerControl.SetCurrentColor(ViewModel?.EffectiveBorderColor ?? new RGBAColor(1, 1, 1, 0.5));
+        BorderColorPopup.IsOpen = true;
+    }
+
+    private void OnBorderColorSelected(RGBAColor color)
+    {
+        BorderColorPopup.IsOpen = false;
+        if (ViewModel != null)
+        {
+            ViewModel.BorderColor = color;
+        }
     }
 }

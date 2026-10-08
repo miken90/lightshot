@@ -68,7 +68,7 @@ public sealed class EditorCanvasPresenter : IDisposable
 
     private void OnViewModelCanvasInvalidated()
     {
-        if (_canvasViewModel.IsEnabled && _canvasViewModel.FillKind == CanvasFillKind.AutoEdge)
+        if (_canvasViewModel.IsEnabled && (_canvasViewModel.FillKind == CanvasFillKind.AutoEdge || _canvasViewModel.Style.Inset > 0))
         {
             Apply();
         }
@@ -114,6 +114,18 @@ public sealed class EditorCanvasPresenter : IDisposable
                 _canvasContainer.Margin = new Thickness(0);
                 _canvasContainer.LayoutTransform = System.Windows.Media.Transform.Identity;
                 _canvasContainer.Clip = null;
+
+                if (_canvasContainer is Border border)
+                {
+                    border.Background = null;
+                    border.Padding = new Thickness(0);
+                    border.BorderThickness = new Thickness(0);
+                    border.BorderBrush = null;
+                }
+                else if (_canvasContainer is Panel panel)
+                {
+                    panel.Background = null;
+                }
             }
 
             if (_canvasStage != null)
@@ -130,7 +142,7 @@ public sealed class EditorCanvasPresenter : IDisposable
 
         // Render backdrop
         SKBitmap? edgeSource = _canvasHost?.BackingBitmap;
-        if (edgeSource == null && style.EffectiveFill.Kind == CanvasFillKind.AutoEdge)
+        if (edgeSource == null && (style.EffectiveFill.Kind == CanvasFillKind.AutoEdge || style.Inset > 0))
         {
             edgeSource = DocumentRenderer.Flatten(doc, _viewModel.DisplayElements);
         }
@@ -169,17 +181,59 @@ public sealed class EditorCanvasPresenter : IDisposable
                 _canvasContainer.LayoutTransform = System.Windows.Media.Transform.Identity;
             }
 
+            double fw = visibleW + 2 * Math.Max(0.0, style.Inset);
+            double fh = visibleH + 2 * Math.Max(0.0, style.Inset);
+
             if (style.CornerRadius > 0)
             {
                 double radiusLocal = style.CornerRadius / frame.Scale;
                 _canvasContainer.Clip = new RectangleGeometry(
-                    new System.Windows.Rect(0, 0, visibleW, visibleH),
+                    new System.Windows.Rect(0, 0, fw, fh),
                     radiusLocal,
                     radiusLocal);
             }
             else
             {
                 _canvasContainer.Clip = null;
+            }
+
+            // Inset band and border preview
+            RGBAColor edgeColor;
+            if (edgeSource != null)
+            {
+                var order = edgeSource.ColorType == SKColorType.Bgra8888 ? PixelOrder.Bgra : PixelOrder.Rgba;
+                edgeColor = EdgeColorSampler.Sample(edgeSource.GetPixelSpan(), edgeSource.Width, edgeSource.Height, order);
+            }
+            else
+            {
+                edgeColor = EdgeColorSampler.Fallback;
+            }
+
+            var edgeBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(
+                (byte)Math.Clamp(Math.Round(edgeColor.A * 255), 0, 255),
+                (byte)Math.Clamp(Math.Round(edgeColor.R * 255), 0, 255),
+                (byte)Math.Clamp(Math.Round(edgeColor.G * 255), 0, 255),
+                (byte)Math.Clamp(Math.Round(edgeColor.B * 255), 0, 255)));
+            edgeBrush.Freeze();
+
+            var bc = style.EffectiveBorderColor;
+            var borderBrush = new SolidColorBrush(System.Windows.Media.Color.FromArgb(
+                (byte)Math.Clamp(Math.Round(bc.A * 255), 0, 255),
+                (byte)Math.Clamp(Math.Round(bc.R * 255), 0, 255),
+                (byte)Math.Clamp(Math.Round(bc.G * 255), 0, 255),
+                (byte)Math.Clamp(Math.Round(bc.B * 255), 0, 255)));
+            borderBrush.Freeze();
+
+            if (_canvasContainer is Border border)
+            {
+                border.Background = style.Inset > 0 ? edgeBrush : null;
+                border.Padding = style.Inset > 0 ? new Thickness(style.Inset * frame.Scale) : new Thickness(0);
+                border.BorderThickness = style.BorderWidth > 0 ? new Thickness(style.BorderWidth * frame.Scale) : new Thickness(0);
+                border.BorderBrush = style.BorderWidth > 0 ? borderBrush : null;
+            }
+            else if (_canvasContainer is Panel panel)
+            {
+                panel.Background = style.Inset > 0 ? edgeBrush : null;
             }
         }
 

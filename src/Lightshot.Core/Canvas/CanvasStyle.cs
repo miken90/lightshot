@@ -46,9 +46,13 @@ public sealed record CanvasStyle(
     CanvasFill? Fill = null,
     double Padding = 40,
     double CornerRadius = 12,
-    double Shadow = 20)
+    double Shadow = 20,
+    double Inset = 0,
+    double BorderWidth = 0,
+    RGBAColor? BorderColor = null)
 {
     public CanvasFill EffectiveFill => Fill ?? new CanvasFill();
+    public RGBAColor EffectiveBorderColor => BorderColor ?? new RGBAColor(1, 1, 1, 0.5);
 
     public static readonly IReadOnlyList<(string Label, int Width, int Height)> FixedPresets =
     [

@@ -39,8 +39,63 @@ public static class CanvasComposer
                 {
                     canvas.ClipRoundRect(new SKRoundRect(dest, radius, radius), SKClipOperation.Intersect, antialias: true);
                 }
+
+                if (style.Inset > 0)
+                {
+                    var src = edgeSource ?? image;
+                    var order = src.ColorType == SKColorType.Bgra8888 ? PixelOrder.Bgra : PixelOrder.Rgba;
+                    var edgeColor = EdgeColorSampler.Sample(src.GetPixelSpan(), src.Width, src.Height, order);
+                    using var fillPaint = new SKPaint
+                    {
+                        Color = ElementPainter.ToSKColor(edgeColor),
+                        Style = SKPaintStyle.Fill,
+                        IsAntialias = true
+                    };
+                    canvas.DrawRect(dest, fillPaint);
+                }
+
+                float insetScaled = (float)(Math.Max(0.0, style.Inset) * frame.Scale);
+                var imageDest = new SKRect(
+                    dest.Left + insetScaled,
+                    dest.Top + insetScaled,
+                    dest.Right - insetScaled,
+                    dest.Bottom - insetScaled);
+
                 using var skImage = SKImage.FromBitmap(image);
-                canvas.DrawImage(skImage, dest, new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
+                canvas.DrawImage(skImage, imageDest, new SKSamplingOptions(SKFilterMode.Linear, SKMipmapMode.Linear));
+
+                if (style.BorderWidth > 0)
+                {
+                    float strokeWidth = (float)(style.BorderWidth * frame.Scale);
+                    if (strokeWidth > 0)
+                    {
+                        float halfStroke = strokeWidth / 2f;
+                        var borderDest = new SKRect(
+                            dest.Left + halfStroke,
+                            dest.Top + halfStroke,
+                            dest.Right - halfStroke,
+                            dest.Bottom - halfStroke);
+                        float borderRadius = Math.Max(0f, radius - halfStroke);
+
+                        using var borderPaint = new SKPaint
+                        {
+                            Color = ElementPainter.ToSKColor(style.EffectiveBorderColor),
+                            Style = SKPaintStyle.Stroke,
+                            StrokeWidth = strokeWidth,
+                            IsAntialias = true
+                        };
+
+                        if (borderRadius > 0)
+                        {
+                            canvas.DrawRoundRect(new SKRoundRect(borderDest, borderRadius, borderRadius), borderPaint);
+                        }
+                        else
+                        {
+                            canvas.DrawRect(borderDest, borderPaint);
+                        }
+                    }
+                }
+
                 canvas.Restore();
             }
 

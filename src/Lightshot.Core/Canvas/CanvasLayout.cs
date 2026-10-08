@@ -21,6 +21,9 @@ public static class CanvasLayout
         }
 
         double padding = Math.Max(0.0, style.Padding);
+        double i = Math.Max(0.0, style.Inset);
+        double fw = imageWidth + 2 * i;
+        double fh = imageHeight + 2 * i;
 
         int frameWidth;
         int frameHeight;
@@ -31,8 +34,8 @@ public static class CanvasLayout
             int targetWidth = Math.Max(1, style.TargetWidth);
             int targetHeight = Math.Max(1, style.TargetHeight);
 
-            bool fits = (imageWidth + 2 * padding <= targetWidth) &&
-                        (imageHeight + 2 * padding <= targetHeight);
+            bool fits = (fw + 2 * padding <= targetWidth) &&
+                        (fh + 2 * padding <= targetHeight);
 
             if (fits)
             {
@@ -46,14 +49,14 @@ public static class CanvasLayout
                 frameHeight = targetHeight;
                 double availW = Math.Max(0.0, targetWidth - 2 * padding);
                 double availH = Math.Max(0.0, targetHeight - 2 * padding);
-                scale = Math.Min(availW / imageWidth, availH / imageHeight);
+                scale = Math.Min(availW / fw, availH / fh);
             }
             else
             {
                 // Larger and not downscaled: treat as Aspect with ratio TargetWidth / TargetHeight
                 double ratio = targetWidth / (double)targetHeight;
-                double wMin = imageWidth + 2 * padding;
-                double hMin = imageHeight + 2 * padding;
+                double wMin = fw + 2 * padding;
+                double hMin = fh + 2 * padding;
                 double minRatio = wMin / hMin;
 
                 if (ratio > minRatio)
@@ -71,8 +74,8 @@ public static class CanvasLayout
         }
         else // CanvasSizeMode.Aspect
         {
-            double wMin = imageWidth + 2 * padding;
-            double hMin = imageHeight + 2 * padding;
+            double wMin = fw + 2 * padding;
+            double hMin = fh + 2 * padding;
             scale = 1.0;
 
             double? ratio = AspectPresets.Ratio(style.Aspect);
@@ -99,11 +102,11 @@ public static class CanvasLayout
             }
         }
 
-        double imgW = imageWidth * scale;
-        double imgH = imageHeight * scale;
-        double x = (frameWidth - imgW) / 2.0;
-        double y = (frameHeight - imgH) / 2.0;
+        double framedW = fw * scale;
+        double framedH = fh * scale;
+        double x = (frameWidth - framedW) / 2.0;
+        double y = (frameHeight - framedH) / 2.0;
 
-        return new CanvasFrame(frameWidth, frameHeight, new Rect(x, y, imgW, imgH), scale);
+        return new CanvasFrame(frameWidth, frameHeight, new Rect(x, y, framedW, framedH), scale);
     }
 }
