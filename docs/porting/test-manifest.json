@@ -3902,6 +3902,72 @@
       "csharpMethod": "NullableColorMatchesSwatchColor",
       "targetProject": "Lightshot.App.Tests",
       "tier": "Unit"
+    },
+    {
+      "className": "EditorViewModelTests",
+      "csharpMethod": "GrabbingRedactionWithArrowToolSwitchesToRedact",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EditorViewModelTests",
+      "csharpMethod": "RedactionSettingChangeAfterGrabAppliesToSelection",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EditorViewModelTests",
+      "csharpMethod": "DragOnEmptyAfterGrabDrawsAdoptedKind",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EditorViewModelTests",
+      "csharpMethod": "GrabbingElementAdoptsItsTool",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EditorViewModelTests",
+      "csharpMethod": "SelectToolStaysSelectWhenClickingElement",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EditorViewModelTests",
+      "csharpMethod": "ToolForMapsEveryKind",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EditorViewModelTests",
+      "csharpMethod": "CursorAtReturnsMoveOverGrabbableElement",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EditorViewModelTests",
+      "csharpMethod": "CursorAtReturnsCrosshairOnEmptyForDrawingTool",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EditorViewModelTests",
+      "csharpMethod": "CursorAtReturnsSizeCursorOverSelectedHandle",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EditorViewModelTests",
+      "csharpMethod": "CursorAtReturnsDefaultOnEmptyForSelect",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
+    },
+    {
+      "className": "EditorViewModelTests",
+      "csharpMethod": "CursorAtReturnsIBeamForTextTool",
+      "targetProject": "Lightshot.App.Tests",
+      "tier": "Unit"
     }
   ]
 }

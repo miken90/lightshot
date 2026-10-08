@@ -256,6 +256,218 @@ public class EditorViewModelTests
             }
         }
     }
+
+    [Fact]
+    [Unit]
+    public void GrabbingRedactionWithArrowToolSwitchesToRedact()
+    {
+        var (vm, _, _) = CreateFixture();
+        var rect = new Rect(20, 20, 60, 40);
+        var redactKind = new AnnotationElement.Kind.Redaction(rect, RedactionStyle.Blur);
+        var id = vm.Document.Add(new AnnotationElement(null, redactKind));
+
+        vm.ActiveTool = EditorTool.Arrow;
+        Assert.Equal(EditorTool.Arrow, vm.ActiveTool);
+
+        vm.GestureStarted(new Point(30, 30));
+        vm.GestureEnded(new Point(30, 30));
+
+        Assert.Equal(EditorTool.Redact, vm.ActiveTool);
+        Assert.Equal(id, vm.Document.SelectedID);
+        Assert.Equal(RedactionStyle.Blur, vm.RedactionStyle);
+    }
+
+    [Fact]
+    [Unit]
+    public void RedactionSettingChangeAfterGrabAppliesToSelection()
+    {
+        var (vm, _, _) = CreateFixture();
+        var rect = new Rect(20, 20, 60, 40);
+        var redactKind = new AnnotationElement.Kind.Redaction(rect, RedactionStyle.Blur);
+        var id = vm.Document.Add(new AnnotationElement(null, redactKind));
+
+        vm.ActiveTool = EditorTool.Arrow;
+        vm.GestureStarted(new Point(30, 30));
+        vm.GestureEnded(new Point(30, 30));
+
+        vm.RedactionStyle = RedactionStyle.Blackout;
+
+        var el = vm.Document.Element(id);
+        Assert.NotNull(el);
+        var red = Assert.IsType<AnnotationElement.Kind.Redaction>(el.ElementKind);
+        Assert.Equal(RedactionStyle.Blackout, red.Style);
+    }
+
+    [Fact]
+    [Unit]
+    public void DragOnEmptyAfterGrabDrawsAdoptedKind()
+    {
+        var (vm, _, _) = CreateFixture();
+        var rect = new Rect(10, 10, 40, 30);
+        var redactKind = new AnnotationElement.Kind.Redaction(rect, RedactionStyle.Blur);
+        vm.Document.Add(new AnnotationElement(null, redactKind));
+
+        vm.ActiveTool = EditorTool.Arrow;
+        vm.GestureStarted(new Point(20, 20));
+        vm.GestureEnded(new Point(20, 20));
+        Assert.Equal(EditorTool.Redact, vm.ActiveTool);
+
+        // Drag on empty space
+        vm.GestureStarted(new Point(100, 100));
+        vm.GestureMoved(new Point(140, 130));
+        vm.GestureEnded(new Point(140, 130));
+
+        Assert.Equal(2, vm.Document.Elements.Count);
+        Assert.IsType<AnnotationElement.Kind.Redaction>(vm.Document.Elements[1].ElementKind);
+    }
+
+    [Theory]
+    [Unit]
+    [InlineData("Arrow", EditorTool.Arrow)]
+    [InlineData("Rectangle", EditorTool.Rectangle)]
+    [InlineData("Ellipse", EditorTool.Ellipse)]
+    [InlineData("Line", EditorTool.Line)]
+    [InlineData("Highlight", EditorTool.Highlight)]
+    [InlineData("StepMarker", EditorTool.Step)]
+    public void GrabbingElementAdoptsItsTool(string kindName, EditorTool expectedTool)
+    {
+        var (vm, _, _) = CreateFixture();
+        AnnotationElement.Kind kind = kindName switch
+        {
+            "Arrow" => new AnnotationElement.Kind.Arrow(new Point(10, 10), new Point(60, 60)),
+            "Rectangle" => new AnnotationElement.Kind.Rectangle(new Rect(10, 10, 50, 50)),
+            "Ellipse" => new AnnotationElement.Kind.Ellipse(new Rect(10, 10, 50, 50)),
+            "Line" => new AnnotationElement.Kind.Line(new Point(10, 10), new Point(60, 60)),
+            "Highlight" => new AnnotationElement.Kind.Highlight(new Rect(10, 10, 50, 50)),
+            "StepMarker" => new AnnotationElement.Kind.StepMarker(1, new Point(30, 30), 15),
+            _ => throw new ArgumentException($"Unknown kind {kindName}")
+        };
+        var id = vm.Document.Add(new AnnotationElement(null, kind));
+
+        // Start with a different drawing tool
+        vm.ActiveTool = expectedTool == EditorTool.Arrow ? EditorTool.Rectangle : EditorTool.Arrow;
+
+        var grabPoint = kindName switch
+        {
+            "StepMarker" => new Point(30, 30),
+            "Ellipse" => new Point(35, 10),
+            _ => new Point(10, 10)
+        };
+        vm.GestureStarted(grabPoint);
+        vm.GestureEnded(grabPoint);
+
+        Assert.Equal(expectedTool, vm.ActiveTool);
+        Assert.Equal(id, vm.Document.SelectedID);
+    }
+
+    [Fact]
+    [Unit]
+    public void SelectToolStaysSelectWhenClickingElement()
+    {
+        var (vm, _, _) = CreateFixture();
+        var id = vm.Document.Add(new AnnotationElement(null, new AnnotationElement.Kind.Rectangle(new Rect(10, 10, 50, 50))));
+
+        vm.ActiveTool = EditorTool.Select;
+        vm.GestureStarted(new Point(10, 10));
+        vm.GestureEnded(new Point(10, 10));
+
+        Assert.Equal(EditorTool.Select, vm.ActiveTool);
+        Assert.Equal(id, vm.Document.SelectedID);
+    }
+
+    [Fact]
+    [Unit]
+    public void ToolForMapsEveryKind()
+    {
+        Assert.Equal(EditorTool.Arrow, EditorViewModel.ToolFor(new AnnotationElement.Kind.Arrow(Point.Zero, Point.Zero)));
+        Assert.Equal(EditorTool.Line, EditorViewModel.ToolFor(new AnnotationElement.Kind.Line(Point.Zero, Point.Zero)));
+        Assert.Equal(EditorTool.Rectangle, EditorViewModel.ToolFor(new AnnotationElement.Kind.Rectangle(Rect.Zero)));
+        Assert.Equal(EditorTool.Ellipse, EditorViewModel.ToolFor(new AnnotationElement.Kind.Ellipse(Rect.Zero)));
+        Assert.Equal(EditorTool.Freehand, EditorViewModel.ToolFor(new AnnotationElement.Kind.Freehand([])));
+        Assert.Equal(EditorTool.Text, EditorViewModel.ToolFor(new AnnotationElement.Kind.Text("", Rect.Zero)));
+        Assert.Equal(EditorTool.Step, EditorViewModel.ToolFor(new AnnotationElement.Kind.StepMarker(1, Point.Zero, 10)));
+        Assert.Equal(EditorTool.Highlight, EditorViewModel.ToolFor(new AnnotationElement.Kind.Highlight(Rect.Zero)));
+        Assert.Equal(EditorTool.Redact, EditorViewModel.ToolFor(new AnnotationElement.Kind.Redaction(Rect.Zero, RedactionStyle.Pixelate)));
+        Assert.Equal(EditorTool.Focus, EditorViewModel.ToolFor(new AnnotationElement.Kind.Focus(Rect.Zero)));
+    }
+
+    [Fact]
+    [Unit]
+    public void CursorAtReturnsMoveOverGrabbableElement()
+    {
+        var (vm, _, _) = CreateFixture();
+        vm.Document.Add(new AnnotationElement(null, new AnnotationElement.Kind.Rectangle(new Rect(10, 10, 50, 50))));
+
+        // Drawing tool over grabbable outline
+        vm.ActiveTool = EditorTool.Arrow;
+        Assert.Equal(CanvasCursor.Move, vm.CursorAt(new Point(10, 10)));
+
+        // Select tool over grabbable element
+        vm.ActiveTool = EditorTool.Select;
+        Assert.Equal(CanvasCursor.Move, vm.CursorAt(new Point(10, 10)));
+    }
+
+    [Fact]
+    [Unit]
+    public void CursorAtReturnsCrosshairOnEmptyForDrawingTool()
+    {
+        var (vm, _, _) = CreateFixture();
+        vm.ActiveTool = EditorTool.Arrow;
+        Assert.Equal(CanvasCursor.Crosshair, vm.CursorAt(new Point(150, 100)));
+
+        vm.ActiveTool = EditorTool.Rectangle;
+        Assert.Equal(CanvasCursor.Crosshair, vm.CursorAt(new Point(150, 100)));
+    }
+
+    [Fact]
+    [Unit]
+    public void CursorAtReturnsSizeCursorOverSelectedHandle()
+    {
+        var (vm, _, _) = CreateFixture();
+        var id = vm.Document.Add(new AnnotationElement(null, new AnnotationElement.Kind.Rectangle(new Rect(20, 20, 60, 40))));
+        vm.Document.Select(id);
+
+        vm.ActiveTool = EditorTool.Select;
+        // Bounding box of rectangle: 20, 20 to 80, 60
+        // TopLeft is (20, 20) -> SizeNWSE
+        Assert.Equal(CanvasCursor.SizeNWSE, vm.CursorAt(new Point(20, 20)));
+        // TopRight is (80, 20) -> SizeNESW
+        Assert.Equal(CanvasCursor.SizeNESW, vm.CursorAt(new Point(80, 20)));
+        // Top is (50, 20) -> SizeNS
+        Assert.Equal(CanvasCursor.SizeNS, vm.CursorAt(new Point(50, 20)));
+        // Left is (20, 40) -> SizeWE
+        Assert.Equal(CanvasCursor.SizeWE, vm.CursorAt(new Point(20, 40)));
+
+        // Arrow endpoint handle -> Hand
+        var arrowId = vm.Document.Add(new AnnotationElement(null, new AnnotationElement.Kind.Arrow(new Point(100, 100), new Point(150, 100))));
+        vm.Document.Select(arrowId);
+        Assert.Equal(CanvasCursor.Hand, vm.CursorAt(new Point(100, 100)));
+        Assert.Equal(CanvasCursor.Hand, vm.CursorAt(new Point(150, 100)));
+    }
+
+    [Fact]
+    [Unit]
+    public void CursorAtReturnsDefaultOnEmptyForSelect()
+    {
+        var (vm, _, _) = CreateFixture();
+        vm.ActiveTool = EditorTool.Select;
+        Assert.Equal(CanvasCursor.Default, vm.CursorAt(new Point(150, 100)));
+    }
+
+    [Fact]
+    [Unit]
+    public void CursorAtReturnsIBeamForTextTool()
+    {
+        var (vm, _, _) = CreateFixture();
+        vm.ActiveTool = EditorTool.Text;
+
+        // Empty space
+        Assert.Equal(CanvasCursor.IBeam, vm.CursorAt(new Point(150, 100)));
+
+        // Over text element
+        vm.Document.Add(new AnnotationElement(null, new AnnotationElement.Kind.Text("Hello", new Rect(20, 20, 50, 20))));
+        Assert.Equal(CanvasCursor.IBeam, vm.CursorAt(new Point(30, 25)));
+    }
 }
 
 public class TestImageSink : IImageSink

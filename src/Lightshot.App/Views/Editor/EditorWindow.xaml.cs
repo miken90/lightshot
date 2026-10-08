@@ -195,6 +195,7 @@ public partial class EditorWindow : Window
             }
         }
 
+        MainCanvasHost.Cursor = ToWpfCursor(_viewModel.CursorAt(imgPos));
         MainCanvasHost.CaptureMouse();
         _viewModel.GestureStarted(imgPos);
     }
@@ -215,10 +216,15 @@ public partial class EditorWindow : Window
             }
         }
 
+        var imgPos = MainCanvasHost.ScreenToImage(screenPos);
+
         if (MainCanvasHost.IsMouseCaptured)
         {
-            var imgPos = MainCanvasHost.ScreenToImage(screenPos);
             _viewModel.GestureMoved(imgPos);
+        }
+        else
+        {
+            MainCanvasHost.Cursor = ToWpfCursor(_viewModel.CursorAt(imgPos));
         }
     }
 
@@ -234,8 +240,22 @@ public partial class EditorWindow : Window
             var imgPos = MainCanvasHost.ScreenToImage(screenPos);
             _viewModel.GestureEnded(imgPos);
             MainCanvasHost.ReleaseMouseCapture();
+            MainCanvasHost.Cursor = ToWpfCursor(_viewModel.CursorAt(imgPos));
         }
     }
+
+    private static Cursor ToWpfCursor(CanvasCursor c) => c switch
+    {
+        CanvasCursor.Crosshair => Cursors.Cross,
+        CanvasCursor.Move => Cursors.SizeAll,
+        CanvasCursor.IBeam => Cursors.IBeam,
+        CanvasCursor.Hand => Cursors.Hand,
+        CanvasCursor.SizeNWSE => Cursors.SizeNWSE,
+        CanvasCursor.SizeNESW => Cursors.SizeNESW,
+        CanvasCursor.SizeNS => Cursors.SizeNS,
+        CanvasCursor.SizeWE => Cursors.SizeWE,
+        _ => Cursors.Arrow
+    };
 
     private void InitiateDragOut()
     {

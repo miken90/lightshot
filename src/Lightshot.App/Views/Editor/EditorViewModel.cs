@@ -28,6 +28,19 @@ public enum EditorTool
     Crop
 }
 
+public enum CanvasCursor
+{
+    Default,
+    Crosshair,
+    Move,
+    IBeam,
+    Hand,
+    SizeNWSE,
+    SizeNESW,
+    SizeNS,
+    SizeWE
+}
+
 public class EditorViewModel : INotifyPropertyChanged
 {
     public const string ArrowStyleDefaultsKey = Lightshot.Platform.Windows.Settings.SettingsKeys.EditorLastArrowStyle;
@@ -88,6 +101,36 @@ public class EditorViewModel : INotifyPropertyChanged
         double width = Math.Min(DefaultWindowWidth, workAreaWidth * WorkAreaWidthCapRatio);
         double height = Math.Min(DefaultWindowHeight, workAreaHeight * WorkAreaHeightCapRatio);
         return (width, height);
+    }
+
+    public static EditorTool ToolFor(AnnotationElement.Kind kind) => kind switch
+    {
+        AnnotationElement.Kind.Arrow => EditorTool.Arrow,
+        AnnotationElement.Kind.Line => EditorTool.Line,
+        AnnotationElement.Kind.Rectangle => EditorTool.Rectangle,
+        AnnotationElement.Kind.Ellipse => EditorTool.Ellipse,
+        AnnotationElement.Kind.Freehand => EditorTool.Freehand,
+        AnnotationElement.Kind.Text => EditorTool.Text,
+        AnnotationElement.Kind.StepMarker => EditorTool.Step,
+        AnnotationElement.Kind.Highlight => EditorTool.Highlight,
+        AnnotationElement.Kind.Redaction => EditorTool.Redact,
+        AnnotationElement.Kind.Focus => EditorTool.Focus,
+        _ => EditorTool.Select
+    };
+
+    // The public setter's Redact/Crop branches clear the selection and reset the style, which must not happen when the user grabs an element.
+    private void AdoptToolOfSelection()
+    {
+        if (ActiveTool == EditorTool.Select || ActiveTool == EditorTool.Crop) return;
+        if (!Document.SelectedID.HasValue) return;
+        var el = Document.Element(Document.SelectedID.Value);
+        if (el == null) return;
+        var tool = ToolFor(el.ElementKind);
+        if (tool == EditorTool.Select || tool == _activeTool) return;
+        _activeTool = tool;
+        OnPropertyChanged(nameof(ActiveTool));
+        OnPropertyChanged(nameof(IsCropping));
+        OnPropertyChanged(nameof(VisibleStyleFields));
     }
 
     public EditorTool ActiveTool
@@ -554,6 +597,7 @@ public class EditorViewModel : INotifyPropertyChanged
                 {
                     Document.Select(existingStep.Value);
                     SyncStyleToSelection();
+                    AdoptToolOfSelection();
                     _drag = new DragSession(existingStep.Value, new DragSession.Mode.MoveMode(), point, point);
                     return;
                 }
@@ -567,6 +611,7 @@ public class EditorViewModel : INotifyPropertyChanged
                 {
                     Document.Select(hit.Value);
                     SyncStyleToSelection();
+                    AdoptToolOfSelection();
                     _drag = new DragSession(hit.Value, new DragSession.Mode.MoveMode(), point, point);
                     return;
                 }
@@ -677,6 +722,7 @@ public class EditorViewModel : INotifyPropertyChanged
 
         Document.Select(hit.Value);
         SyncStyleToSelection();
+        AdoptToolOfSelection();
         BeginEditingSelectedText();
         NotifyCanvasChanged();
         return EditingTextID.HasValue;
@@ -712,21 +758,29 @@ public class EditorViewModel : INotifyPropertyChanged
         }
     }
 
-    private bool BeginHandleDrag(Point point)
+    private readonly record struct HandleHit(
+        ElementID Id,
+        EndpointHandle? Endpoint,
+        Handle? BoxHandle
+    );
+
+    private HandleHit? HitHandle(Point point)
     {
-        if (!Document.SelectedID.HasValue) return false;
+        if (!Document.SelectedID.HasValue) return null;
         var id = Document.SelectedID.Value;
         var element = Document.Element(id);
-        if (element == null) return false;
+        if (element == null) return null;
 
         var kind = element.ElementKind;
         if (kind.EndpointHandles != null)
         {
-            var hit = kind.EndpointHandles.LastOrDefault(h => IsWithinGrabRadius(point, h.Point));
-            if (hit != default)
+            for (int i = kind.EndpointHandles.Count - 1; i >= 0; i--)
             {
-                _drag = new DragSession(id, new DragSession.Mode.ReshapeMode(hit.Handle), point, point);
-                return true;
+                var h = kind.EndpointHandles[i];
+                if (IsWithinGrabRadius(point, h.Point))
+                {
+                    return new HandleHit(id, h.Handle, null);
+                }
             }
         }
         else
@@ -740,13 +794,80 @@ public class EditorViewModel : INotifyPropertyChanged
                 var hp = GeometryUtils.HandlePoint(h, kind.BoundingBox);
                 if (IsWithinGrabRadius(point, hp))
                 {
-                    _drag = new DragSession(id, new DragSession.Mode.ResizeMode(h), point, point);
-                    return true;
+                    return new HandleHit(id, null, h);
                 }
             }
         }
 
+        return null;
+    }
+
+    private bool BeginHandleDrag(Point point)
+    {
+        var hit = HitHandle(point);
+        if (!hit.HasValue) return false;
+
+        if (hit.Value.Endpoint.HasValue)
+        {
+            _drag = new DragSession(hit.Value.Id, new DragSession.Mode.ReshapeMode(hit.Value.Endpoint.Value), point, point);
+            return true;
+        }
+
+        if (hit.Value.BoxHandle.HasValue)
+        {
+            _drag = new DragSession(hit.Value.Id, new DragSession.Mode.ResizeMode(hit.Value.BoxHandle.Value), point, point);
+            return true;
+        }
+
         return false;
+    }
+
+    private static CanvasCursor CursorForHandle(Handle handle) => handle switch
+    {
+        Handle.TopLeft or Handle.BottomRight => CanvasCursor.SizeNWSE,
+        Handle.TopRight or Handle.BottomLeft => CanvasCursor.SizeNESW,
+        Handle.Top or Handle.Bottom => CanvasCursor.SizeNS,
+        Handle.Left or Handle.Right => CanvasCursor.SizeWE,
+        _ => CanvasCursor.Default
+    };
+
+    public CanvasCursor CursorAt(Point point)
+    {
+        if (ActiveTool == EditorTool.Crop)
+        {
+            var rect = _cropDraft ?? Document.ImageBounds;
+            var cropHandle = CropHandle(point, rect);
+            if (cropHandle.HasValue)
+            {
+                return CursorForHandle(cropHandle.Value);
+            }
+            return rect.Contains(point) ? CanvasCursor.Move : CanvasCursor.Crosshair;
+        }
+
+        var handleHit = HitHandle(point);
+        if (handleHit.HasValue)
+        {
+            if (handleHit.Value.Endpoint.HasValue)
+            {
+                return CanvasCursor.Hand;
+            }
+            if (handleHit.Value.BoxHandle.HasValue)
+            {
+                return CursorForHandle(handleHit.Value.BoxHandle.Value);
+            }
+        }
+
+        if (ActiveTool == EditorTool.Select)
+        {
+            return Document.ElementID(point).HasValue ? CanvasCursor.Move : CanvasCursor.Default;
+        }
+
+        if (ActiveTool == EditorTool.Text)
+        {
+            return CanvasCursor.IBeam;
+        }
+
+        return Document.GrabbableElementID(point).HasValue ? CanvasCursor.Move : CanvasCursor.Crosshair;
     }
 
     private void BeginCropGesture(Point point)
