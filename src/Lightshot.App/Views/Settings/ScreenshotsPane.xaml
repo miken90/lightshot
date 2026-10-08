@@ -8,6 +8,7 @@
              d:DesignHeight="450" d:DesignWidth="450">
     <UserControl.Resources>
         <local:InverseBoolConverter x:Key="InverseBoolConverter"/>
+        <local:PercentConverter x:Key="Percent"/>
     </UserControl.Resources>
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="{DynamicResource Space.Pane}">
@@ -16,6 +17,15 @@
                 <RadioButton Content="PNG" GroupName="Format" IsChecked="{Binding FormatIsJpeg, Converter={StaticResource InverseBoolConverter}, FallbackValue=True}" Foreground="{DynamicResource Theme.TextPrimary}" Margin="0,0,16,0"/>
                 <RadioButton Content="JPEG" GroupName="Format" IsChecked="{Binding FormatIsJpeg}" Foreground="{DynamicResource Theme.TextPrimary}"/>
             </StackPanel>
+            <DockPanel Margin="0,4,0,0">
+                <TextBlock Text="JPEG Quality: " Foreground="{DynamicResource Theme.TextSecondary}" VerticalAlignment="Center"/>
+                <Slider Minimum="10" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True" Width="140"
+                        IsEnabled="{Binding FormatIsJpeg}"
+                        Value="{Binding JpegQuality, Converter={StaticResource Percent}, Mode=TwoWay}"
+                        AutomationProperties.AutomationId="JpegQualitySlider"/>
+                <TextBlock Text="{Binding JpegQuality, Converter={StaticResource Percent}, StringFormat='{}{0}%'}"
+                           Foreground="{DynamicResource Theme.TextSecondary}" Margin="8,0,0,0" VerticalAlignment="Center"/>
+            </DockPanel>
 
             <TextBlock Text="Save Location" Style="{DynamicResource Text.SectionHeader}" Foreground="{DynamicResource Theme.TextPrimary}"/>
             <Grid Margin="{DynamicResource Space.SectionGap}">
