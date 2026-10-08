@@ -17,6 +17,7 @@
         <KeyBinding Modifiers="Ctrl" Key="S" Command="{Binding CopyAndCloseCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
         <KeyBinding Modifiers="Ctrl" Key="C" Command="{Binding CopyCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
         <KeyBinding Modifiers="Ctrl+Shift" Key="S" Command="{Binding SaveAsCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
+        <KeyBinding Modifiers="Ctrl+Alt" Key="S" Command="{Binding QuickSaveCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
         <KeyBinding Modifiers="Ctrl" Key="Z" Command="{Binding UndoCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
         <KeyBinding Modifiers="Ctrl" Key="Y" Command="{Binding RedoCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
         <KeyBinding Modifiers="Ctrl+Shift" Key="Z" Command="{Binding RedoCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -50,8 +51,16 @@
                 <!-- Options / Style Bar -->
                 <local:StyleBar x:Name="StyleBarControl" Grid.Column="2" VerticalAlignment="Center" Margin="4,0,4,0"/>
 
-                <!-- Action Buttons: Save As, Copy, Done -->
+                <!-- Action Buttons: Quick Save, Save As, Copy, Done -->
                 <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center">
+                    <Button x:Name="QuickSaveButton"
+                            AutomationProperties.AutomationId="QuickSaveButton"
+                            AutomationProperties.Name="Quick Save"
+                            Content="Quick Save"
+                            Margin="0,0,8,0"
+                            Command="{Binding QuickSaveCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                            ToolTip="Quick Save (Ctrl+Alt+S)"/>
+
                     <Button x:Name="SaveAsButton" Content="Save As…" Margin="0,0,8,0"
                             Click="OnSaveAsClick" ToolTip="Save As… (Ctrl+Shift+S)"/>
 

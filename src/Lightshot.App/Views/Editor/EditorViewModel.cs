@@ -925,7 +925,33 @@ public class EditorViewModel : INotifyPropertyChanged
     {
         EndTextEditing();
         var rendered = _renderer.Render(Document);
-        _imageSink.Write(rendered, destinationPath, format ?? new ImageFormat.Png());
+        _imageSink.Write(rendered, destinationPath, format ?? DefaultExportFormat);
+    }
+
+    public bool CanQuickSave => _settingsStore != null;
+
+    public ImageFormat DefaultExportFormat => _settingsStore?.DefaultFormat ?? new ImageFormat.Png();
+
+    public string SuggestedFileName(DateTime now) =>
+        _settingsStore == null || string.IsNullOrEmpty(_settingsStore.FilenamePattern)
+            ? $"Screenshot {now:yyyy-MM-dd} at {now:HH.mm.ss}"
+            : new FilenameFormatter(_settingsStore.FilenamePattern).Filename(now);
+
+    public void QuickSave()
+    {
+        if (_settingsStore == null) return;
+        try
+        {
+            EndTextEditing();
+            var dest = _settingsStore.DefaultDestination();
+            var rendered = _renderer.Render(Document);
+            _imageSink.Write(rendered, dest, DefaultExportFormat);
+            RequestClose?.Invoke();
+        }
+        catch (Exception ex)
+        {
+            ShowError?.Invoke(("Save Error", "Could not save screenshot.", ex.Message));
+        }
     }
 
     public void OpenExistingImage(string? path = null)

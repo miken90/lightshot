@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Windows.Media.Imaging;
 using Lightshot.App.Views.Notices;
 using Lightshot.Core;
+using Lightshot.Platform.Windows.Settings;
 using Microsoft.Win32;
 
 namespace Lightshot.App.Views.Editor;
@@ -25,6 +26,7 @@ public partial class EditorWindow : Window
     public ICommand CopyAndCloseCommand { get; }
     public ICommand CopyCommand { get; }
     public ICommand SaveAsCommand { get; }
+    public ICommand QuickSaveCommand { get; }
     public ICommand UndoCommand { get; }
     public ICommand RedoCommand { get; }
     public ICommand DeleteCommand { get; }
@@ -41,6 +43,7 @@ public partial class EditorWindow : Window
         CopyAndCloseCommand = new RelayCommand(_ => _viewModel?.CopyAndClose());
         CopyCommand = new RelayCommand(_ => _viewModel?.Copy());
         SaveAsCommand = new RelayCommand(_ => PromptSaveAs());
+        QuickSaveCommand = new RelayCommand(_ => _viewModel?.QuickSave(), _ => _viewModel?.CanQuickSave == true);
         UndoCommand = new RelayCommand(_ => _viewModel?.Undo());
         RedoCommand = new RelayCommand(_ => _viewModel?.Redo());
         DeleteCommand = new RelayCommand(_ => _viewModel?.DeleteSelection());
@@ -61,6 +64,11 @@ public partial class EditorWindow : Window
     public void InitializeViewModel(EditorViewModel viewModel)
     {
         _viewModel = viewModel ?? throw new ArgumentNullException(nameof(viewModel));
+
+        if (QuickSaveCommand is RelayCommand relay)
+        {
+            relay.RaiseCanExecuteChanged();
+        }
 
         DataContext = _viewModel;
         _viewModel.RequestClose += OnRequestClose;
@@ -267,18 +275,34 @@ public partial class EditorWindow : Window
     {
         if (_viewModel == null) return;
 
+        var now = DateTime.Now;
+        var baseName = _viewModel.SuggestedFileName(now);
+        bool isJpeg = _viewModel.DefaultExportFormat is ImageFormat.Jpeg;
+        string ext = isJpeg ? ".jpg" : ".png";
+
+        string fileName = (baseName.EndsWith(".png", StringComparison.OrdinalIgnoreCase) ||
+                           baseName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
+                           baseName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
+            ? Path.ChangeExtension(baseName, ext)
+            : $"{baseName}{ext}";
+
         var sfd = new SaveFileDialog
         {
             Filter = "PNG Image (*.png)|*.png|JPEG Image (*.jpg;*.jpeg)|*.jpg;*.jpeg",
-            DefaultExt = ".png",
-            FileName = $"Screenshot {DateTime.Now:yyyy-MM-dd at HH.mm.ss}.png"
+            FilterIndex = isJpeg ? 2 : 1,
+            DefaultExt = ext,
+            FileName = fileName
         };
 
         if (sfd.ShowDialog(this) == true)
         {
+            double jpegQuality = _viewModel.DefaultExportFormat is ImageFormat.Jpeg jpeg
+                ? jpeg.Quality
+                : SettingsKeys.DefaultJpegQuality;
+
             ImageFormat fmt = sfd.FileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) ||
                               sfd.FileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase)
-                ? new ImageFormat.Jpeg(0.9)
+                ? new ImageFormat.Jpeg(jpegQuality)
                 : new ImageFormat.Png();
 
             _viewModel.SaveAs(sfd.FileName, fmt);
