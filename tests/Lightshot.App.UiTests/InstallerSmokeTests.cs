@@ -7,6 +7,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 using Lightshot.Platform.Windows.Settings;
@@ -195,6 +196,42 @@ public class InstallerSmokeTests : IClassFixture<DryRunReleaseFixture>
         var asset = fullAssets[0];
         Assert.Equal(UpdateStager.VelopackPackageId, asset.PackageId);
         Assert.Equal(verified.Manifest.Package, asset.FileName);
+
+        // (8) Hub contract in nupkg and publish app directory
+        using (var nupkgZip = ZipFile.OpenRead(nupkgPath))
+        {
+            var exeEntry = nupkgZip.Entries.FirstOrDefault(e => string.Equals(e.Name, "Lightshot.App.exe", StringComparison.OrdinalIgnoreCase));
+            Assert.NotNull(exeEntry);
+
+            string? exeDir = Path.GetDirectoryName(exeEntry.FullName)?.Replace('\\', '/');
+            var contractEntry = nupkgZip.Entries.FirstOrDefault(e =>
+                string.Equals(e.Name, "hub-contract.json", StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(Path.GetDirectoryName(e.FullName)?.Replace('\\', '/'), exeDir, StringComparison.OrdinalIgnoreCase));
+            Assert.NotNull(contractEntry);
+
+            using var contractStream = contractEntry.Open();
+            using var contractReader = new StreamReader(contractStream, Encoding.UTF8);
+            var contractNode = JsonNode.Parse(contractReader.ReadToEnd())!.AsObject();
+            Assert.Equal("0.1.0", contractNode["version"]?.GetValue<string>());
+
+            using var exeStream = exeEntry.Open();
+            using var ms = new MemoryStream();
+            exeStream.CopyTo(ms);
+            string actualExeHash = Convert.ToHexString(SHA256.HashData(ms.ToArray())).ToLowerInvariant();
+            Assert.Equal(actualExeHash, contractNode["exeSha256"]?.GetValue<string>());
+
+            string rootContractPath = Path.Combine(_fixture.RepoRoot, "hub-contract.json");
+            Assert.True(File.Exists(rootContractPath), $"hub-contract.json missing at {rootContractPath}");
+            var rootContractNode = JsonNode.Parse(File.ReadAllText(rootContractPath))!.AsObject();
+            Assert.Equal(rootContractNode["hubFlag"]?.GetValue<string>(), contractNode["hubFlag"]?.GetValue<string>());
+            Assert.True(JsonNode.DeepEquals(rootContractNode["settings"], contractNode["settings"]), "settings in nupkg contract differs from repo-root contract.");
+        }
+
+        string publishContractPath = Path.Combine(Path.GetDirectoryName(_fixture.PublishAppExePath)!, "hub-contract.json");
+        Assert.True(File.Exists(publishContractPath), $"hub-contract.json missing at {publishContractPath}");
+        var publishContractNode = JsonNode.Parse(File.ReadAllText(publishContractPath))!.AsObject();
+        string expectedPublishExeHash = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(_fixture.PublishAppExePath))).ToLowerInvariant();
+        Assert.Equal(expectedPublishExeHash, publishContractNode["exeSha256"]?.GetValue<string>());
     }
 
     [Fact]
