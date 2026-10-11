@@ -58,9 +58,12 @@ public sealed partial class AppController
 
     private void InitializeRecording()
     {
-        _trayIcon.RecordingState = () => _coordinator.IsRecording
-            ? new RecordingMenuState(true, ControlsPillViewModel.FormatTime(_coordinator.RecordingElapsed))
-            : null;
+        if (_trayIcon is not null)
+        {
+            _trayIcon.RecordingState = () => _coordinator.IsRecording
+                ? new RecordingMenuState(true, ControlsPillViewModel.FormatTime(_coordinator.RecordingElapsed))
+                : null;
+        }
 
         _ = Task.Run(RecoverScratchAsync).ContinueWith(_ => OnUi(StartAutoClear), TaskScheduler.Default);
     }
@@ -113,7 +116,7 @@ public sealed partial class AppController
                     }
                     _recordingTimer.Start();
 
-                    _trayIcon.SetRecording(true);
+                    _trayIcon?.SetRecording(true);
                     break;
 
                 case RecordingSession.State.Countdown:
@@ -131,8 +134,8 @@ public sealed partial class AppController
                         _chrome?.HideFrame();
                     });
                     _frameShown = false;
-                    _trayIcon.SetRecording(false);
-                    _trayIcon.UpdateTooltip("Lightshot");
+                    _trayIcon?.SetRecording(false);
+                    _trayIcon?.UpdateTooltip("Lightshot");
                     break;
             }
         });
@@ -146,7 +149,7 @@ public sealed partial class AppController
 
         if (_settingsStore.RecordingDefaults.ShowRecordingTimeInMenuBar)
         {
-            _trayIcon.UpdateTooltip($"Lightshot - Recording {ControlsPillViewModel.FormatTime(elapsed)}");
+            _trayIcon?.UpdateTooltip($"Lightshot - Recording {ControlsPillViewModel.FormatTime(elapsed)}");
         }
     }
 

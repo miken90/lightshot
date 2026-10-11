@@ -84,6 +84,10 @@ Downloads and validates AI/ML model assets against SHA-256 hashes defined in `as
 powershell.exe -NoProfile -File 'D:\WORKSPACES\PERSONAL\lightshot\scripts\fetch-models.ps1'
 ```
 
+## Launch Flags
+
+- `--no-tray`: start without the tray icon (used by the my-utilities hub; hotkeys keep working).
+
 ## Test Tiers
 
 Tests are tagged with `[Tier("<Name>")]` trait attributes:

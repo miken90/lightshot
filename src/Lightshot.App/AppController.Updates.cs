@@ -25,14 +25,19 @@ public sealed partial class AppController
     {
         _updates = new UpdateService(_settingsStore, new VelopackApplier(s => Trace.WriteLine(s)), AppPaths.Updates,
             logger: s => Trace.WriteLine(s));
+        // Without a tray (hub mode) an available update and its notices have no UI; a staged update
+        // still applies on exit (ApplyPendingUpdateOnExit).
         _updateNotice = new UpdateNoticeController(_updates, HasWorkInProgress,
-            setTrayUpdate: text => _trayIcon.SetUpdateAvailable(text),
-            showNotice: (title, text) => _trayIcon.ShowNotice(title, text),
+            setTrayUpdate: text => _trayIcon?.SetUpdateAvailable(text),
+            showNotice: (title, text) => _trayIcon?.ShowNotice(title, text),
             shutdown: () => Application.Current?.Dispatcher.BeginInvoke(new Action(() => Application.Current.Shutdown(0))),
             testMode: IsTestMode());
         _updateNotice.Staged += v => _openUpdateSettings?.SetStaged(v);
-        _trayIcon.OnRestartToUpdate = () => _ = _updateNotice.RestartToUpdateAsync();
-        _trayIcon.OnNoticeClicked = () => ShowSettingsWindow();
+        if (_trayIcon is not null)
+        {
+            _trayIcon.OnRestartToUpdate = () => _ = _updateNotice.RestartToUpdateAsync();
+            _trayIcon.OnNoticeClicked = () => ShowSettingsWindow();
+        }
         _ = _updateNotice.StartAsync(); // StartAsync catches check failures itself
     }
 

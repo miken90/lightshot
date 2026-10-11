@@ -55,7 +55,7 @@ public sealed partial class AppController : ICaptureUI, IDisposable
     private readonly ICaptureService _captureService;
     private readonly WindowsOverlayController _overlay;
     private readonly WindowsHotkeyService _hotkeys;
-    private readonly TrayIcon _trayIcon;
+    private readonly TrayIcon? _trayIcon;
     private readonly HistoryStore _historyStore;
     private readonly PinBoard _pinBoard;
     private readonly QuickAccessHost _quickAccessHost;
@@ -73,7 +73,7 @@ public sealed partial class AppController : ICaptureUI, IDisposable
     private bool _disposed;
 
     public AppCoordinator Coordinator => _coordinator;
-    public TrayIcon Tray => _trayIcon;
+    public TrayIcon? Tray => _trayIcon;
     public ISettingsStore Settings => _settingsStore;
     public HistoryStore History => _historyStore;
     public PinBoard PinBoard => _pinBoard;
@@ -92,7 +92,8 @@ public sealed partial class AppController : ICaptureUI, IDisposable
         IImageCodec? codec = null,
         HistoryStore? historyStore = null,
         PinBoard? pinBoard = null,
-        QuickAccessHost? quickAccessHost = null)
+        QuickAccessHost? quickAccessHost = null,
+        bool showTray = true)
     {
         _shellThread = shellThread ?? new ShellThread("LightshotShellThread");
         _topology = topology ?? new DisplayTopology();
@@ -108,7 +109,8 @@ public sealed partial class AppController : ICaptureUI, IDisposable
         _captureService = captureService ?? new WindowsCaptureService(_topology, _settingsStore);
         _overlay = overlay ?? new WindowsOverlayController(_shellThread, magnifierZoom: () => _settingsStore.MagnifierZoom);
         _hotkeys = hotkeys ?? new WindowsHotkeyService(_shellThread);
-        _trayIcon = new TrayIcon("Lightshot");
+        // The my-utilities hub hides the tray; hotkeys and the Quit/Activate events do not depend on it.
+        _trayIcon = showTray ? new TrayIcon("Lightshot") : null;
 
         _historyStore = historyStore ?? new HistoryStore(
             AppPaths.History,
@@ -162,7 +164,7 @@ public sealed partial class AppController : ICaptureUI, IDisposable
     {
         // Apply initial appearance theme and update tray icon
         ThemeService.Instance.Apply(_settingsStore.Appearance);
-        _trayIcon.UpdateTheme(ThemeService.GetSystemUsesLightTheme());
+        _trayIcon?.UpdateTheme(ThemeService.GetSystemUsesLightTheme());
 
         // Subscribe to setting change notifications
         if (_settingsStore is JsonSettingsStore jsonStore)
@@ -170,21 +172,24 @@ public sealed partial class AppController : ICaptureUI, IDisposable
             jsonStore.SettingChanged += OnSettingChanged;
         }
 
-        var displays = DisplayTopology.GetDisplays();
-        _trayIcon.Displays = displays.Select(d => new DisplayMenuItem(d.DisplayId, d.DeviceName + (d.IsPrimary ? " (Primary)" : ""))).ToList();
-
-        _trayIcon.OnCaptureAction = action => TriggerCaptureAction(action);
-        _trayIcon.OnFullscreenDisplayCapture = displayId => _ = _coordinator.CaptureFullscreenAsync(displayId);
-        _trayIcon.OnOpenFile = () => _coordinator.OpenFile();
-        _trayIcon.OnHistory = () => ShowHistoryWindow();
-        _trayIcon.OnSettings = () => ShowSettingsWindow();
-        _trayIcon.OnQuit = () =>
+        if (_trayIcon is not null)
         {
-            Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+            var displays = DisplayTopology.GetDisplays();
+            _trayIcon.Displays = displays.Select(d => new DisplayMenuItem(d.DisplayId, d.DeviceName + (d.IsPrimary ? " (Primary)" : ""))).ToList();
+
+            _trayIcon.OnCaptureAction = action => TriggerCaptureAction(action);
+            _trayIcon.OnFullscreenDisplayCapture = displayId => _ = _coordinator.CaptureFullscreenAsync(displayId);
+            _trayIcon.OnOpenFile = () => _coordinator.OpenFile();
+            _trayIcon.OnHistory = () => ShowHistoryWindow();
+            _trayIcon.OnSettings = () => ShowSettingsWindow();
+            _trayIcon.OnQuit = () =>
             {
-                Application.Current.Shutdown(0);
-            }));
-        };
+                Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+                {
+                    Application.Current.Shutdown(0);
+                }));
+            };
+        }
 
         RegisterHotkeys();
         InitializeRecording();
@@ -197,7 +202,7 @@ public sealed partial class AppController : ICaptureUI, IDisposable
         {
             case SettingsKeys.AppAppearance:
                 ThemeService.Instance.Apply(_settingsStore.Appearance);
-                _trayIcon.UpdateTheme(ThemeService.GetSystemUsesLightTheme());
+                _trayIcon?.UpdateTheme(ThemeService.GetSystemUsesLightTheme());
                 break;
             case SettingsKeys.CaptureHotkeys:
                 RegisterHotkeys();
@@ -225,7 +230,7 @@ public sealed partial class AppController : ICaptureUI, IDisposable
 
         var activeBindings = new HotkeyBindings(assignments);
         var unregisterable = _hotkeys.Register(activeBindings, action => TriggerCaptureAction(action));
-        _trayIcon.Bindings = activeBindings;
+        if (_trayIcon is not null) _trayIcon.Bindings = activeBindings;
         return unregisterable;
     }
 
@@ -409,7 +414,7 @@ public sealed partial class AppController : ICaptureUI, IDisposable
                 applyAppearance: pref =>
                 {
                     ThemeService.Instance.Apply(pref);
-                    _trayIcon.UpdateTheme(ThemeService.GetSystemUsesLightTheme());
+                    _trayIcon?.UpdateTheme(ThemeService.GetSystemUsesLightTheme());
                 },
                 updates: CreateUpdateSettingsViewModel());
             _settingsWindow = new SettingsWindow(vm);
@@ -553,7 +558,7 @@ public sealed partial class AppController : ICaptureUI, IDisposable
         _quickAccessHost.Dispose();
         _pinBoard.Dispose();
         DisposeUpdates();
-        _trayIcon.Dispose();
+        _trayIcon?.Dispose();
         _hotkeys.Dispose();
         DisposeRecording();
         _overlay.Dispose();

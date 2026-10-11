@@ -80,7 +80,8 @@ public static class Program
         using var activateEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ActivateEventName);
 
         var app = new App();
-        using var controller = new AppController();
+        var launch = LaunchOptions.Parse(args);
+        using var controller = new AppController(showTray: !launch.NoTray);
         controller.Initialize();
 
         // 5. Register wait handle on quit event to cleanly shut down
