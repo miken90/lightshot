@@ -1,0 +1,31 @@
+{
+  "contract": 1,
+  "module": "lightshot",
+  "hubFlag": "--no-tray",
+  "channel": null,
+  "settings": {
+    "schemaVersion": 1,
+    "keys": [
+      "save.format",
+      "save.jpegQuality",
+      "save.location",
+      "save.filenamePattern",
+      "capture.hotkeys",
+      "capture.openInEditor",
+      "capture.includeCursor",
+      "capture.adjustAreaBeforeCapture",
+      "capture.delay",
+      "history.retention",
+      "history.maxAgeDays",
+      "capture.magnifierZoom",
+      "recording.defaults",
+      "recording.rememberLastArea",
+      "recording.lastRegion",
+      "app.appearance",
+      "ocr.keepLineBreaks",
+      "app.hideDesktopIcons",
+      "quickAccess.settings",
+      "capture.afterCapture"
+    ]
+  }
+}

@@ -16,4 +16,9 @@
     <PackageReference Include="xunit.v3" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\hub-contract.json" Link="hub-contract.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="HubContractHistory.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
 </Project>

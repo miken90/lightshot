@@ -50,6 +50,24 @@ try {
         throw "dotnet publish failed with exit code $LASTEXITCODE"
     }
 
+    # Ship the hub contract next to the exe: the my-utilities hub reads it to decide whether it can
+    # run this build in hub mode. Version and exe hash are only known here.
+    $contractSrc = Join-Path $RepoRoot "hub-contract.json"
+    $exePublished = Join-Path $publishDir "Lightshot.App.exe"
+    if (-not (Test-Path $contractSrc)) {
+        throw "hub-contract.json not found at '$contractSrc'."
+    }
+    if (-not (Test-Path $exePublished)) {
+        throw "Published exe not found at '$exePublished'."
+    }
+    $contract = Get-Content -Path $contractSrc -Raw | ConvertFrom-Json
+    $exeSha256 = (Get-FileHash -Path $exePublished -Algorithm SHA256).Hash.ToLower()
+    $contract | Add-Member -NotePropertyName "version" -NotePropertyValue $Version -Force
+    $contract | Add-Member -NotePropertyName "exeSha256" -NotePropertyValue $exeSha256 -Force
+    $contractJson = $contract | ConvertTo-Json -Depth 10
+    [IO.File]::WriteAllText((Join-Path $publishDir "hub-contract.json"), $contractJson, (New-Object Text.UTF8Encoding $false))
+    Write-Log "Wrote hub-contract.json (version $Version, exe sha256 $exeSha256)."
+
     # 2. Package with Velopack unless -SkipVpk is specified
     if (-not $SkipVpk) {
         Write-Log "Packaging release with Velopack (vpk)..."

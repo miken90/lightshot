@@ -21,6 +21,8 @@ Each GitHub release publishes:
 
 The Velopack package ID is `LightshotApp` (install root `%LocalAppData%\LightshotApp\current\`), intentionally distinct from the user data directory `%LocalAppData%\Lightshot` to prevent uninstalls or reinstalls from wiping history and local scratch recordings.
 
+Every package carries `hub-contract.json` next to `Lightshot.App.exe`. If `SettingsKeys` or launch flags changed, `HubContractTests` fails until `settings.schemaVersion` is bumped; tell the my-utilities hub owner before releasing a new schema version.
+
 Manifest URL: `https://github.com/miken90/lightshot/releases/latest/download/releases.json`
 
 ## 3. Rollback Strategy
