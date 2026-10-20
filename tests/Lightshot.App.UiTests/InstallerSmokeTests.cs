@@ -156,6 +156,7 @@ public class InstallerSmokeTests : IClassFixture<DryRunReleaseFixture>
         Assert.Contains(sumFileNames, f => f.EndsWith("-0.1.0-full.nupkg", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(sumFileNames, f => string.Equals(f, "releases.json", StringComparison.OrdinalIgnoreCase));
         Assert.Contains(sumFileNames, f => string.Equals(f, "releases.json.sig", StringComparison.OrdinalIgnoreCase));
+        Assert.Contains(sumFileNames, f => string.Equals(f, "Lightshot-v0.1.0-hub.zip", StringComparison.OrdinalIgnoreCase));
 
         // (3) *-win-Setup.exe length / 1 MiB <= 113
         var setupFiles = Directory.GetFiles(_fixture.ReleaseDir, "*-win-Setup.exe");
@@ -232,6 +233,42 @@ public class InstallerSmokeTests : IClassFixture<DryRunReleaseFixture>
         var publishContractNode = JsonNode.Parse(File.ReadAllText(publishContractPath))!.AsObject();
         string expectedPublishExeHash = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(_fixture.PublishAppExePath))).ToLowerInvariant();
         Assert.Equal(expectedPublishExeHash, publishContractNode["exeSha256"]?.GetValue<string>());
+    }
+
+    [Fact]
+    [Desktop]
+    public void DryRunShipsHubZip()
+    {
+        string hubZipPath = Path.Combine(_fixture.ReleaseDir, "Lightshot-v0.1.0-hub.zip");
+        Assert.True(File.Exists(hubZipPath), $"Hub zip missing at {hubZipPath}");
+
+        using var zip = ZipFile.OpenRead(hubZipPath);
+        var exeEntry = zip.Entries.FirstOrDefault(e =>
+            string.Equals(e.Name, "Lightshot.App.exe", StringComparison.OrdinalIgnoreCase) &&
+            !e.FullName.Contains('/') && !e.FullName.Contains('\\'));
+        Assert.NotNull(exeEntry);
+
+        var contractEntry = zip.Entries.FirstOrDefault(e =>
+            string.Equals(e.Name, "hub-contract.json", StringComparison.OrdinalIgnoreCase) &&
+            !e.FullName.Contains('/') && !e.FullName.Contains('\\'));
+        Assert.NotNull(contractEntry);
+
+        using var contractStream = contractEntry.Open();
+        using var contractReader = new StreamReader(contractStream, Encoding.UTF8);
+        var contractNode = JsonNode.Parse(contractReader.ReadToEnd())!.AsObject();
+        Assert.Equal("0.1.0", contractNode["version"]?.GetValue<string>());
+
+        using var exeStream = exeEntry.Open();
+        using var ms = new MemoryStream();
+        exeStream.CopyTo(ms);
+        string zippedExeHash = Convert.ToHexString(SHA256.HashData(ms.ToArray())).ToLowerInvariant();
+        Assert.Equal(zippedExeHash, contractNode["exeSha256"]?.GetValue<string>());
+
+        string sumsPath = Path.Combine(_fixture.ReleaseDir, "SHA256SUMS.txt");
+        Assert.True(File.Exists(sumsPath), $"SHA256SUMS.txt missing at {sumsPath}");
+        string[] sumLines = File.ReadAllLines(sumsPath).Where(l => !string.IsNullOrWhiteSpace(l)).ToArray();
+        var sumFileNames = sumLines.Select(l => l.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries)[1].TrimStart('*'));
+        Assert.Contains(sumFileNames, f => string.Equals(f, "Lightshot-v0.1.0-hub.zip", StringComparison.OrdinalIgnoreCase));
     }
 
     [Fact]

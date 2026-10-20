@@ -107,6 +107,26 @@ try {
         throw "Lightshot.App.exe ProductVersion '$productVersion' does not start with '$Version'."
     }
 
+    # 4b. Build versioned hub zip archive from published app directory
+    $publishAppDir = Join-Path $RepoRoot "artifacts\publish\app"
+    $publishContractPath = Join-Path $publishAppDir "hub-contract.json"
+    if (-not (Test-Path $publishContractPath)) {
+        throw "hub-contract.json not found in '$publishAppDir'."
+    }
+    $publishContract = Get-Content -Path $publishContractPath -Raw | ConvertFrom-Json
+    if ($publishContract.version -ne $Version) {
+        throw "hub-contract.json version '$($publishContract.version)' does not match expected release version '$Version'."
+    }
+
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $hubZipPath = Join-Path $releaseDir "Lightshot-v$Version-hub.zip"
+    if (Test-Path $hubZipPath) {
+        Remove-Item -Path $hubZipPath -Force
+    }
+    Write-Log "Creating hub archive '$hubZipPath'..."
+    [System.IO.Compression.ZipFile]::CreateFromDirectory($publishAppDir, $hubZipPath, [System.IO.Compression.CompressionLevel]::Optimal, $false)
+
+
     # 5. Generate and sign manifest via ReleaseTool
     $nupkgFile = Get-ChildItem -Path $releaseDir -Filter "*-$Version-full.nupkg" | Select-Object -First 1
     if (-not $nupkgFile) {
@@ -178,6 +198,7 @@ try {
     $expectedPatterns = @(
         "*win-Setup.exe",
         "*win-Portable.zip",
+        "Lightshot-v$Version-hub.zip",
         "*-$Version-full.nupkg",
         "releases.json",
         "releases.json.sig",
@@ -199,6 +220,10 @@ try {
         $zipMB = [math]::Round($portableZip.Length / 1MB, 2)
         Write-Host "  Portable Zip     : $($portableZip.Name) (${zipMB} MB)"
     }
+    if (Test-Path $hubZipPath) {
+        $hubZipMB = [math]::Round((Get-Item $hubZipPath).Length / 1MB, 2)
+        Write-Host "  Hub Zip          : Lightshot-v$Version-hub.zip (${hubZipMB} MB)"
+    }
     Write-Host "  Package (full)   : $($nupkgFile.Name)"
     Write-Host "  Manifest         : releases.json"
     Write-Host "  Signature        : releases.json.sig"
@@ -219,6 +244,7 @@ try {
         $assets = @(
             $setupFile.FullName,
             $portableZip.FullName,
+            $hubZipPath,
             $nupkgFile.FullName,
             $manifestFile,
             $sigFile,
