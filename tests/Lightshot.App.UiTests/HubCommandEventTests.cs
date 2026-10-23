@@ -55,6 +55,8 @@ public class HubCommandEventTests : IDisposable
                 Assert.True(WaitForWindow(process.Id, EditorTitle), "The setup fullscreen capture opened no editor.");
                 CloseWindows(process.Id, EditorTitle);
                 Assert.True(WaitFor(() => !HasWindow(process.Id, EditorTitle), TimeSpan.FromSeconds(5)), "The setup editor did not close.");
+                // The setup capture flow finishes after its editor closes; a command set before that is ignored.
+                Thread.Sleep(1500);
             }
 
             SetEvent(baseName);
@@ -82,6 +84,18 @@ public class HubCommandEventTests : IDisposable
 
             SetEvent(HubCommands.RecordBaseName);
             Assert.True(WaitForWindow(process.Id, OverlayTitle, seconds: 15), "The record event opened no selection overlay.");
+
+            // A second set while the selection is open (a double click in the hub) must not stack another overlay.
+            // The overlay builds its windows one after another, so take the count once it stops growing.
+            int overlays;
+            do
+            {
+                overlays = WindowCount(process.Id, OverlayTitle);
+                Thread.Sleep(700);
+            } while (overlays != WindowCount(process.Id, OverlayTitle));
+            SetEvent(HubCommands.RecordBaseName);
+            Thread.Sleep(1500);
+            Assert.Equal(overlays, WindowCount(process.Id, OverlayTitle));
 
             Thread.Sleep(500);
             Keyboard.Press(VirtualKeyShort.RETURN);
