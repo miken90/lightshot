@@ -88,6 +88,8 @@ powershell.exe -NoProfile -File 'D:\WORKSPACES\PERSONAL\lightshot\scripts\fetch-
 
 - `--no-tray`: start without the tray icon (used by the my-utilities hub; hotkeys keep working).
 
+The hub also drives a running instance through named events (`Local\Lightshot.Activate` for area capture, `Local\Lightshot.Cmd.*` for fullscreen, window, repeat last, record toggle, open image and history), listed in `hub-contract.json` `signals` and implemented in `HubCommands.cs`.
+
 ## Test Tiers
 
 Tests are tagged with `[Tier("<Name>")]` trait attributes:

@@ -226,6 +226,10 @@ public class InstallerSmokeTests : IClassFixture<DryRunReleaseFixture>
             var rootContractNode = JsonNode.Parse(File.ReadAllText(rootContractPath))!.AsObject();
             Assert.Equal(rootContractNode["hubFlag"]?.GetValue<string>(), contractNode["hubFlag"]?.GetValue<string>());
             Assert.True(JsonNode.DeepEquals(rootContractNode["settings"], contractNode["settings"]), "settings in nupkg contract differs from repo-root contract.");
+            var packagedSignals = Assert.IsType<JsonArray>(contractNode["signals"]);
+            Assert.Equal(8, packagedSignals.Count);
+            Assert.All(packagedSignals, n => Assert.Equal(System.Text.Json.JsonValueKind.String, n!.GetValueKind()));
+            Assert.True(JsonNode.DeepEquals(rootContractNode["signals"], contractNode["signals"]), "signals in nupkg contract differ from repo-root contract.");
         }
 
         string publishContractPath = Path.Combine(Path.GetDirectoryName(_fixture.PublishAppExePath)!, "hub-contract.json");

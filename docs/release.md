@@ -23,6 +23,8 @@ The Velopack package ID is `LightshotApp` (install root `%LocalAppData%\Lightsho
 
 Every package carries `hub-contract.json` next to `Lightshot.App.exe`. If `SettingsKeys` or launch flags changed, `HubContractTests` fails until `settings.schemaVersion` is bumped; tell the my-utilities hub owner before releasing a new schema version.
 
+`hub-contract.json` `signals` lists the named events the app creates (Quit, Activate and the `HubCommands` table); keep it in step with the code (`HubContractTests` enforces it) and tell the hub owner when it changes. A new signal does not bump `settings.schemaVersion`.
+
 Manifest URL: `https://github.com/miken90/lightshot/releases/latest/download/releases.json`
 
 ## 3. Rollback Strategy

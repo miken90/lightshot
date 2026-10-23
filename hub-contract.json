@@ -2,6 +2,16 @@
   "contract": 1,
   "module": "lightshot",
   "hubFlag": "--no-tray",
+  "signals": [
+    "Local\\Lightshot.Quit",
+    "Local\\Lightshot.Activate",
+    "Local\\Lightshot.Cmd.Fullscreen",
+    "Local\\Lightshot.Cmd.Window",
+    "Local\\Lightshot.Cmd.RepeatLast",
+    "Local\\Lightshot.Cmd.Record",
+    "Local\\Lightshot.Cmd.OpenImage",
+    "Local\\Lightshot.Cmd.History"
+  ],
   "channel": null,
   "settings": {
     "schemaVersion": 1,

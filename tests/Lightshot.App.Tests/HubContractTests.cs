@@ -30,4 +30,17 @@ public class HubContractTests
         var recorded = history[version]!.AsArray().Select(k => k!.GetValue<string>()).ToList();
         Assert.True(recorded.SequenceEqual(keys), $"HubContractHistory entry {version} differs from hub-contract.json. {Hint}");
     }
+
+    [Fact]
+    [Unit]
+    public void Contract_signals_are_the_events_the_app_creates()
+    {
+        var contract = JsonNode.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "hub-contract.json")))!.AsObject();
+
+        var signals = Assert.IsType<JsonArray>(contract["signals"]).Select(s => s!.GetValue<string>()).ToList();
+        var created = new[] { Program.QuitEventBaseName, Program.ActivateEventBaseName }.Concat(HubCommands.BaseNames).ToList();
+
+        Assert.True(signals.ToHashSet().SetEquals(created) && signals.Count == created.Count,
+            "hub-contract.json signals differ from the events the app creates: update both and tell the my-utilities hub owner");
+    }
 }

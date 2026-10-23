@@ -120,6 +120,9 @@ public static class Program
             -1,
             false);
 
+        // 7. Hub command events (fullscreen, window, repeat, record, open image, history)
+        var hubCommands = HubCommands.Listen(controller, app.Dispatcher);
+
         // Configure Quick Access routing if requested via command-line
         if (args.Contains("--quick-access", StringComparer.OrdinalIgnoreCase))
         {
@@ -162,6 +165,7 @@ public static class Program
 
         int exitCode = app.Run();
         activateWaitHandle?.Unregister(null);
+        hubCommands.Dispose();
         // Apply on quit (spec consent rule); runs after the UI has stopped.
         controller.ApplyPendingUpdateOnExit();
         controller.Dispose();
